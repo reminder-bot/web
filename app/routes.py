@@ -1,9 +1,9 @@
 from flask import redirect, render_template, request, url_for, session
-from app import app, discord
+from app import app, discord, db
+from models import Server, Reminder
 import os
 import io
 import requests
-import sqlite3
 import json
 from datetime import datetime
 
@@ -61,7 +61,6 @@ def dashboard():
                     cursor = connection.cursor()
 
                     cursor.execute('UPDATE reminders SET message = ? WHERE channel = ? AND message = ? AND time = ?', (request.form.get('message{}'.format(index)), reminder_rewrite['channel']['id'], reminder_rewrite['message'], reminder_rewrite['time'][0]))
-
 
         try:
             session.pop('reminders')
@@ -126,26 +125,20 @@ def dashboard():
             else:
                 return '403. Don\'t be naughty.'
 
-            with sqlite3.connect(base_dir + '/DATA/calendar.db') as connection:
-                cursor = connection.cursor()
-                cursor.row_factory = sqlite3.Row
-
-                command = 'SELECT * FROM reminders WHERE channel IN ({})'.format(','.join(['?'] * len(channels)))
-                cursor.execute(command, [int(x['id']) for x in channels])
-
-                reminders = [dict(x) for x in cursor.fetchall()]
+            reminders = db.session.query(Reminder).filter(Reminder.channel.in_([x['id'] for x in channels])).all()
+            r = []
 
             index = 0
-
             for reminder in reminders:
-                reminder['index'] = index
+                r.append({})
+
+                r[index]['message'] = reminder.message
+                channel = [x for x in channels if int(x['id']) == reminder.channel][0]
+                r[index]['channel'] = channel
+                r[index]['time'] = [reminder.time, datetime.fromtimestamp(reminder['time']).strftime('%d/%b/%Y %H:%M:%S')]
+                r[index]['interval'] = reminder.interval
+
                 index += 1
-
-                channel = [x for x in channels if int(x['id']) == reminder['channel']][0]
-
-                reminder['channel'] = channel
-
-                reminder['time'] = [reminder['time'], datetime.fromtimestamp(reminder['time']).strftime('%d/%b/%Y %H:%M:%S')]
 
         session['reminders'] = reminders
 
