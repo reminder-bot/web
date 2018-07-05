@@ -1,18 +1,17 @@
-from flask import redirect, render_template, request, url_for, session
+from flask import redirect, render_template, request, url_for, session, abort
 from app import app, discord, db
-from models import Server, Reminder
+from app.models import Server, Reminder
 import os
 import io
 import requests
 import json
 from datetime import datetime
 
-base_dir = config['base_uri']
 
 @app.route('/')
 @app.route('/help')
 def help():
-    all_langs = sorted([s[-5:-3] for s in os.listdir(base_dir + 'EXT')])
+    all_langs = sorted([s[-5:-3] for s in os.listdir(app.config['BASE_URI'] + 'languages') if s.startswith('strings_')])
     print(all_langs)
 
     lang = request.args.get('lang') or 'EN'
@@ -21,7 +20,7 @@ def help():
     if lang not in all_langs:
         return redirect(url_for('help'))
 
-    with io.open('{}languages/strings_{}.py'.format(base_dir, lang), 'r', encoding='utf8') as f:
+    with io.open('{}languages/strings_{}.py'.format(app.config['BASE_URI'], lang), 'r', encoding='utf8') as f:
         s = eval(f.read())
 
     return render_template('help.html', help=s['help_raw'], foot=s['web_foot'], foot2=s['web_foot2'], languages=all_langs, footer=s['about'], join=s['join'], invite=s['invite'])
@@ -46,21 +45,20 @@ def dashboard():
             try:
                 reminder_rewrite = [x for x in session.get('reminders') if x['index'] == index][0]
             except IndexError:
-                return '400 Bad Request'
+                abort(400)
 
             if request.form.get('delete{}'.format(index)) is not None:
 
-                with sqlite3.connect(base_dir + 'DATA/calendar.db') as connection:
-                    cursor = connection.cursor()
+                Reminder.query.get(reminder_rewrite['id']).delete()
 
-                    cursor.execute('DELETE FROM reminders WHERE channel = ? AND message = ? AND time = ?', (reminder_rewrite['channel']['id'], reminder_rewrite['message'], reminder_rewrite['time'][0]))
+                db.session.commit()
 
             elif request.form.get('message{}'.format(index)) != reminder_rewrite['message']:
 
-                with sqlite3.connect(base_dir + 'DATA/calendar.db') as connection:
-                    cursor = connection.cursor()
+                r = Reminder.query.get(reminder_rewrite['id'])
+                r.message = request.form.get('message{}'.format(index))
 
-                    cursor.execute('UPDATE reminders SET message = ? WHERE channel = ? AND message = ? AND time = ?', (request.form.get('message{}'.format(index)), reminder_rewrite['channel']['id'], reminder_rewrite['message'], reminder_rewrite['time'][0]))
+                db.session.commit()
 
         try:
             session.pop('reminders')
@@ -85,34 +83,29 @@ def dashboard():
 
             available_guilds = []
 
-            with sqlite3.connect(base_dir + '/DATA/calendar.db') as connection:
-                cursor = connection.cursor()
-                cursor.row_factory = sqlite3.Row
+            for guild in guilds:
 
-                for guild in guilds:
+                idx = guild['id']
 
-                    idx = guild['id']
+                s = Server.query.filter_by(id=idx).first()
 
-                    command = 'SELECT restrictions FROM servers WHERE id = ?'
-                    cursor.execute(command, (idx,))
+                if s is None:
+                    continue
 
-                    restrictions = cursor.fetchone()
+                restrictions = s.restrictions
 
-                    if restrictions is None:
-                        continue
+                if (guild['permissions'] & 0x00002000) or (guild['permissions'] & 0x00000020) or (guild['permissions'] & 0x00000008):
+                    available_guilds.append(guild)
+                    continue
 
-                    elif (guild['permissions'] & 0x00002000) or (guild['permissions'] & 0x00000020) or (guild['permissions'] & 0x00000008):
+                elif json.loads(dict(restrictions)['restrictions']) == []:
+                    continue
+
+                member = requests.get('https://discordapp.com/api/v6/guilds/{}/members/{}'.format(idx, user_id), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
+                for role in member['roles']:
+                    if int(role) in json.loads(dict(restrictions)['restrictions']):
                         available_guilds.append(guild)
-                        continue
-
-                    elif json.loads(dict(restrictions)['restrictions']) == []:
-                        continue
-
-                    member = requests.get('https://discordapp.com/api/v6/guilds/{}/members/{}'.format(idx, user_id), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
-                    for role in member['roles']:
-                        if int(role) in json.loads(dict(restrictions)['restrictions']):
-                            available_guilds.append(guild)
-                            break
+                        break
 
             session['guilds'] = available_guilds
 
@@ -123,9 +116,9 @@ def dashboard():
                     break
 
             else:
-                return '403. Don\'t be naughty.'
+                abort(403)
 
-            reminders = db.session.query(Reminder).filter(Reminder.channel.in_([x['id'] for x in channels])).all()
+            reminders = Reminder.query.filter(Reminder.channel.in_([x['id'] for x in channels])).all()
             r = []
 
             index = 0
@@ -135,11 +128,12 @@ def dashboard():
                 r[index]['message'] = reminder.message
                 channel = [x for x in channels if int(x['id']) == reminder.channel][0]
                 r[index]['channel'] = channel
-                r[index]['time'] = [reminder.time, datetime.fromtimestamp(reminder['time']).strftime('%d/%b/%Y %H:%M:%S')]
+                r[index]['time'] = [reminder.time, datetime.fromtimestamp(reminder.time).strftime('%d/%b/%Y %H:%M:%S')]
                 r[index]['interval'] = reminder.interval
+                r[index]['id'] = reminder.id
 
                 index += 1
 
-        session['reminders'] = reminders
+            session['reminders'] = r
 
         return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'])

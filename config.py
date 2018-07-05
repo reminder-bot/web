@@ -2,10 +2,10 @@ import os
 import configparser
 
 class Config(object):
-    base_uri = '../'
+    BASE_URI = './'
 
     config = configparser.SafeConfigParser()
-    config.read(base_uri + 'config.ini')
+    config.read(BASE_URI + 'config.ini')
     client_id = config.get('WEB', 'DISCORD_OAUTH_CLIENT_ID')
     client_secret = config.get('WEB', 'DISCORD_OAUTH_CLIENT_SECRET')
     secret = config.get('WEB', 'SECRET')
