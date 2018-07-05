@@ -2,7 +2,7 @@ import os
 import configparser
 
 class Config(object):
-    BASE_URI = './'
+    BASE_URI = '/var/www/reminder-web/'
 
     config = configparser.SafeConfigParser()
     config.read(BASE_URI + 'config.ini')
