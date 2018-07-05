@@ -49,7 +49,7 @@ def dashboard():
 
             if request.form.get('delete{}'.format(index)) is not None:
 
-                Reminder.query.get(reminder_rewrite['id']).delete()
+                db.session.delete(Reminder.query.get(reminder_rewrite['id']))
 
                 db.session.commit()
 
@@ -131,6 +131,7 @@ def dashboard():
                 r[index]['time'] = [reminder.time, datetime.fromtimestamp(reminder.time).strftime('%d/%b/%Y %H:%M:%S')]
                 r[index]['interval'] = reminder.interval
                 r[index]['id'] = reminder.id
+                r[index]['index'] = index
 
                 index += 1
 
