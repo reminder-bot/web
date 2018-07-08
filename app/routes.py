@@ -68,7 +68,7 @@ def dashboard():
         return redirect(url_for('dashboard', id=request.args.get('id')))
 
     else:
-        reminders = []
+        r = []
 
         if request.args.get('refresh') == '1':
             session.pop('guilds')
@@ -119,7 +119,6 @@ def dashboard():
                 abort(403)
 
             reminders = Reminder.query.filter(Reminder.channel.in_([x['id'] for x in channels])).all()
-            r = []
 
             index = 0
             for reminder in reminders:
@@ -135,6 +134,6 @@ def dashboard():
 
                 index += 1
 
-            session['reminders'] = r
+        session['reminders'] = r
 
         return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'])
