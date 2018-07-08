@@ -98,12 +98,12 @@ def dashboard():
                     available_guilds.append(guild)
                     continue
 
-                elif json.loads(dict(restrictions)['restrictions']) == []:
+                elif restrictions['data'] == []:
                     continue
 
                 member = requests.get('https://discordapp.com/api/v6/guilds/{}/members/{}'.format(idx, user_id), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
                 for role in member['roles']:
-                    if int(role) in json.loads(dict(restrictions)['restrictions']):
+                    if int(role) in restrictions['data']:
                         available_guilds.append(guild)
                         break
 
