@@ -49,9 +49,12 @@ def dashboard():
 
             if request.form.get('delete{}'.format(index)) is not None:
 
-                db.session.delete(Reminder.query.get(reminder_rewrite['id']))
+                reminder = Reminder.query.get(reminder_rewrite['id'])
 
-                db.session.commit()
+                if reminder is not None:
+                    db.session.delete(reminder)
+
+                    db.session.commit()
 
             elif request.form.get('message{}'.format(index)) != reminder_rewrite['message']:
 

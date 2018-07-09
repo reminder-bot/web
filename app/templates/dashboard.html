@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+
   <title>Dashboard</title>
   <style>
   /* Dropdown Button */
@@ -105,11 +107,12 @@
       <form action="{{ url_for('dashboard', id=request.args.get('id')) }}" method="POST">
       {% for reminder in reminders %}
       <tr>
-          <td><input type="text" value="{{ reminder['message'] }}" name="message{{ reminder['index'] }}"></td>
-          <td><input type="text" value="{{ reminder['time'][1] }}" name="time{{ reminder['index'] }}" readonly></td>
-          <td><input type="text" value="{{ '#' + reminder['channel']['name'] }}" name="channel{{ reminder['index'] }}" readonly></td>
-          <td><input type="text" value="{{ reminder['interval'] }}" name="interval{{ reminder['index'] }}" readonly></td>
-          <td><input type="checkbox" name="delete{{ reminder['index'] }}"></td>
+        <input type="text" value="{{ reminder['time'][0] }}" name="time{{ reminder['index'] }}" class="timeread" hidden>
+        <td><input type="text" value="{{ reminder['message'] }}" name="message{{ reminder['index'] }}"></td>
+        <td><input type="text" value="{{ reminder['time'][0] }}" name="time{{ reminder['index'] }}" class="timewrite" readonly></td>
+        <td><input type="text" value="{{ '#' + reminder['channel']['name'] }}" name="channel{{ reminder['index'] }}" readonly></td>
+        <td><input type="text" value="{{ reminder['interval'] }}" name="interval{{ reminder['index'] }}" readonly></td>
+        <td><input type="checkbox" name="delete{{ reminder['index'] }}"></td>
       </tr>
       {% endfor %}
     </table>
@@ -118,7 +121,24 @@
 
     </form>
 
+    <script>
 
+fields = document.getElementsByClassName('timewrite');
+rfields = document.getElementsByClassName('timeread');
+
+console.log(fields)
+
+for (var i = 0; i < fields.length; i++) {
+  currVal = rfields[i].value;
+  console.log(currVal)
+
+  newVal = moment.unix(currVal).fromNow()
+
+  fields[i].value = moment.unix(currVal).calendar();
+
+}
+
+  </script>
   </div>
 </body>
 </html>
