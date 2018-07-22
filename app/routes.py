@@ -115,7 +115,7 @@ def dashboard():
         if request.args.get('id') is not None:
             for guild in session['guilds']:
                 if guild['id'] == request.args.get('id'):
-                    channels = requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
+                    channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if x['type'] == 0]
                     break
 
             else:
