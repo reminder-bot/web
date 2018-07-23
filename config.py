@@ -26,4 +26,8 @@ class Config(object):
     BOT_TOKEN = token
 
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}/{db}?charset=utf8mb4'.format(user=user, password=passwd, host=host, db=db)
+    SQLALCHEMT_BINDS = {
+        'soundfx': 'mysql+pymysql://{user}:{password}@{host}/soundfx?charset=utf8mb4'.format(user=user, password=passwd, host=host)
+    }
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False

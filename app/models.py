@@ -3,6 +3,7 @@ from sqlalchemy_json import NestedMutableJson, MutableJson
 
 
 class Reminder(db.Model):
+    __bind_key__ = None
     __tablename__ = 'reminders'
 
     id = db.Column( db.Integer, primary_key=True, unique=True)
@@ -18,6 +19,7 @@ class Reminder(db.Model):
 
 
 class Server(db.Model):
+    __bind_key__ = None
     __tablename__ = 'servers'
 
     map_id = db.Column( db.Integer, primary_key=True)
@@ -34,3 +36,12 @@ class Server(db.Model):
 
     def __repr__(self):
         return '<Server {}>'.format(self.id)
+
+
+class Users(db.Model):
+    __bind_key__ = 'soundfx'
+    __tablename__ = 'users'
+
+    map_id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, unique=True)
+    last_vote = Column(Integer)
