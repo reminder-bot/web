@@ -1,11 +1,12 @@
 from flask import redirect, render_template, request, url_for, session, abort
 from app import app, discord, db
-from app.models import Server, Reminder
+from app.models import Server, Reminder, User
 import os
 import io
 import requests
 import json
 from datetime import datetime
+import time
 
 
 @app.route('/')
@@ -30,7 +31,16 @@ def help():
 def webhook():
     print(request.json)
 
-    user = request.json['user']
+    user = User.query.filter_by(id=request.json['user']).first()
+
+    if user is None:
+        user = User(id=request.json['user'], last_vote=time.time())
+        db.session.add(user)
+
+    else:
+        user.last_vote = time.time()
+
+    db.session.commit()
 
     return '', 200
 
