@@ -26,6 +26,15 @@ def help():
     return render_template('help.html', help=s['help_raw'], foot=s['web_foot'], foot2=s['web_foot2'], languages=all_langs, footer=s['about'], join=s['join'], invite=s['invite'])
 
 
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    print(request.json)
+
+    user = request.json['user']
+
+    return '', 200
+
+
 @app.route('/oauth')
 def oauth():
     if not discord.authorized:
