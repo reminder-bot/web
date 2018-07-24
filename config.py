@@ -16,7 +16,7 @@ class Config(object):
     passwd = config.get('MYSQL', 'passwd')
     host = config.get('MYSQL', 'host')
     db = config.get('MYSQL', 'database')
-    db = config.get('MYSQL', 'database_sfx')
+    db_sfx = config.get('MYSQL', 'database_sfx')
 
 
     SECRET_KEY = os.environ.get('SECRET_KEY') or secret
@@ -27,8 +27,8 @@ class Config(object):
     BOT_TOKEN = token
 
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}/{db}?charset=utf8mb4'.format(user=user, password=passwd, host=host, db=db)
-    SQLALCHEMT_BINDS = {
-        'soundfx': 'mysql+pymysql://{user}:{password}@{host}/{db}?charset=utf8mb4'.format(user=user, password=passwd, host=host, db=database_sfx)
+    SQLALCHEMY_BINDS = {
+        'soundfx': 'mysql+pymysql://{user}:{password}@{host}/{db}?charset=utf8mb4'.format(user=user, password=passwd, host=host, db=db_sfx)
     }
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False

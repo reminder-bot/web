@@ -38,10 +38,10 @@ class Server(db.Model):
         return '<Server {}>'.format(self.id)
 
 
-class Users(db.Model):
+class User(db.Model):
     __bind_key__ = 'soundfx'
     __tablename__ = 'users'
 
-    map_id = Column(Integer, primary_key=True)
-    id = Column(BigInteger, unique=True)
-    last_vote = Column(Integer)
+    map_id = db.Column( db.Integer, primary_key=True )
+    id = db.Column( db.BigInteger, unique=True )
+    last_vote = db.Column( db.Integer )
