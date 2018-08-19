@@ -108,7 +108,19 @@
                         <input type="text" value="{{ reminder['time'][0] }}" name="time{{ reminder['index'] }}" class="timeread" hidden>
                         <td><input type="text" value="{{ reminder['message'] }}" name="message{{ reminder['index'] }}"></td>
                         <td><input type="text" value="{{ reminder['time'][0] }}" name="time{{ reminder['index'] }}" class="timewrite" readonly></td>
-                        <td><input type="text" value="{{ '#' + reminder['channel']['name'] }}" name="channel{{ reminder['index'] }}" readonly></td>
+
+                        <td>
+                            <select name="channel{{ reminder['index'] }}">
+                                {% for channel in channels %}
+                                {% if reminder['channel']['id'] == channel['id'] %}
+                                <option value="{{ channel['id'] }}" selected>{{ channel['name'] }}</option>
+                                {% else %}
+                                <option value="{{ channel['id'] }}">{{ channel['name'] }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </td>
+
                         <td><input type="text" value="{{ reminder['interval'] }}" name="interval{{ reminder['index'] }}" readonly></td>
                         <td><input type="checkbox" name="delete{{ reminder['index'] }}"></td>
                     </tr>

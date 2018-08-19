@@ -82,11 +82,18 @@ def dashboard():
 
                 db.session.commit()
 
+            if int(request.form.get('channel{}'.format(index))) != reminder_rewrite['channel'] and int(request.form.get('channel{}'.format(index))) in session['channels']:
+
+                r = Reminder.query.get(reminder_rewrite['id'])
+                r.channel = int(request.form.get('channel{}'.format(index)))
+
+                db.session.commit()
+
         new_msg = request.form.get('message_new')
         new_channel = request.form.get('channel_new')
         new_time = request.form.get('time_new')
 
-        if new_msg and new_channel and new_time:
+        if new_msg and new_channel and new_time and int(new_channel) in session['channels']:
             reminder = Reminder(message=new_msg, time=new_time, channel=int(new_channel), interval=None)
 
             db.session.add(reminder)
@@ -144,7 +151,9 @@ def dashboard():
         if request.args.get('id') is not None:
             for guild in session['guilds']:
                 if guild['id'] == request.args.get('id'):
+                    server = Server.query.filter( Server.id == guild['id'] ).first()
                     channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if x['type'] == 0]
+                    session['channels'] = channels
                     break
 
             else:
