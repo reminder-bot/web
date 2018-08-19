@@ -60,49 +60,61 @@ def dashboard():
 
     if request.method == 'POST':
 
-        for index in range(len(session.get('reminders'))):
-            try:
-                reminder_rewrite = [x for x in session.get('reminders') if x['index'] == index][0]
-            except IndexError:
-                abort(400)
+        if request.form.get('update-server') is not None:
+            
+            server = Server.query.filter(Server.id == request.args.get('id')).first()
 
-            if request.form.get('delete{}'.format(index)) is not None:
+            p = request.form.get('prefix')
 
-                reminder = Reminder.query.get(reminder_rewrite['id'])
+            if p is not None and len(p) <= 5:
+                server.prefix = p
 
-                if reminder is not None:
-                    db.session.delete(reminder)
+                db.session.commit()
+
+        else:
+            for index in range(len(session.get('reminders'))):
+                try:
+                    reminder_rewrite = [x for x in session.get('reminders') if x['index'] == index][0]
+                except IndexError:
+                    abort(400)
+
+                if request.form.get('delete{}'.format(index)) is not None:
+
+                    reminder = Reminder.query.get(reminder_rewrite['id'])
+
+                    if reminder is not None:
+                        db.session.delete(reminder)
+
+                        db.session.commit()
+
+                elif request.form.get('message{}'.format(index)) != reminder_rewrite['message']:
+
+                    r = Reminder.query.get(reminder_rewrite['id'])
+                    r.message = request.form.get('message{}'.format(index))
 
                     db.session.commit()
 
-            elif request.form.get('message{}'.format(index)) != reminder_rewrite['message']:
+                if int(request.form.get('channel{}'.format(index))) != reminder_rewrite['channel'] and int(request.form.get('channel{}'.format(index))) in session['channels']:
 
-                r = Reminder.query.get(reminder_rewrite['id'])
-                r.message = request.form.get('message{}'.format(index))
+                    r = Reminder.query.get(reminder_rewrite['id'])
+                    r.channel = int(request.form.get('channel{}'.format(index)))
 
+                    db.session.commit()
+
+            new_msg = request.form.get('message_new')
+            new_channel = request.form.get('channel_new')
+            new_time = request.form.get('time_new')
+
+            if new_msg and new_channel and new_time and int(new_channel) in session['channels']:
+                reminder = Reminder(message=new_msg, time=new_time, channel=int(new_channel), interval=None)
+
+                db.session.add(reminder)
                 db.session.commit()
 
-            if int(request.form.get('channel{}'.format(index))) != reminder_rewrite['channel'] and int(request.form.get('channel{}'.format(index))) in session['channels']:
-
-                r = Reminder.query.get(reminder_rewrite['id'])
-                r.channel = int(request.form.get('channel{}'.format(index)))
-
-                db.session.commit()
-
-        new_msg = request.form.get('message_new')
-        new_channel = request.form.get('channel_new')
-        new_time = request.form.get('time_new')
-
-        if new_msg and new_channel and new_time and int(new_channel) in session['channels']:
-            reminder = Reminder(message=new_msg, time=new_time, channel=int(new_channel), interval=None)
-
-            db.session.add(reminder)
-            db.session.commit()
-
-        try:
-            session.pop('reminders')
-        except KeyError:
-            pass
+            try:
+                session.pop('reminders')
+            except KeyError:
+                pass
 
         return redirect(url_for('dashboard', id=request.args.get('id')))
 
@@ -152,6 +164,7 @@ def dashboard():
             for guild in session['guilds']:
                 if guild['id'] == request.args.get('id'):
                     server = Server.query.filter( Server.id == guild['id'] ).first()
+
                     channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if x['type'] == 0]
                     session['channels'] = channels
                     break
@@ -177,6 +190,6 @@ def dashboard():
 
             session['reminders'] = r
 
-            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels)
+            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server)
 
-        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[])
+        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None)
