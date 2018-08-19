@@ -13,7 +13,10 @@ class Config(object):
     token = config.get('DEFAULT', 'token')
 
     user = config.get('MYSQL', 'user')
-    passwd = config.get('MYSQL', 'passwd')
+    try:
+        passwd = config.get('MYSQL', 'passwd')
+    except:
+        passwd = None
     host = config.get('MYSQL', 'host')
     db = config.get('MYSQL', 'database')
     db_sfx = config.get('MYSQL', 'database_sfx')
@@ -26,9 +29,15 @@ class Config(object):
 
     BOT_TOKEN = token
 
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}/{db}?charset=utf8mb4'.format(user=user, password=passwd, host=host, db=db)
-    SQLALCHEMY_BINDS = {
-        'soundfx': 'mysql+pymysql://{user}:{password}@{host}/{db}?charset=utf8mb4'.format(user=user, password=passwd, host=host, db=db_sfx)
-    }
+    if passwd is not None:
+        SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}/{db}?charset=utf8mb4'.format(user=user, password=passwd, host=host, db=db)
+        SQLALCHEMY_BINDS = {
+            'soundfx': 'mysql+pymysql://{user}:{password}@{host}/{db}?charset=utf8mb4'.format(user=user, password=passwd, host=host, db=db_sfx)
+        }
+    else:
+        SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}@{host}/{db}?charset=utf8mb4'.format(user=user, host=host, db=db)
+        SQLALCHEMY_BINDS = {
+            'soundfx': 'mysql+pymysql://{user}@{host}/{db}?charset=utf8mb4'.format(user=user, host=host, db=db_sfx)
+        }
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False

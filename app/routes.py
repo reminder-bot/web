@@ -82,6 +82,16 @@ def dashboard():
 
                 db.session.commit()
 
+        new_msg = request.form.get('message_new')
+        new_channel = request.form.get('channel_new')
+        new_time = request.form.get('time_new')
+
+        if new_msg and new_channel and new_time:
+            reminder = Reminder(message=new_msg, time=new_time, channel=int(new_channel), interval=None)
+
+            db.session.add(reminder)
+            db.session.commit()
+
         try:
             session.pop('reminders')
         except KeyError:
@@ -156,6 +166,8 @@ def dashboard():
 
                 index += 1
 
-        session['reminders'] = r
+            session['reminders'] = r
 
-        return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'])
+            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels)
+
+        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[])
