@@ -97,7 +97,7 @@ def dashboard():
 
                     db.session.commit()
 
-                if int(request.form.get('channel{}'.format(index))) != reminder_rewrite['channel'] and int(request.form.get('channel{}'.format(index))) in session['channels']:
+                if int(request.form.get('channel{}'.format(index))) != reminder_rewrite['channel'] and request.form.get('channel{}'.format(index)) in [x['id'] for x in session['channels']]:
 
                     r = Reminder.query.get(reminder_rewrite['id'])
                     r.channel = int(request.form.get('channel{}'.format(index)))
@@ -108,7 +108,8 @@ def dashboard():
             new_channel = request.form.get('channel_new')
             new_time = request.form.get('time_new')
 
-            if new_msg and new_channel and new_time and int(new_channel) in session['channels']:
+            if new_msg and new_channel and new_time and new_channel in [x['id'] for x in session['channels']]:
+
                 reminder = Reminder(message=new_msg, time=new_time, channel=int(new_channel), interval=None)
 
                 db.session.add(reminder)
