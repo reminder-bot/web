@@ -127,7 +127,8 @@
                                         <td>#{{ reminder['channel']['name'] }}</td>
                                         <td>{{ reminder['interval'] }}</td>
                                         <td>
-                                            <button onclick="location.href='#'" class="guildbtn btn btn-danger btn-fill"><i class="fa fa-times"></i></button>
+                                            <button onclick="send_delete('{{ reminder['index'] }}')" class="guildbtn btn btn-danger btn-fill"><i class="fa fa-times"></i></button>
+                                            <button onclick="location.href='#'" class="guildbtn btn btn-info btn-fill"><i class="fa fa-pencil"></i></button>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -223,6 +224,18 @@ function change_channel(id, name)
 {
     document.getElementById('input-channel').value = id;
     document.getElementById('dropdown-channel').innerHTML = name + "<span class=\"caret\"></span>";
+}
+
+function send_delete(index)
+{
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            location.reload(true);
+        }
+    };
+    xhttp.open("GET", "{{ url_for('delete') }}" + "?index=" + index, true);
+    xhttp.send();
 }
 
             </script>

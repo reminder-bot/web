@@ -48,6 +48,17 @@ def webhook():
     return '', 200
 
 
+@app.route('/delete')
+def delete():
+
+    reminder = Reminder.query.filter(Reminder.id == session['reminders'][int( request.args.get('index') )]['id'])
+    reminder.delete(synchronize_session='fetch')
+
+    db.session.commit()
+
+    return '', 200
+
+
 @app.route('/oauth')
 def oauth():
     if not discord.authorized:
