@@ -10,6 +10,9 @@ import time
 
 
 @app.route('/')
+def index():
+    return redirect( url_for('help') )
+
 @app.route('/help')
 def help():
     all_langs = sorted([s[-5:-3] for s in os.listdir(app.config['BASE_URI'] + 'languages') if s.startswith('strings_')])
@@ -24,7 +27,7 @@ def help():
     with io.open('{}languages/strings_{}.py'.format(app.config['BASE_URI'], lang), 'r', encoding='utf8') as f:
         s = eval(f.read())
 
-    return render_template('help.html', help=s['help_raw'], languages=all_langs, title='Help')
+    return render_template('help.html', help=s['help_raw'], languages=all_langs, title='Help', logo='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg')
 
 
 @app.route('/webhook', methods=['POST'])
