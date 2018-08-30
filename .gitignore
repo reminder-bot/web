@@ -108,3 +108,6 @@ DATA/
 config.ini
 terminal.glue
 data.msgpack.zlib
+
+# ignore ui files
+app/static/ui/
