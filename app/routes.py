@@ -125,13 +125,14 @@ def dashboard():
     else:
         r = []
 
+        user = discord.get('api/users/@me').json()
+
         if request.args.get('refresh') == '1':
             session.pop('guilds')
             return redirect(url_for('dashboard'))
 
         if session.get('guilds') is None: # the code below is time-consuming; only run on first load and if the user wants to refresh the guild list.
 
-            user = discord.get('api/users/@me').json()
             guilds = discord.get('api/users/@me/guilds').json()
 
             user_id = user['id']
@@ -194,6 +195,6 @@ def dashboard():
 
             session['reminders'] = r
 
-            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server, title='Dashboard')
+            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server, title='Dashboard', user=user)
 
-        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None, title='Dashboard')
+        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None, title='Dashboard', user=user)

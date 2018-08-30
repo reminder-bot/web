@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block content %}
+        <script type="text/javascript" src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
+
+        <style>
+            /* Dropdown Button */
+            .dropbtn {
+            background-color: #8fb677;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+            }
+            /* The container
+            <div>
+            - needed to position the dropdown content */
+            .dropdown {
+            position: relative;
+            display: inline-block;
+            }
+            /* Dropdown Content (Hidden by Default) */
+            .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            }
+            /* Links inside the dropdown */
+            .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            font-family: sans-serif;
+            display: block;
+            }
+            /* Change color of dropdown links on hover */
+            .dropdown-content a:hover {background-color: #ddd;}
+            /* Show the dropdown menu on hover */
+            .dropdown:hover .dropdown-content {display: block;}
+            /* Change the background color of the dropdown button when the dropdown content is shown */
+            .dropdown:hover .dropbtn {background-color: #3e8e41;}
+            #reminders {
+            font-family: sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            }
+            #reminders td, #reminders th {
+            border: 1px solid #ddd;
+            padding: 4px;
+            }
+            #reminders td {
+            padding: 6px;
+            }
+            #reminders tr:nth-child(even) {
+            background-color: #f2f2f2;
+            }
+            #reminders tr:hover {
+            background-color: #ddd;
+            }
+            #reminders th {
+            padding-top: 0px;
+            padding-bottom: 0px;
+            text-align: left;
+            background-color: #8fb677;
+            color: white;
+            }
+        </style>
+
+        <h1>Dashboard</h1>
+        <div style="margin-left: 10vw; margin-right: 10vw">
+            <div class="dropdown">
+                <button class="dropbtn">Guilds</button>
+                <div class="dropdown-content">
+                    {% for guild in guilds %}
+                    <a href="{{ url_for('dashboard', id=guild['id']) }}">{{ guild['name'] }}</a>
+                    {% endfor %}
+                    <a href="{{ url_for('dashboard', refresh=1) }}">Refresh List</a>
+                </div>
+            </div>
+
+            {% if server != None %}
+            <div>
+                <form action="{{ url_for('dashboard', id=request.args.get('id')) }}" method="POST">
+                    <input name="update-server" value="1" hidden></input>
+
+                    <p>Prefix</p>
+                    <input type="text" value="{{ server.prefix }}" name="prefix"></input>
+                    <input type="submit" value="Update"></input>
+                </form>
+
+            </div>
+            {% endif %}
+
+
+            <table id="reminders">
+                <tr>
+                    <th>
+                        <p>Reminder Content</p>
+                    </th>
+                    <th>
+                        <p>Reminder Time</p>
+                    </th>
+                    <th>
+                        <p>Reminder Channel</p>
+                    </th>
+                    <th>
+                        <p>Reminder Interval</p>
+                    </th>
+                    <th>
+                        <p>Delete</p>
+                    </th>
+                </tr>
+                <form action="{{ url_for('dashboard', id=request.args.get('id')) }}" method="POST">
+                    {% for reminder in reminders %}
+                    <tr>
+                        <input type="text" value="{{ reminder['time'][0] }}" name="time{{ reminder['index'] }}" class="timeread" hidden>
+                        <td><input type="text" value="{{ reminder['message'] }}" name="message{{ reminder['index'] }}"></td>
+                        <td><input type="text" value="{{ reminder['time'][0] }}" name="time{{ reminder['index'] }}" class="timewrite" readonly></td>
+
+                        <td>
+                            <select name="channel{{ reminder['index'] }}">
+                                {% for channel in channels %}
+                                    {% if reminder['channel']['id'] == channel['id'] %}
+                                        <option value="{{ channel['id'] }}" selected>{{ channel['name'] }}</option>
+                                    {% else %}
+                                        <option value="{{ channel['id'] }}">{{ channel['name'] }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </td>
+
+                        <td><input type="text" value="{{ reminder['interval'] }}" name="interval{{ reminder['index'] }}" readonly></td>
+                        <td><input type="checkbox" name="delete{{ reminder['index'] }}"></td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td><input type="text" name="message_new"></td>
+                        <td>
+                            <input type="text" name="time_new">
+                        </td>
+
+                        <td>
+                            <select name="channel_new">
+                                {% for channel in channels %}
+                                <option value="{{ channel['id'] }}">{{ channel['name'] }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td></td>
+                        <td></td>
+            </table>
+            <input type="submit" value="Save Changes">
+            </form>
+            <script type="text/javascript">
+
+fields = document.getElementsByClassName('timewrite');
+rfields = document.getElementsByClassName('timeread');
+
+console.log(fields)
+
+for (var i = 0; i < fields.length; i++) {
+    currVal = rfields[i].value;
+    console.log(currVal)
+
+    newVal = moment.unix(currVal).fromNow()
+
+    fields[i].value = moment.unix(currVal).calendar();
+
+}
+
+            </script>
+        </div>
+{% endblock %}
