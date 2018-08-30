@@ -88,7 +88,7 @@
             <section class="sidebar">
                 <!-- sidebar menu: : style can be found in sidebar.less -->
                 <ul class="sidebar-menu" data-widget="tree">
-                    <li class="header">MAIN NAVIGATION</li>
+                    <li class="header">GUILDS</li>
                     {% for guild in guilds %}
                         <li style="margin-left: 2rem;"><a href="{{ url_for('dashboard', id=guild['id']) }}">{{ guild['name'] }}</a></li>
                     {% endfor %}
@@ -144,7 +144,7 @@
                 <div class="modal fade col-md-12" id="addModal" data-backdrop="false">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <form action="submit/" method="post">
+                            <form method="post">
                                 <div class="modal-header">
                                     <h4>Add Reminder</h4>
                                 </div>
@@ -156,7 +156,7 @@
                                             <div class="input-group-addon">
                                                 <i class="fa fa-envelope"></i>
                                             </div>
-                                            <input type="text" class="form-control pull-right">
+                                            <input type="text" name="message_new" class="form-control pull-right">
                                         </div>
                                         <!-- /.input group -->
                                     </div>
@@ -167,7 +167,18 @@
                                             <div class="input-group-addon">
                                                 <i class="fa fa-users"></i>
                                             </div>
-                                            <input type="text" class="form-control pull-right">
+                                            <input type="text" name="channel_new" id="input-channel" hidden>
+                                            <div class="dropdown">
+                                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-channel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                    Select One
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                                    {% for channel in channels %}
+                                                        <li><a onclick="javascript:change_channel('{{ channel['id'] }}', '{{ channel['name'] }}')">{{ channel['name'] }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
                                         </div>
                                         <!-- /.input group -->
                                     </div>
@@ -178,7 +189,7 @@
                                             <div class="input-group-addon">
                                                 <i class="fa fa-calendar"></i>
                                             </div>
-                                            <input type="text" class="form-control pull-right" id="datepicker">
+                                            <input type="text" class="form-control pull-right" id="datepicker" name="date">
                                         </div>
                                         <!-- /.input group -->
                                     </div>
@@ -190,7 +201,7 @@
                                                 <div class="input-group-addon">
                                                     <i class="fa fa-clock-o"></i>
                                                 </div>
-                                                <input type="text" class="form-control timepicker">
+                                                <input type="text" class="form-control timepicker" name="time">
                                             </div>
                                             <!-- /.input group -->
                                         </div>
@@ -205,6 +216,17 @@
                         </div>
                     </div>
             </section>
+
+            <script>
+
+function change_channel(id, name)
+{
+    document.getElementById('input-channel').value = id;
+    document.getElementById('dropdown-channel').innerHTML = name + "<span class=\"caret\"></span>";
+}
+
+            </script>
+
             <!-- /.content -->
             </div>
             <!-- /.content-wrapper -->
@@ -256,11 +278,13 @@
         <script>
             //Date picker
             $('#datepicker').datepicker({
-              autoclose: true
+                format: 'yyyy/mm/dd',
+                autoclose: true
             })
             //Timepicker
             $('.timepicker').timepicker({
-              showInputs: false
+                minuteStep: 1,
+                showInputs: false
             })
         </script>
     </body>

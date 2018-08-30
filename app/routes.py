@@ -75,42 +75,25 @@ def dashboard():
                 db.session.commit()
 
         else:
-            for index in range(len(session.get('reminders'))):
-                try:
-                    reminder_rewrite = [x for x in session.get('reminders') if x['index'] == index][0]
-                except IndexError:
-                    abort(400)
-
-                if request.form.get('delete{}'.format(index)) is not None:
-
-                    reminder = Reminder.query.get(reminder_rewrite['id'])
-
-                    if reminder is not None:
-                        db.session.delete(reminder)
-
-                        db.session.commit()
-
-                elif request.form.get('message{}'.format(index)) != reminder_rewrite['message']:
-
-                    r = Reminder.query.get(reminder_rewrite['id'])
-                    r.message = request.form.get('message{}'.format(index))
-
-                    db.session.commit()
-
-                if int(request.form.get('channel{}'.format(index))) != reminder_rewrite['channel'] and request.form.get('channel{}'.format(index)) in [x['id'] for x in session['channels']]:
-
-                    r = Reminder.query.get(reminder_rewrite['id'])
-                    r.channel = int(request.form.get('channel{}'.format(index)))
-
-                    db.session.commit()
-
             new_msg = request.form.get('message_new')
             new_channel = request.form.get('channel_new')
-            new_time = request.form.get('time_new')
+            new_date = request.form.get('date')
+            new_time = request.form.get('time')
 
-            if new_msg and new_channel and new_time and new_channel in [x['id'] for x in session['channels']]:
+#            try:
+            time = datetime.strptime('{} {}'.format(new_date, new_time), '%Y/%m/%d %H:%M %p')
+#            except:
+#                return redirect(url_for('dashboard', id=request.args.get('id')))
 
-                reminder = Reminder(message=new_msg, time=new_time, channel=int(new_channel), interval=None)
+            print(new_msg)
+            print(new_channel)
+            print(session['channels'])
+
+            if new_msg and new_channel in [x['id'] for x in session['channels']]:
+
+                print('passed')
+
+                reminder = Reminder(message=new_msg, time=time.timestamp(), channel=int(new_channel), interval=None)
 
                 db.session.add(reminder)
                 db.session.commit()
