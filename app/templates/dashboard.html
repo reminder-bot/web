@@ -1,9 +1,7 @@
-<!DOCTYPE html>
-<html>
-    <head>
+{% extends "base.html" %}
+{% block content %}
         <script type="text/javascript" src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
 
-        <title>Dashboard</title>
         <style>
             /* Dropdown Button */
             .dropbtn {
@@ -69,8 +67,7 @@
             color: white;
             }
         </style>
-    </head>
-    <body>
+
         <h1>Dashboard</h1>
         <div style="margin-left: 10vw; margin-right: 10vw">
             <div class="dropdown">
@@ -175,5 +172,4 @@ for (var i = 0; i < fields.length; i++) {
 
             </script>
         </div>
-    </body>
-</html>
+{% endblock %}

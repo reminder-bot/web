@@ -24,7 +24,7 @@ def help():
     with io.open('{}languages/strings_{}.py'.format(app.config['BASE_URI'], lang), 'r', encoding='utf8') as f:
         s = eval(f.read())
 
-    return render_template('help.html', help=s['help_raw'], foot=s['web_foot'], foot2=s['web_foot2'], languages=all_langs, footer=s['about'], join=s['join'], invite=s['invite'])
+    return render_template('help.html', help=s['help_raw'], languages=all_langs, title='Help')
 
 
 @app.route('/webhook', methods=['POST'])
@@ -61,7 +61,7 @@ def dashboard():
     if request.method == 'POST':
 
         if request.form.get('update-server') is not None:
-            
+
             server = Server.query.filter(Server.id == request.args.get('id')).first()
 
             p = request.form.get('prefix')
@@ -190,6 +190,6 @@ def dashboard():
 
             session['reminders'] = r
 
-            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server)
+            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server, title='Dashboard')
 
-        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None)
+        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None, title='Dashboard')
