@@ -100,14 +100,10 @@ def dashboard():
             new_channel = request.form.get('channel_new')
             new_time = request.form.get('time_new')
 
-
-            print(new_msg)
-            print(new_channel)
-            print(session['channels'])
+            if not all([x in '0123456789' for x in new_time]):
+                return redirect(url_for('dashboard', id=request.args.get('id')))
 
             if new_msg and new_channel in [x['id'] for x in session['channels']]:
-
-                print('passed')
 
                 reminder = Reminder(message=new_msg, time=int(time_new), channel=int(new_channel), interval=None)
 

@@ -305,35 +305,33 @@ function update_time()
     m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A')
 
     document.getElementById("time_new").value = m.valueOf();
-
-    console.log(m.valueOf());
 }
 
 function change_channel(id, name, index)
 {
 
-if (index === undefined)
-{
-    document.getElementById('input-channel').value = id;
-    document.getElementById('dropdown-channel').innerHTML = name + "<span class=\"caret\"></span>";
-}
-else
-{
-    document.getElementById('input-channel-' + index).value = id;
-    document.getElementById('dropdown-channel-' + index).innerHTML = name + "<span class=\"caret\"></span>";
-}
+    if (index === undefined)
+    {
+        document.getElementById('input-channel').value = id;
+        document.getElementById('dropdown-channel').innerHTML = name + "<span class=\"caret\"></span>";
+    }
+    else
+    {
+        document.getElementById('input-channel-' + index).value = id;
+        document.getElementById('dropdown-channel-' + index).innerHTML = name + "<span class=\"caret\"></span>";
+    }
 }
 
 function send_delete(index)
 {
-var xhttp = new XMLHttpRequest();
-xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-        location.reload(true);
-    }
-};
-xhttp.open("GET", "{{ url_for('delete') }}" + "?index=" + index, true);
-xhttp.send();
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            location.reload(true);
+        }
+    };
+    xhttp.open("GET", "{{ url_for('delete') }}" + "?index=" + index, true);
+    xhttp.send();
 }
 
         </script>
