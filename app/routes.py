@@ -88,7 +88,6 @@ def dashboard():
         else:
             for reminder in session['reminders']:
                 if 'message_{}'.format(reminder['index']) in request.form.keys():
-                    print('ok')
 
                     r = Reminder.query.get(reminder['id'])
                     r.message = request.form.get('message_{}'.format(reminder['index']))
@@ -96,22 +95,25 @@ def dashboard():
 
                     db.session.commit()
 
-            new_msg = request.form.get('message_new')
-            new_channel = request.form.get('channel_new')
-            new_time = request.form.get('time_new')
+                    break
 
-            if not all([x in '0123456789' for x in new_time]):
-                return redirect(url_for('dashboard', id=request.args.get('id')))
+            else:
+                new_msg = request.form.get('message_new')
+                new_channel = request.form.get('channel_new')
+                new_time = request.form.get('time_new')
 
-            if int(new_time) - 1576800000 > time.time():
-                return redirect(url_for('dashboard', id=request.args.get('id')))
+                if not all([x in '0123456789' for x in new_time]):
+                    return redirect(url_for('dashboard', id=request.args.get('id')))
 
-            if new_msg and new_channel in [x['id'] for x in session['channels']]:
+                if int(new_time) - 1576800000 > time.time():
+                    return redirect(url_for('dashboard', id=request.args.get('id')))
 
-                reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=None)
+                if new_msg and new_channel in [x['id'] for x in session['channels']]:
 
-                db.session.add(reminder)
-                db.session.commit()
+                    reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=None)
+
+                    db.session.add(reminder)
+                    db.session.commit()
 
             try:
                 session.pop('reminders')
