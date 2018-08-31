@@ -19,18 +19,12 @@
         <!-- AdminLTE Skins. Choose a skin from the css/skins
             folder instead of downloading all of them to reduce the load. -->
         <link rel="stylesheet" href="{{ url_for('static', filename='ui/dist/css/skins/_all-skins.min.css') }}">
-        <!-- Morris chart -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='ui/bower_components/morris.js') }}/morris.css') }}">
-        <!-- jvectormap -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='ui/bower_components/jvectormap/jquery-jvectormap.css') }}">
         <!-- Date Picker -->
         <link rel="stylesheet" href="{{ url_for('static', filename='ui/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') }}">
         <!-- Daterange picker -->
         <link rel="stylesheet" href="{{ url_for('static', filename='ui/bower_components/bootstrap-daterangepicker/daterangepicker.css') }}">
         <!-- bootstrap wysihtml5 - text editor -->
         <link rel="stylesheet" href="{{ url_for('static', filename='ui/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css') }}">
-        <!-- tables -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='ui/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
         <!-- Bootstrap time Picker -->
         <link rel="stylesheet" href="{{ url_for('static', filename='ui/plugins/timepicker/bootstrap-timepicker.min.css') }}">
         <!-- HTML5 Shim and Respond.js') }} IE8 support of HTML5 elements and media queries -->
@@ -128,7 +122,57 @@
                                         <td>{{ reminder['interval'] }}</td>
                                         <td>
                                             <button onclick="send_delete('{{ reminder['index'] }}')" class="guildbtn btn btn-danger btn-fill"><i class="fa fa-times"></i></button>
-                                            <button onclick="location.href='#'" class="guildbtn btn btn-info btn-fill"><i class="fa fa-pencil"></i></button>
+                                            <button data-toggle="modal" data-target="#editModal{{ reminder['index'] }}" class="guildbtn btn btn-info btn-fill"><i class="fa fa-pencil"></i></button>
+                                            <div class="modal fade col-md-12" id="editModal{{ reminder['index'] }}" data-backdrop="false">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <form method="post">
+                                                            <div class="modal-header">
+                                                                <h4>Edit Reminder</h4>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <!-- MESSAGE -->
+                                                                <div class="form-group">
+                                                                    <label>Message:</label>
+                                                                    <div class="input-group">
+                                                                        <div class="input-group-addon">
+                                                                            <i class="fa fa-envelope"></i>
+                                                                        </div>
+                                                                        <input type="text" name="message_{{ reminder['index'] }}" class="form-control pull-right" value="{{ reminder['message'] }}">
+                                                                    </div>
+                                                                    <!-- /.input group -->
+                                                                </div>
+                                                                <!-- CHANNEL -->
+                                                                <div class="form-group">
+                                                                    <label>Channel:</label>
+                                                                    <div class="input-group">
+                                                                        <div class="input-group-addon">
+                                                                            <i class="fa fa-users"></i>
+                                                                        </div>
+                                                                        <input type="text" name="channel_{{ reminder['index'] }}" id="input-channel-{{ reminder['index'] }}" hidden>
+                                                                        <div class="dropdown">
+                                                                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-channel-{{ reminder['index'] }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                                                {{ reminder['channel']['name'] }}
+                                                                                <span class="caret"></span>
+                                                                            </button>
+                                                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                                                                {% for channel in channels %}
+                                                                                    <li><a onclick="javascript:change_channel('{{ channel['id'] }}', '{{ channel['name'] }}', {{ reminder['index'] }})">{{ channel['name'] }}</a></li>
+                                                                                {% endfor %}
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+                                                                    <!-- /.input group -->
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="submit" class="btn btn-success">Submit</button>
+                                                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -220,10 +264,19 @@
 
             <script>
 
-function change_channel(id, name)
+function change_channel(id, name, index)
 {
-    document.getElementById('input-channel').value = id;
-    document.getElementById('dropdown-channel').innerHTML = name + "<span class=\"caret\"></span>";
+
+    if (index === undefined)
+    {
+        document.getElementById('input-channel').value = id;
+        document.getElementById('dropdown-channel').innerHTML = name + "<span class=\"caret\"></span>";
+    }
+    else
+    {
+        document.getElementById('input-channel-' + index).value = id;
+        document.getElementById('dropdown-channel-' + index).innerHTML = name + "<span class=\"caret\"></span>";
+    }
 }
 
 function send_delete(index)
@@ -262,16 +315,6 @@ function send_delete(index)
         </script>
         <!-- Bootstrap 3.3.7 -->
         <script src="{{ url_for('static', filename='ui/bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
-        <!-- Morris.js') }} charts -->
-        <script src="{{ url_for('static', filename='ui/bower_components/raphael/raphael.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='ui/bower_components/morris.js') }}/morris.min.js') }}"></script>
-        <!-- Sparkline -->
-        <script src="{{ url_for('static', filename='ui/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js') }}"></script>
-        <!-- jvectormap -->
-        <script src="{{ url_for('static', filename='ui/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='ui/plugins/jvectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
-        <!-- jQuery Knob Chart -->
-        <script src="{{ url_for('static', filename='ui/bower_components/jquery-knob/dist/jquery.knob.min.js') }}"></script>
         <!-- daterangepicker -->
         <script src="{{ url_for('static', filename='ui/bower_components/moment/min/moment.min.js') }}"></script>
         <script src="{{ url_for('static', filename='ui/bower_components/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
@@ -281,11 +324,6 @@ function send_delete(index)
         <script src="{{ url_for('static', filename='ui/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js') }}"></script>
         <!-- Slimscroll -->
         <script src="{{ url_for('static', filename='ui/bower_components/jquery-slimscroll/jquery.slimscroll.min.js') }}"></script>
-        <!-- FastClick -->
-        <script src="{{ url_for('static', filename='ui/bower_components/fastclick/lib/fastclick.js') }}"></script>
-        <!-- DataTables -->
-        <script src="{{ url_for('static', filename='ui/bower_components/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='ui/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
         <!-- bootstrap time picker -->
         <script src="{{ url_for('static', filename='ui/plugins/timepicker/bootstrap-timepicker.min.js') }}"></script>
         <script>
@@ -297,7 +335,8 @@ function send_delete(index)
             //Timepicker
             $('.timepicker').timepicker({
                 minuteStep: 1,
-                showInputs: false
+                showInputs: false,
+                showSeconds: true
             })
         </script>
     </body>

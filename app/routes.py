@@ -92,7 +92,7 @@ def dashboard():
             new_time = request.form.get('time')
 
 #            try:
-            time = datetime.strptime('{} {}'.format(new_date, new_time), '%Y/%m/%d %H:%M %p')
+            time = datetime.strptime('{} {}'.format(new_date, new_time), '%Y/%m/%d %H:%M:%S %p')
 #            except:
 #                return redirect(url_for('dashboard', id=request.args.get('id')))
 
