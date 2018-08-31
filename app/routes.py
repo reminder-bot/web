@@ -86,15 +86,25 @@ def dashboard():
                 db.session.commit()
 
         else:
+            for reminder in session['reminders']:
+                if 'message_{}'.format(reminder['index']) in request.form.keys():
+                    print('ok')
+
+                    r = Reminder.query.get(reminder['id'])
+                    r.message = request.form.get('message_{}'.format(reminder['index']))
+                    r.channel = request.form.get('channel_{}'.format(reminder['index']))
+
+                    db.session.commit()
+
             new_msg = request.form.get('message_new')
             new_channel = request.form.get('channel_new')
             new_date = request.form.get('date')
             new_time = request.form.get('time')
 
-#            try:
-            time = datetime.strptime('{} {}'.format(new_date, new_time), '%Y/%m/%d %H:%M:%S %p')
-#            except:
-#                return redirect(url_for('dashboard', id=request.args.get('id')))
+            try:
+                time = datetime.strptime('{} {}'.format(new_date, new_time), '%Y/%m/%d %H:%M:%S %p')
+            except:
+                return redirect(url_for('dashboard', id=request.args.get('id')))
 
             print(new_msg)
             print(new_channel)
