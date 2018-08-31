@@ -224,13 +224,14 @@
                                         <!-- /.input group -->
                                     </div>
                                     <!-- DATE -->
+                                    <input name="time_new" value="0" id="time_new" hidden></input>
                                     <div class="form-group">
                                         <label>Date:</label>
                                         <div class="input-group date">
                                             <div class="input-group-addon">
                                                 <i class="fa fa-calendar"></i>
                                             </div>
-                                            <input type="text" class="form-control pull-right" id="datepicker" name="date">
+                                            <input type="text" class="form-control pull-right" id="datepicker" name="date"></input>
                                         </div>
                                         <!-- /.input group -->
                                     </div>
@@ -242,7 +243,7 @@
                                                 <div class="input-group-addon">
                                                     <i class="fa fa-clock-o"></i>
                                                 </div>
-                                                <input type="text" class="form-control timepicker" name="time">
+                                                <input type="text" class="form-control timepicker" id="timepicker" name="time"></input>
                                             </div>
                                             <!-- /.input group -->
                                         </div>
@@ -257,37 +258,6 @@
                         </div>
                     </div>
             </section>
-
-            <script>
-
-function change_channel(id, name, index)
-{
-
-    if (index === undefined)
-    {
-        document.getElementById('input-channel').value = id;
-        document.getElementById('dropdown-channel').innerHTML = name + "<span class=\"caret\"></span>";
-    }
-    else
-    {
-        document.getElementById('input-channel-' + index).value = id;
-        document.getElementById('dropdown-channel-' + index).innerHTML = name + "<span class=\"caret\"></span>";
-    }
-}
-
-function send_delete(index)
-{
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            location.reload(true);
-        }
-    };
-    xhttp.open("GET", "{{ url_for('delete') }}" + "?index=" + index, true);
-    xhttp.send();
-}
-
-            </script>
 
             <!-- /.content -->
             </div>
@@ -312,17 +282,60 @@ function send_delete(index)
         <!-- bootstrap time picker -->
         <script src="{{ url_for('static', filename='ui/plugins/timepicker/bootstrap-timepicker.min.js') }}"></script>
         <script>
-            //Date picker
-            $('#datepicker').datepicker({
-                format: 'yyyy/mm/dd',
-                autoclose: true
-            })
-            //Timepicker
-            $('.timepicker').timepicker({
-                minuteStep: 1,
-                showInputs: false,
-                showSeconds: true
-            })
+//Date picker
+$('#datepicker').datepicker({
+    format: 'yyyy/mm/dd',
+    autoclose: true
+})
+//Timepicker
+$('.timepicker').timepicker({
+    minuteStep: 1,
+    showInputs: false,
+    showSeconds: true
+})
+
+$("#datepicker").change(update_time);
+$("#timepicker").change(update_time);
+
+function update_time()
+{
+    t_time = document.getElementById("timepicker");
+    d_time = document.getElementById("datepicker");
+
+    m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A')
+
+    document.getElementById("time_new").value = m.valueOf();
+
+    console.log(m.valueOf());
+}
+
+function change_channel(id, name, index)
+{
+
+if (index === undefined)
+{
+    document.getElementById('input-channel').value = id;
+    document.getElementById('dropdown-channel').innerHTML = name + "<span class=\"caret\"></span>";
+}
+else
+{
+    document.getElementById('input-channel-' + index).value = id;
+    document.getElementById('dropdown-channel-' + index).innerHTML = name + "<span class=\"caret\"></span>";
+}
+}
+
+function send_delete(index)
+{
+var xhttp = new XMLHttpRequest();
+xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        location.reload(true);
+    }
+};
+xhttp.open("GET", "{{ url_for('delete') }}" + "?index=" + index, true);
+xhttp.send();
+}
+
         </script>
     </body>
 </html>

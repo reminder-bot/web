@@ -98,13 +98,8 @@ def dashboard():
 
             new_msg = request.form.get('message_new')
             new_channel = request.form.get('channel_new')
-            new_date = request.form.get('date')
-            new_time = request.form.get('time')
+            new_time = request.form.get('time_new')
 
-            try:
-                time = datetime.strptime('{} {}'.format(new_date, new_time), '%Y/%m/%d %H:%M:%S %p')
-            except:
-                return redirect(url_for('dashboard', id=request.args.get('id')))
 
             print(new_msg)
             print(new_channel)
@@ -114,7 +109,7 @@ def dashboard():
 
                 print('passed')
 
-                reminder = Reminder(message=new_msg, time=time.timestamp(), channel=int(new_channel), interval=None)
+                reminder = Reminder(message=new_msg, time=int(time_new), channel=int(new_channel), interval=None)
 
                 db.session.add(reminder)
                 db.session.commit()
