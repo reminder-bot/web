@@ -103,9 +103,12 @@ def dashboard():
             if not all([x in '0123456789' for x in new_time]):
                 return redirect(url_for('dashboard', id=request.args.get('id')))
 
+            if int(new_time) - 1576800000 > time.time():
+                return redirect(url_for('dashboard', id=request.args.get('id')))
+
             if new_msg and new_channel in [x['id'] for x in session['channels']]:
 
-                reminder = Reminder(message=new_msg, time=int(time_new), channel=int(new_channel), interval=None)
+                reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=None)
 
                 db.session.add(reminder)
                 db.session.commit()
@@ -176,12 +179,13 @@ def dashboard():
 
             index = 0
             for reminder in reminders:
+
                 r.append({})
 
                 r[index]['message'] = reminder.message
                 channel = [x for x in channels if int(x['id']) == reminder.channel][0]
                 r[index]['channel'] = channel
-                r[index]['time'] = [reminder.time, datetime.fromtimestamp(reminder.time).strftime('%d/%b/%Y %H:%M:%S')]
+                r[index]['time'] = reminder.time
                 r[index]['interval'] = reminder.interval
                 r[index]['id'] = reminder.id
                 r[index]['index'] = index

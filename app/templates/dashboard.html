@@ -6,23 +6,29 @@
         <title>ReminderBot | Dashboard</title>
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-        <!-- Bootstrap 3.3.7 -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='ui/bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
         <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
         <link rel="stylesheet" href="{{ url_for('static', filename='ui/bower_components/font-awesome/css/font-awesome.min.css') }}">
-        <!-- Ionicons -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='ui/bower_components/Ionicons/css/ionicons.min.css') }}">
         <!-- Theme style -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='ui/dist/css/AdminLTE.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/AdminLTE.min.css') }}">
         <!-- AdminLTE Skins. Choose a skin from the css/skins
             folder instead of downloading all of them to reduce the load. -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='ui/dist/css/skins/_all-skins.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/_all-skins.min.css') }}">
         <!-- Date Picker -->
         <link rel="stylesheet" href="{{ url_for('static', filename='ui/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') }}">
-        <!-- Daterange picker -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='ui/bower_components/bootstrap-daterangepicker/daterangepicker.css') }}">
         <!-- Bootstrap time Picker -->
         <link rel="stylesheet" href="{{ url_for('static', filename='ui/plugins/timepicker/bootstrap-timepicker.min.css') }}">
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+        <script src="{{ url_for('static', filename='ui/bower_components/moment/min/moment.min.js') }}"></script>
+        <!-- datepicker -->
+        <script src="{{ url_for('static', filename='ui/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}"></script>
+        <!-- bootstrap time picker -->
+        <script src="{{ url_for('static', filename='ui/plugins/timepicker/bootstrap-timepicker.min.js') }}"></script>
+
         <!-- HTML5 Shim and Respond.js') }} IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js') }} doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -113,7 +119,12 @@
                                 {% for reminder in reminders %}
                                     <tr>
                                         <td>{{ reminder['message'] }}</td>
-                                        <td>{{ reminder['time'][1] }}</td>
+                                        <td id="time_val_{{ reminder['index'] }}">{{ reminder['time'] }}</td>
+                                        <script>
+
+document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = moment.unix({{ reminder['time'] }}).calendar();
+
+                                        </script>
                                         <td>#{{ reminder['channel']['name'] }}</td>
                                         <td>{{ reminder['interval'] }}</td>
                                         <td>
@@ -270,17 +281,7 @@
                 reserved.
             </footer>
         </div>
-        <!-- ./wrapper -->
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-        <!-- Bootstrap 3.3.7 -->
-        <script src="{{ url_for('static', filename='ui/bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
-        <!-- daterangepicker -->
-        <script src="{{ url_for('static', filename='ui/bower_components/moment/min/moment.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='ui/bower_components/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
-        <!-- datepicker -->
-        <script src="{{ url_for('static', filename='ui/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}"></script>
-        <!-- bootstrap time picker -->
-        <script src="{{ url_for('static', filename='ui/plugins/timepicker/bootstrap-timepicker.min.js') }}"></script>
+
         <script>
 //Date picker
 $('#datepicker').datepicker({
@@ -304,7 +305,7 @@ function update_time()
 
     m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A')
 
-    document.getElementById("time_new").value = m.valueOf();
+    document.getElementById("time_new").value = m.unix();
 }
 
 function change_channel(id, name, index)
