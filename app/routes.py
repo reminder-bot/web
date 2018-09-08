@@ -30,7 +30,7 @@ def help():
     return render_template('help.html', help=s['help_raw'], languages=all_langs, title='Help', logo='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg')
 
 
-@app.route('/webhook/', methods=['POST'])
+@app.route('/webhook/', methods=['POST'], strict_slashes=False)
 def webhook():
     print(request.json)
 
@@ -48,7 +48,7 @@ def webhook():
     return '', 200
 
 
-@app.route('/delete/')
+@app.route('/delete', strict_slashes=False)
 def delete():
 
     reminder = Reminder.query.filter(Reminder.id == session['reminders'][int( request.args.get('index') )]['id'])
