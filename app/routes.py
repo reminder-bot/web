@@ -13,7 +13,7 @@ import time
 def index():
     return redirect( url_for('help') )
 
-@app.route('/help')
+@app.route('/help/')
 def help():
     all_langs = sorted([s[-5:-3] for s in os.listdir(app.config['BASE_URI'] + 'languages') if s.startswith('strings_')])
     print(all_langs)
@@ -30,7 +30,7 @@ def help():
     return render_template('help.html', help=s['help_raw'], languages=all_langs, title='Help', logo='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg')
 
 
-@app.route('/webhook', methods=['POST'])
+@app.route('/webhook/', methods=['POST'])
 def webhook():
     print(request.json)
 
@@ -48,7 +48,7 @@ def webhook():
     return '', 200
 
 
-@app.route('/delete')
+@app.route('/delete/')
 def delete():
 
     reminder = Reminder.query.filter(Reminder.id == session['reminders'][int( request.args.get('index') )]['id'])
@@ -59,7 +59,7 @@ def delete():
     return '', 200
 
 
-@app.route('/oauth')
+@app.route('/oauth/')
 def oauth():
     if not discord.authorized:
         return redirect(url_for('discord.login'))
@@ -67,7 +67,7 @@ def oauth():
     return redirect(url_for('dashboard'))
 
 
-@app.route('/dashboard', methods=['GET', 'POST'])
+@app.route('/dashboard/', methods=['GET', 'POST'])
 def dashboard():
     if not discord.authorized:
         return redirect(url_for('oauth'))
