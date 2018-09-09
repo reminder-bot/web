@@ -7,6 +7,7 @@ import requests
 import json
 from datetime import datetime
 import time
+import pytz
 
 
 @app.route('/')
@@ -85,6 +86,13 @@ def dashboard():
 
                 db.session.commit()
 
+            tz = request.form.get('timezone')
+
+            if tz is not None and tz in pytz.all_timezones:
+                server.timezone = tz
+
+                db.session.commit()
+
         else:
             for reminder in session['reminders']:
                 if 'message_{}'.format(reminder['index']) in request.form.keys():
@@ -124,6 +132,8 @@ def dashboard():
 
     else:
         r = []
+
+        timezones = sorted([(produce_offset(x), x) for x in pytz.all_timezones], key=lambda y: pytz.timezone(y[1]).utcoffset(datetime.now()))
 
         user = discord.get('api/users/@me').json()
 
@@ -196,6 +206,29 @@ def dashboard():
 
             session['reminders'] = r
 
-            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server, title='Dashboard', user=user)
+            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server, title='Dashboard', user=user, timezones=timezones)
 
-        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None, title='Dashboard', user=user)
+        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None, title='Dashboard', user=user, timezones=timezones)
+
+
+def produce_offset(timezone):
+    hours = pytz.timezone(timezone).utcoffset(datetime.now()).total_seconds() / 3600
+
+    if int(hours) == float(hours):
+        if hours < 0:
+            return '{}'.format(int(hours))
+        else:
+            return '+{}'.format(int(hours))
+
+    else:
+        if hours < 0:
+            hour = int(hours)
+            minute = str(int(abs(60 * (hours - hour))))
+
+            return '{}:{}'.format(hour, minute)
+
+        else:
+            hour = int(hours)
+            minute = str(int(60 * (hours - hour)))
+
+            return '+{}:{}'.format(hour, minute)

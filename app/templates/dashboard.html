@@ -96,15 +96,14 @@
         </aside>
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
+            {% if server %}
             <section class="content-header">
                 <h1>
                     Dashboard
                     <small>Reminders</small>
                 </h1>
             </section>
-            <!-- Main content -->
-            {% if server %}
+
             <section class="content">
                 <div class="box">
                     <div class="box-body">
@@ -192,6 +191,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                         <div class="text-center">
                             <hr>
                             <button data-toggle="modal" data-target="#addModal" class="guildbtn btn btn-success btn-fill">Add Reminder</button>
+                            <button data-toggle="modal" data-target="#addModal2" class="guildbtn btn btn-primary btn-fill">Edit Server Settings</button>
                         </div>
                     </div>
                 </div>
@@ -267,13 +267,68 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                         <button type="submit" class="btn btn-success">Submit</button>
                                         <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
                                     </div>
+                                </div>
                             </form>
-                            </div>
                         </div>
                     </div>
+                </div>
+                <!-- BLOCK CONTENT -->
+                <div class="modal fade col-md-12" id="addModal2" data-backdrop="false">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="post">
+                                <input name="update-server" hidden></input>
+
+                                <div class="modal-header">
+                                    <h4>Edit Server Settings</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- MESSAGE -->
+                                    <div class="form-group">
+                                        <label>Prefix:</label>
+                                        <div class="input-group">
+                                            <div class="input-group-addon">
+                                                <i class="fa fa-exclamation-circle"></i>
+                                            </div>
+                                            <input type="text" name="prefix" class="form-control pull-right" value="{{ server.prefix }}">
+                                        </div>
+                                        <!-- /.input group -->
+                                    </div>
+                                    <!-- CHANNEL -->
+                                    <div class="form-group">
+                                        <label>Timezone:</label>
+                                        <div class="input-group">
+                                            <div class="input-group-addon">
+                                                <i class="fa fa-clock-o"></i>
+                                            </div>
+                                            <input type="text" name="timezone" id="timezone" hidden>
+                                            <div class="dropdown">
+                                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-timezone" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                    {{ server.timezone }}
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="max-height: 40vh; overflow-y: scroll;">
+                                                    {% for tz in timezones %}
+                                                        <li><a onclick="javascript:change_tz('{{ tz[1] }}')">{{ tz[1] }} (GMT {{ tz[0] }})</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <!-- /.input group -->
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </section>
+
             {% else %}
-            <p class="lead">Please select a guild from the sidebar</p>
+            <p class="lead" style="margin-left: 5vw;">Please select a guild from the sidebar</p>
             {% endif %}
 
             <!-- /.content -->
@@ -327,6 +382,12 @@ function change_channel(id, name, index)
         document.getElementById('input-channel-' + index).value = id;
         document.getElementById('dropdown-channel-' + index).innerHTML = name + "<span class=\"caret\"></span>";
     }
+}
+
+function change_tz(timezone)
+{
+    document.getElementById('timezone').value = timezone;
+    document.getElementById('dropdown-timezone').innerHTML = timezone + "<span class=\"caret\"></span>"
 }
 
 function send_delete(index)
