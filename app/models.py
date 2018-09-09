@@ -29,8 +29,6 @@ class Server(db.Model):
     timezone = db.Column( db.String(30) )
     blacklist = db.Column( NestedMutableJson )
     restrictions = db.Column( NestedMutableJson )
-    tags = db.Column( MutableJson )
-    autoclears = db.Column( MutableJson )
 
     mysql_charset = 'utf8mb4'
 
