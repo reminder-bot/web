@@ -158,7 +158,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                                                         <div class="input-group-addon">
                                                                             <i class="fa fa-envelope"></i>
                                                                         </div>
-                                                                        <input type="text" name="message_{{ reminder['index'] }}" class="form-control pull-right" value="{{ reminder['message'] }}">
+                                                                        <input type="text" name="message_{{ reminder['index'] }}" class="form-control pull-right" value="{{ reminder['message'] }}" maxlength="200">
                                                                     </div>
                                                                     <!-- /.input group -->
                                                                 </div>
@@ -222,7 +222,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                             <div class="input-group-addon">
                                                 <i class="fa fa-envelope"></i>
                                             </div>
-                                            <input type="text" name="message_new" class="form-control pull-right">
+                                            <input type="text" name="message_new" class="form-control pull-right" maxlength="200">
                                         </div>
                                         <!-- /.input group -->
                                     </div>
