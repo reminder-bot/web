@@ -96,6 +96,14 @@
         </aside>
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-danger">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
             {% if server %}
             <section class="content-header">
                 <h1>
@@ -290,7 +298,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                             <div class="input-group-addon">
                                                 <i class="fa fa-exclamation-circle"></i>
                                             </div>
-                                            <input type="text" name="prefix" class="form-control pull-right" value="{{ server.prefix }}">
+                                            <input type="text" name="prefix" class="form-control pull-right" value="{{ server.prefix }}" maxlength="5">
                                         </div>
                                         <!-- /.input group -->
                                     </div>
