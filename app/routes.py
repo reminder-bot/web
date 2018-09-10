@@ -106,10 +106,22 @@ def dashboard():
                 if 'message_{}'.format(reminder['index']) in request.form.keys():
 
                     r = Reminder.query.get(reminder['id'])
-                    r.message = request.form.get('message_{}'.format(reminder['index']))
-                    r.channel = request.form.get('channel_{}'.format(reminder['index']))
 
-                    db.session.commit()
+                    channel = request.form.get('channel_{}'.format(reminder['index']))
+                    message = request.form.get('message_{}'.format(reminder['index']))
+
+                    if not 0 < len(message) < 200:
+                        flash('Error setting reminder message (length wrong)')
+
+                    elif channel not in [x['id'] for x in session['channels']]:
+                        flash('Error setting reminder channel (channel not found)')
+
+                    else:
+
+                        r.message = message
+                        r.channel = channel
+
+                        db.session.commit()
 
                     break
 
@@ -119,17 +131,24 @@ def dashboard():
                 new_time = request.form.get('time_new')
 
                 if not all([x in '0123456789' for x in new_time]):
-                    return redirect(url_for('dashboard', id=request.args.get('id')))
+                    flash('Error setting reminder')
 
-                if int(new_time) - 1576800000 > time.time():
-                    return redirect(url_for('dashboard', id=request.args.get('id')))
+                elif int(new_time) - 1576800000 > time.time():
+                    flash('Error setting reminder (time is too long)')
 
-                if new_msg and new_channel in [x['id'] for x in session['channels']]:
+                elif new_msg and new_channel in [x['id'] for x in session['channels']]:
 
-                    reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=None)
+                    if not 0 < len(new_msg) < 200:
+                        flash('Error setting reminder (message length wrong)')
 
-                    db.session.add(reminder)
-                    db.session.commit()
+                    else:
+                        reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=None)
+
+                        db.session.add(reminder)
+                        db.session.commit()
+
+                elif new_channel not in [x['id'] for x in session['channels']]:
+                    flash('Error setting reminder (channel not found)')
 
             try:
                 session.pop('reminders')
