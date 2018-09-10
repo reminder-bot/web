@@ -81,17 +81,25 @@ def dashboard():
 
             p = request.form.get('prefix')
 
-            if p is not None and len(p) <= 5:
-                server.prefix = p
+            if p is not None
+                if len(p) <= 5:
+                    server.prefix = p
 
-                db.session.commit()
+                    db.session.commit()
+
+                else:
+                    flash('There was an error setting your prefix.')
 
             tz = request.form.get('timezone')
 
-            if tz is not None and tz in pytz.all_timezones:
-                server.timezone = tz
+            if tz is not None
+                if tz in pytz.all_timezones:
+                    server.timezone = tz
 
-                db.session.commit()
+                    db.session.commit()
+
+                else:
+                    flash('There was an error setting your timezone.')
 
         else:
             for reminder in session['reminders']:
