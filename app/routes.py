@@ -185,7 +185,8 @@ def dashboard():
                     break
 
             else:
-                abort(403)
+                flash('You do not have permission to view this guild')
+                return redirect(url_for('dashboard'))
 
             reminders = Reminder.query.filter(Reminder.channel.in_([x['id'] for x in channels])).all()
 
