@@ -32,6 +32,13 @@
 
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js" integrity="sha256-GqCMs8eqcNJo0k1Zw3TBSve9COCvjIX45PYKJlH0urU=" crossorigin="anonymous"></script>
+
+        <script src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
+
+        <script src="{{ url_for('static', filename='js/jquery.slimscroll.min.js') }}"></script>
+
+        <script src="{{ url_for('static', filename='js/adminlte.min.js') }}"></script>
 
         <script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
         <!-- datepicker -->
@@ -50,7 +57,7 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
     </head>
 
-    <body class="hold-transition skin-blue sidebar-mini">
+    <body class="hold-transition skin-green sidebar-mini">
         <div class="wrapper">
         <header class="main-header">
             <!-- Logo -->
@@ -58,33 +65,21 @@
                 <!-- logo for regular state and mobile devices -->
                 <span class="logo-lg"><b>Reminder</b>BOT</span>
             </a>
+            <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                <span class="sr-only">Toggle navigation.</span>
+            </a>
             <!-- Header Navbar: style can be found in header.less -->
-            <nav class="navbar navbar-top">
+            <nav class="navbar navbar-top hidden-xs">
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
-                        <!-- Messages: style can be found in dropdown.less-->
-                        <li class="dropdown user user-menu">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <span class="hidden-xs">{{ user['username'] }}</span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <!-- User image -->
-                                <li class="user-header">
-                                    <p>
-                                        {{ user['username'] }}
-                                    </p>
-                                </li>
-                            </ul>
-                        </li>
+
                     </ul>
                 </div>
             </nav>
         </header>
-        <!-- Left side column. contains the logo and sidebar -->
+
         <aside class="main-sidebar">
-            <!-- sidebar: style can be found in sidebar.less -->
             <section class="sidebar">
-                <!-- sidebar menu: : style can be found in sidebar.less -->
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">GUILDS</li>
                     {% for guild in guilds %}
@@ -92,9 +87,8 @@
                     {% endfor %}
                 </ul>
             </section>
-            <!-- /.sidebar -->
         </aside>
-        <!-- Content Wrapper. Contains page content -->
+
         <div class="content-wrapper">
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
