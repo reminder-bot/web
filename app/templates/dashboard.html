@@ -128,7 +128,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
 
                                             </script>
                                             <td>#{{ reminder['channel']['name'] }}</td>
-                                            <td>{{ reminder['interval'] }}</td>
+                                            <td>{{ reminder['interval'] }}s</td>
                                             <td>
                                                 <button onclick="send_delete('{{ reminder['index'] }}')" class="guildbtn btn btn-danger btn-fill"><i class="fa fa-times"></i></button>
                                                 <button data-toggle="modal" data-target="#editModal{{ reminder['index'] }}" class="guildbtn btn btn-info btn-fill"><i class="fa fa-pencil"></i></button>
@@ -245,8 +245,10 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                             </div>
                                             <!-- /.input group -->
                                         </div>
-                                        <!-- DATE -->
+
                                         <input name="time_new" value="0" id="time_new" hidden></input>
+
+                                        <!-- DATE -->
                                         <div class="form-group">
                                             <label>Date:</label>
                                             <div class="input-group date">
@@ -271,6 +273,22 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                             </div>
                                             <!-- /.form group -->
                                         </div>
+
+                                        {% if patreon > 0 %}
+                                        <div class="bootstrap-timepicker">
+                                            <div class="form-group">
+                                                <label>Interval (seconds):</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-addon">
+                                                        <i class="fa fa-clock-o"></i>
+                                                    </div>
+                                                    <input type="number" class="form-control pull-right" name="interval_new"></input>
+                                                </div>
+                                                <!-- /.input group -->
+                                            </div>
+                                            <!-- /.form group -->
+                                        </div>
+                                        {% endif %}
 
                                         <div class="modal-footer">
                                             <button type="submit" class="btn btn-success">Submit</button>
@@ -373,6 +391,8 @@ function update_time()
 
     document.getElementById("time_new").value = m.unix();
 }
+
+update_time();
 
 function change_channel(id, name, index)
 {

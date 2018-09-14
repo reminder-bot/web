@@ -134,7 +134,10 @@ def dashboard():
                 new_time = request.form.get('time_new')
 
                 if len(session['roles']) > 0:
-                    new_interval = request.form.get('interval_new')
+                    new_interval = int(request.form.get('interval_new'))
+
+                    if new_interval == 0 or not bool(new_interval):
+                        new_interval = None
                 else:
                     new_interval = None
 
@@ -153,8 +156,11 @@ def dashboard():
                     elif not 0 < len(new_msg) < 2000 and len(session['roles']) == 2:
                         flash('Error setting reminder (message length wrong)')
 
+                    elif new_interval is not None and not 8 < new_interval < 1576800000:
+                        flash('Error setting reminder (interval timer is out of bounds)')
+
                     else:
-                        reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=None)
+                        reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=new_interval)
 
                         db.session.add(reminder)
                         db.session.commit()
