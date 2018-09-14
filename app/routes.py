@@ -110,7 +110,10 @@ def dashboard():
                     channel = request.form.get('channel_{}'.format(reminder['index']))
                     message = request.form.get('message_{}'.format(reminder['index']))
 
-                    if not 0 < len(message) < 200:
+                    if not 0 < len(message) < 200 and len(session['roles']) != 2:
+                        flash('Error setting reminder message (length wrong)')
+
+                    elif not 0 < len(message) < 2000 and len(session['roles']) == 2:
                         flash('Error setting reminder message (length wrong)')
 
                     elif channel not in [x['id'] for x in session['channels']]:
@@ -138,7 +141,10 @@ def dashboard():
 
                 elif new_msg and new_channel in [x['id'] for x in session['channels']]:
 
-                    if not 0 < len(new_msg) < 200:
+                    if not 0 < len(new_msg) < 200 and len(session['roles']) != 2:
+                        flash('Error setting reminder (message length wrong)')
+
+                    elif not 0 < len(new_msg) < 2000 and len(session['roles']) == 2:
                         flash('Error setting reminder (message length wrong)')
 
                     else:
@@ -197,8 +203,11 @@ def dashboard():
             reminder_guild_member = requests.get('https://discordapp.com/api/v6/guilds/350391364896161793/members/{}'.format(user_id), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
             if reminder_guild_member.status_code == 200:
 
-                roles = [int(x) for x in reminder_guild_member.json()['roles']]
+                roles = list(set([int(x) for x in reminder_guild_member.json()['roles']]) & set(app.config['PATREON_ROLES']))
                 session['roles'] = roles
+
+            else:
+                session['roles'] = []
 
             session['guilds'] = available_guilds
 
@@ -235,6 +244,6 @@ def dashboard():
 
             session['reminders'] = r
 
-            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server, title='Dashboard', user=user, timezones=app.config['TIMEZONES'])
+            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server, title='Dashboard', user=user, timezones=app.config['TIMEZONES'], patreon=len(session['roles']))
 
-        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None, title='Dashboard', user=user, timezones=app.config['TIMEZONES'])
+        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None, title='Dashboard', user=user, timezones=app.config['TIMEZONES'], patreon=len(session['roles']))
