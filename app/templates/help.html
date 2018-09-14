@@ -58,6 +58,8 @@
                         <img src="{{ logo }}" class="rounded-circle" style="width: 18vw; height: 18vw; margin: 2rem;"></img>
                     </div>
 
+                    <h2 class="display-3 text-dark text-center">Have you tried out our <a href="{{ url_for('dashboard') }}">dashboard</a> yet?</h2>
+
                     {% for category, items in help %}
                         <hr>
                         <h2 class="font-weight-light text-secondary" style="margin-top: 2rem;">{{ category }}</h2>
