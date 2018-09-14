@@ -148,7 +148,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                                                             <i class="fa fa-envelope"></i>
                                                                         </div>
                                                                         {% if patreon == 2 %}
-                                                                        <textarea type="text" name="message_{{ reminder['index'] }}" class="form-control pull-right" value="{{ reminder['message'] }}" maxlength="2000">
+                                                                        <textarea type="text" name="message_{{ reminder['index'] }}" class="form-control pull-right" value="{{ reminder['message'] }}" maxlength="1900">
                                                                         {% else %}
                                                                         <textarea type="text" name="message_{{ reminder['index'] }}" class="form-control pull-right" value="{{ reminder['message'] }}" maxlength="200">
                                                                         {% endif %}
@@ -216,7 +216,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                                 <i class="fa fa-envelope"></i>
                                             </div>
                                             {% if patreon == 2 %}
-                                            <textarea type="text" name="message_new" class="form-control pull-right" maxlength="2000"></textarea>
+                                            <textarea type="text" name="message_new" class="form-control pull-right" maxlength="1900"></textarea>
                                             {% else %}
                                             <textarea type="text" name="message_new" class="form-control pull-right" maxlength="200"></textarea>
                                             {% endif %}

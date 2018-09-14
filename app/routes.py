@@ -110,7 +110,7 @@ def dashboard():
                     channel = request.form.get('channel_{}'.format(reminder['index']))
                     message = request.form.get('message_{}'.format(reminder['index']))
 
-                    if not 0 < len(message) < 200 and len(session['roles']) != 2:
+                    if not 0 < len(message) <= 200 and len(session['roles']) != 2:
                         flash('Error setting reminder message (length wrong)')
 
                     elif not 0 < len(message) < 2000 and len(session['roles']) == 2:
@@ -141,7 +141,7 @@ def dashboard():
 
                 elif new_msg and new_channel in [x['id'] for x in session['channels']]:
 
-                    if not 0 < len(new_msg) < 200 and len(session['roles']) != 2:
+                    if not 0 < len(new_msg) <= 200 and len(session['roles']) != 2:
                         flash('Error setting reminder (message length wrong)')
 
                     elif not 0 < len(new_msg) < 2000 and len(session['roles']) == 2:
