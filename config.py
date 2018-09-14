@@ -1,5 +1,31 @@
 import os
 import configparser
+import pytz
+from datetime import datetime
+
+
+def produce_offset(timezone):
+    hours = pytz.timezone(timezone).utcoffset(datetime.now()).total_seconds() / 3600
+
+    if int(hours) == float(hours):
+        if hours < 0:
+            return '{}'.format(int(hours))
+        else:
+            return '+{}'.format(int(hours))
+
+    else:
+        if hours < 0:
+            hour = int(hours)
+            minute = str(int(abs(60 * (hours - hour))))
+
+            return '{}:{}'.format(hour, minute)
+
+        else:
+            hour = int(hours)
+            minute = str(int(60 * (hours - hour)))
+
+            return '+{}:{}'.format(hour, minute)
+
 
 class Config(object):
     BASE_URI = './'
@@ -41,3 +67,5 @@ class Config(object):
         }
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    TIMEZONES = sorted([(produce_offset(x), x) for x in pytz.all_timezones], key=lambda y: pytz.timezone(y[1]).utcoffset(datetime.now()))

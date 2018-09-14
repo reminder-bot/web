@@ -160,8 +160,6 @@ def dashboard():
     else:
         r = []
 
-        timezones = sorted([(produce_offset(x), x) for x in pytz.all_timezones], key=lambda y: pytz.timezone(y[1]).utcoffset(datetime.now()))
-
         user = discord.get('api/users/@me').json()
 
         if request.args.get('refresh') == '1':
@@ -234,29 +232,6 @@ def dashboard():
 
             session['reminders'] = r
 
-            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server, title='Dashboard', user=user, timezones=timezones)
+            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server, title='Dashboard', user=user, timezones=app.config['TIMEZONES'])
 
-        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None, title='Dashboard', user=user, timezones=timezones)
-
-
-def produce_offset(timezone):
-    hours = pytz.timezone(timezone).utcoffset(datetime.now()).total_seconds() / 3600
-
-    if int(hours) == float(hours):
-        if hours < 0:
-            return '{}'.format(int(hours))
-        else:
-            return '+{}'.format(int(hours))
-
-    else:
-        if hours < 0:
-            hour = int(hours)
-            minute = str(int(abs(60 * (hours - hour))))
-
-            return '{}:{}'.format(hour, minute)
-
-        else:
-            hour = int(hours)
-            minute = str(int(60 * (hours - hour)))
-
-            return '+{}:{}'.format(hour, minute)
+        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None, title='Dashboard', user=user, timezones=app.config['TIMEZONES'])
