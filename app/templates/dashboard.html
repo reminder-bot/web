@@ -54,305 +54,296 @@
 
     <body class="hold-transition skin-green sidebar-mini">
         <div class="wrapper">
-        <header class="main-header">
-            <!-- Logo -->
-            <a href="{{ url_for('help') }}" class="logo">
-                <!-- logo for regular state and mobile devices -->
-                <span class="logo-lg"><b>Reminder</b>BOT</span>
-            </a>
-            <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-                <span class="sr-only">Toggle navigation.</span>
-            </a>
-            <!-- Header Navbar: style can be found in header.less -->
-            <nav class="navbar navbar-top hidden-xs">
-                <div class="navbar-custom-menu">
-                    <ul class="nav navbar-nav">
+            <header class="main-header">
+                <!-- Logo -->
+                <a href="{{ url_for('help') }}" class="logo">
+                    <!-- logo for regular state and mobile devices -->
+                    <span class="logo-lg"><b>Reminder</b>BOT</span>
+                </a>
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only">Toggle navigation.</span>
+                </a>
+                <!-- Header Navbar: style can be found in header.less -->
+                <nav class="navbar navbar-top hidden-xs">
+                    <div class="navbar-custom-menu">
+                        <ul class="nav navbar-nav">
 
+                        </ul>
+                    </div>
+                </nav>
+            </header>
+
+            <aside class="main-sidebar">
+                <section class="sidebar">
+                    <ul class="sidebar-menu" data-widget="tree">
+                        <li class="header">GUILDS</li>
+                        {% for guild in guilds %}
+                            <li style="margin-left: 2rem;"><a href="{{ url_for('dashboard', id=guild['id']) }}">{{ guild['name'] }}</a></li>
+                        {% endfor %}
                     </ul>
-                </div>
-            </nav>
-        </header>
+                </section>
+            </aside>
 
-        <aside class="main-sidebar">
-            <section class="sidebar">
-                <ul class="sidebar-menu" data-widget="tree">
-                    <li class="header">GUILDS</li>
-                    {% for guild in guilds %}
-                        <li style="margin-left: 2rem;"><a href="{{ url_for('dashboard', id=guild['id']) }}">{{ guild['name'] }}</a></li>
-                    {% endfor %}
-                </ul>
-            </section>
-        </aside>
+            <div class="content-wrapper">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-danger alert-dismissable">
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
 
-        <div class="content-wrapper">
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-danger alert-dismissable">
-                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+                {% if server %}
+                <section class="content-header">
+                    <h1>
+                        Dashboard
+                        <small>Reminders</small>
+                    </h1>
+                </section>
 
-            {% if server %}
-            <section class="content-header">
-                <h1>
-                    Dashboard
-                    <small>Reminders</small>
-                </h1>
-            </section>
-
-            <section class="content">
-                <div class="box">
-                    <div class="box-body">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Message</th>
-                                    <th>Time</th>
-                                    <th>Channel</th>
-                                    <th>Interval</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for reminder in reminders %}
+                <section class="content">
+                    <div class="box">
+                        <div class="box-body">
+                            <table class="table table-striped">
+                                <thead>
                                     <tr>
-                                        <td>{{ reminder['message'] }}</td>
-                                        <td id="time_val_{{ reminder['index'] }}">{{ reminder['time'] }}</td>
-                                        <script>
+                                        <th>Message</th>
+                                        <th>Time</th>
+                                        <th>Channel</th>
+                                        <th>Interval</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reminder in reminders %}
+                                        <tr>
+                                            <td>{{ reminder['message'] }}</td>
+                                            <td id="time_val_{{ reminder['index'] }}">{{ reminder['time'] }}</td>
+                                            <script>
 
 document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = moment.unix({{ reminder['time'] }}).calendar();
 
-                                        </script>
-                                        <td>#{{ reminder['channel']['name'] }}</td>
-                                        <td>{{ reminder['interval'] }}</td>
-                                        <td>
-                                            <button onclick="send_delete('{{ reminder['index'] }}')" class="guildbtn btn btn-danger btn-fill"><i class="fa fa-times"></i></button>
-                                            <button data-toggle="modal" data-target="#editModal{{ reminder['index'] }}" class="guildbtn btn btn-info btn-fill"><i class="fa fa-pencil"></i></button>
-                                            <div class="modal fade col-md-12" id="editModal{{ reminder['index'] }}" data-backdrop="false">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <form method="POST">
-                                                            <div class="modal-header">
-                                                                <h4>Edit Reminder</h4>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <!-- MESSAGE -->
-                                                                <div class="form-group">
-                                                                    <label>Message:</label>
-                                                                    <div class="input-group">
-                                                                        <div class="input-group-addon">
-                                                                            <i class="fa fa-envelope"></i>
+                                            </script>
+                                            <td>#{{ reminder['channel']['name'] }}</td>
+                                            <td>{{ reminder['interval'] }}</td>
+                                            <td>
+                                                <button onclick="send_delete('{{ reminder['index'] }}')" class="guildbtn btn btn-danger btn-fill"><i class="fa fa-times"></i></button>
+                                                <button data-toggle="modal" data-target="#editModal{{ reminder['index'] }}" class="guildbtn btn btn-info btn-fill"><i class="fa fa-pencil"></i></button>
+                                                <div class="modal fade col-md-12" id="editModal{{ reminder['index'] }}" data-backdrop="false">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <form method="POST">
+                                                                <div class="modal-header">
+                                                                    <h4>Edit Reminder</h4>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <!-- MESSAGE -->
+                                                                    <div class="form-group">
+                                                                        <label>Message:</label>
+                                                                        <div class="input-group">
+                                                                            <div class="input-group-addon">
+                                                                                <i class="fa fa-envelope"></i>
+                                                                            </div>
+                                                                            {% if patreon == 2 %}
+                                                                            <textarea type="text" name="message_{{ reminder['index'] }}" class="form-control pull-right" maxlength="1900">{{ reminder['message'] }}</textarea>
+                                                                            {% else %}
+                                                                            <textarea type="text" name="message_{{ reminder['index'] }}" class="form-control pull-right" maxlength="200">{{ reminder['message'] }}</textarea>
+                                                                            {% endif %}
                                                                         </div>
-                                                                        {% if patreon == 2 %}
-                                                                        <textarea type="text" name="message_{{ reminder['index'] }}" class="form-control pull-right" value="{{ reminder['message'] }}" maxlength="1900">
-                                                                        {% else %}
-                                                                        <textarea type="text" name="message_{{ reminder['index'] }}" class="form-control pull-right" value="{{ reminder['message'] }}" maxlength="200">
-                                                                        {% endif %}
+                                                                        <!-- /.input group -->
                                                                     </div>
-                                                                    <!-- /.input group -->
-                                                                </div>
-                                                                <!-- CHANNEL -->
-                                                                <div class="form-group">
-                                                                    <label>Channel:</label>
-                                                                    <div class="input-group">
-                                                                        <div class="input-group-addon">
-                                                                            <i class="fa fa-users"></i>
+                                                                    <!-- CHANNEL -->
+                                                                    <div class="form-group">
+                                                                        <label>Channel:</label>
+                                                                        <div class="input-group">
+                                                                            <div class="input-group-addon">
+                                                                                <i class="fa fa-users"></i>
+                                                                            </div>
+                                                                            <input type="text" name="channel_{{ reminder['index'] }}" id="input-channel-{{ reminder['index'] }}" value="{{ reminder['channel']['id'] }}" hidden>
+                                                                            <div class="dropdown">
+                                                                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-channel-{{ reminder['index'] }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                                                    {{ reminder['channel']['name'] }}
+                                                                                    <span class="caret"></span>
+                                                                                </button>
+                                                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                                                                    {% for channel in channels %}
+                                                                                        <li><a onclick="javascript:change_channel('{{ channel['id'] }}', '{{ channel['name'] }}', {{ reminder['index'] }})">{{ channel['name'] }}</a></li>
+                                                                                    {% endfor %}
+                                                                                </ul>
+                                                                            </div>
                                                                         </div>
-                                                                        <input type="text" name="channel_{{ reminder['index'] }}" id="input-channel-{{ reminder['index'] }}" value="{{ reminder['channel']['id'] }}" hidden>
-                                                                        <div class="dropdown">
-                                                                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-channel-{{ reminder['index'] }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                                                                {{ reminder['channel']['name'] }}
-                                                                                <span class="caret"></span>
-                                                                            </button>
-                                                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                                                                {% for channel in channels %}
-                                                                                    <li><a onclick="javascript:change_channel('{{ channel['id'] }}', '{{ channel['name'] }}', {{ reminder['index'] }})">{{ channel['name'] }}</a></li>
-                                                                                {% endfor %}
-                                                                            </ul>
-                                                                        </div>
+                                                                        <!-- /.input group -->
                                                                     </div>
-                                                                    <!-- /.input group -->
+                                                                    <div class="modal-footer">
+                                                                        <button type="submit" class="btn btn-success">Submit</button>
+                                                                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="submit" class="btn btn-success">Submit</button>
-                                                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                                                                </div>
-                                                            </div>
-                                                        </form>
+                                                            </form>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
 
-                            </tbody>
-                        </table>
-                        <div class="text-center">
-                            <hr>
-                            <button data-toggle="modal" data-target="#addModal" class="guildbtn btn btn-success btn-fill">Add Reminder</button>
-                            <button data-toggle="modal" data-target="#addModal2" class="guildbtn btn btn-primary btn-fill">Edit Server Settings</button>
+                                </tbody>
+                            </table>
+                            <div class="text-center">
+                                <hr>
+                                <button data-toggle="modal" data-target="#addModal" class="guildbtn btn btn-success btn-fill">Add Reminder</button>
+                                <button data-toggle="modal" data-target="#addModal2" class="guildbtn btn btn-primary btn-fill">Edit Server Settings</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <!-- BLOCK CONTENT -->
-                <div class="modal fade col-md-12" id="addModal" data-backdrop="false">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form method="post">
-                                <div class="modal-header">
-                                    <h4>Add Reminder</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <!-- MESSAGE -->
-                                    <div class="form-group">
-                                        <label>Message:</label>
-                                        <div class="input-group">
-                                            <div class="input-group-addon">
-                                                <i class="fa fa-envelope"></i>
-                                            </div>
-                                            {% if patreon == 2 %}
-                                            <textarea type="text" name="message_new" class="form-control pull-right" maxlength="1900"></textarea>
-                                            {% else %}
-                                            <textarea type="text" name="message_new" class="form-control pull-right" maxlength="200"></textarea>
-                                            {% endif %}
-                                        </div>
-                                        <!-- /.input group -->
+                    <!-- BLOCK CONTENT -->
+                    <div class="modal fade col-md-12" id="addModal" data-backdrop="false">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="post">
+                                    <div class="modal-header">
+                                        <h4>Add Reminder</h4>
                                     </div>
-                                    <!-- CHANNEL -->
-                                    <div class="form-group">
-                                        <label>Channel:</label>
-                                        <div class="input-group">
-                                            <div class="input-group-addon">
-                                                <i class="fa fa-users"></i>
-                                            </div>
-                                            <input type="text" name="channel_new" id="input-channel" hidden>
-                                            <div class="dropdown">
-                                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-channel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                                    Select One
-                                                    <span class="caret"></span>
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                                    {% for channel in channels %}
-                                                        <li><a onclick="javascript:change_channel('{{ channel['id'] }}', '{{ channel['name'] }}')">{{ channel['name'] }}</a></li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <!-- /.input group -->
-                                    </div>
-                                    <!-- DATE -->
-                                    <input name="time_new" value="0" id="time_new" hidden></input>
-                                    <div class="form-group">
-                                        <label>Date:</label>
-                                        <div class="input-group date">
-                                            <div class="input-group-addon">
-                                                <i class="fa fa-calendar"></i>
-                                            </div>
-                                            <input type="text" class="form-control pull-right" id="datepicker" name="date"></input>
-                                        </div>
-                                        <!-- /.input group -->
-                                    </div>
-                                    <!-- TIME -->
-                                    <div class="bootstrap-timepicker">
+                                    <div class="modal-body">
+                                        <!-- MESSAGE -->
                                         <div class="form-group">
-                                            <label>Time picker:</label>
+                                            <label>Message:</label>
+                                            <div class="input-group">
+                                                <div class="input-group-addon">
+                                                    <i class="fa fa-envelope"></i>
+                                                </div>
+                                                {% if patreon == 2 %}
+                                                <textarea type="text" name="message_new" class="form-control pull-right" maxlength="1900"></textarea>
+                                                {% else %}
+                                                <textarea type="text" name="message_new" class="form-control pull-right" maxlength="200"></textarea>
+                                                {% endif %}
+                                            </div>
+                                            <!-- /.input group -->
+                                        </div>
+                                        <!-- CHANNEL -->
+                                        <div class="form-group">
+                                            <label>Channel:</label>
+                                            <div class="input-group">
+                                                <div class="input-group-addon">
+                                                    <i class="fa fa-users"></i>
+                                                </div>
+                                                <input type="text" name="channel_new" id="input-channel" hidden>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-channel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                        Select One
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                                        {% for channel in channels %}
+                                                            <li><a onclick="javascript:change_channel('{{ channel['id'] }}', '{{ channel['name'] }}')">{{ channel['name'] }}</a></li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <!-- /.input group -->
+                                        </div>
+                                        <!-- DATE -->
+                                        <input name="time_new" value="0" id="time_new" hidden></input>
+                                        <div class="form-group">
+                                            <label>Date:</label>
+                                            <div class="input-group date">
+                                                <div class="input-group-addon">
+                                                    <i class="fa fa-calendar"></i>
+                                                </div>
+                                                <input type="text" class="form-control pull-right" id="datepicker" name="date"></input>
+                                            </div>
+                                            <!-- /.input group -->
+                                        </div>
+                                        <!-- TIME -->
+                                        <div class="bootstrap-timepicker">
+                                            <div class="form-group">
+                                                <label>Time:</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-addon">
+                                                        <i class="fa fa-clock-o"></i>
+                                                    </div>
+                                                    <input type="text" class="form-control timepicker" id="timepicker" name="time"></input>
+                                                </div>
+                                                <!-- /.input group -->
+                                            </div>
+                                            <!-- /.form group -->
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-success">Submit</button>
+                                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- BLOCK CONTENT -->
+                    <div class="modal fade col-md-12" id="addModal2" data-backdrop="false">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="post">
+                                    <input name="update-server" hidden></input>
+
+                                    <div class="modal-header">
+                                        <h4>Edit Server Settings</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- MESSAGE -->
+                                        <div class="form-group">
+                                            <label>Prefix:</label>
+                                            <div class="input-group">
+                                                <div class="input-group-addon">
+                                                    <i class="fa fa-exclamation-circle"></i>
+                                                </div>
+                                                <input type="text" name="prefix" class="form-control pull-right" value="{{ server.prefix }}" maxlength="5">
+                                            </div>
+                                            <!-- /.input group -->
+                                        </div>
+                                        <!-- CHANNEL -->
+                                        <div class="form-group">
+                                            <label>Timezone:</label>
                                             <div class="input-group">
                                                 <div class="input-group-addon">
                                                     <i class="fa fa-clock-o"></i>
                                                 </div>
-                                                <input type="text" class="form-control timepicker" id="timepicker" name="time"></input>
+                                                <input type="text" name="timezone" id="timezone" hidden>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-timezone" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                        {{ server.timezone }}
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="max-height: 40vh; overflow-y: scroll;">
+                                                        {% for tz in timezones %}
+                                                            <li><a onclick="javascript:change_tz('{{ tz[1] }}')">{{ tz[1] }} (GMT {{ tz[0] }})</a></li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
                                             </div>
                                             <!-- /.input group -->
                                         </div>
-                                        <!-- /.form group -->
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-success">Submit</button>
+                                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                        </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn btn-success">Submit</button>
-                                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                                    </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <!-- BLOCK CONTENT -->
-                <div class="modal fade col-md-12" id="addModal2" data-backdrop="false">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form method="post">
-                                <input name="update-server" hidden></input>
+                </section>
 
-                                <div class="modal-header">
-                                    <h4>Edit Server Settings</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <!-- MESSAGE -->
-                                    <div class="form-group">
-                                        <label>Prefix:</label>
-                                        <div class="input-group">
-                                            <div class="input-group-addon">
-                                                <i class="fa fa-exclamation-circle"></i>
-                                            </div>
-                                            <input type="text" name="prefix" class="form-control pull-right" value="{{ server.prefix }}" maxlength="5">
-                                        </div>
-                                        <!-- /.input group -->
-                                    </div>
-                                    <!-- CHANNEL -->
-                                    <div class="form-group">
-                                        <label>Timezone:</label>
-                                        <div class="input-group">
-                                            <div class="input-group-addon">
-                                                <i class="fa fa-clock-o"></i>
-                                            </div>
-                                            <input type="text" name="timezone" id="timezone" hidden>
-                                            <div class="dropdown">
-                                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-timezone" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                                    {{ server.timezone }}
-                                                    <span class="caret"></span>
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="max-height: 40vh; overflow-y: scroll;">
-                                                    {% for tz in timezones %}
-                                                        <li><a onclick="javascript:change_tz('{{ tz[1] }}')">{{ tz[1] }} (GMT {{ tz[0] }})</a></li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <!-- /.input group -->
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn btn-success">Submit</button>
-                                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {% else %}
-            <section class="content-header">
-                <h1>
-                    Please select a guild.
-                </h1>
-            </section>
-            {% endif %}
-
-            <!-- /.content -->
+                {% else %}
+                <section class="content-header">
+                    <h1>
+                        Please select a guild.
+                    </h1>
+                </section>
+                {% endif %}
             </div>
-            <!-- /.content-wrapper -->
-            <footer class="main-footer">
-                <div class="pull-right hidden-xs">
-                    <b
-                </div>
-                <strong>Copyright &copy; 2018 <a href="https://github.com/reminder-bot">JellyWX</a>.</strong> All rights
-                reserved.
-            </footer>
         </div>
 
         <script>

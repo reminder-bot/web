@@ -133,6 +133,12 @@ def dashboard():
                 new_channel = request.form.get('channel_new')
                 new_time = request.form.get('time_new')
 
+                if len(session['roles']) > 0:
+                    new_interval = request.form.get('interval_new')
+                else:
+                    new_interval = None
+
+
                 if not all([x in '0123456789' for x in new_time]):
                     flash('Error setting reminder')
 
