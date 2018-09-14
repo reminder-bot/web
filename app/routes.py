@@ -162,10 +162,6 @@ def dashboard():
 
         user = discord.get('api/users/@me').json()
 
-        if request.args.get('refresh') == '1':
-            session.pop('guilds')
-            return redirect(url_for('dashboard'))
-
         if session.get('guilds') is None: # the code below is time-consuming; only run on first load and if the user wants to refresh the guild list.
 
             guilds = discord.get('api/users/@me/guilds').json()
@@ -198,6 +194,12 @@ def dashboard():
                         available_guilds.append(guild)
                         break
 
+            reminder_guild_member = requests.get('https://discordapp.com/api/v6/guilds/350391364896161793/members/{}'.format(user_id), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
+            if reminder_guild_member.status_code == 200:
+
+                roles = [int(x) for x in reminder_guild_member.json()['roles']]
+                session['roles'] = roles
+
             session['guilds'] = available_guilds
 
         if request.args.get('id') is not None:
@@ -206,6 +208,7 @@ def dashboard():
                     server = Server.query.filter( Server.id == guild['id'] ).first()
 
                     channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if x['type'] == 0]
+
                     session['channels'] = channels
                     break
 
