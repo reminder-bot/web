@@ -133,11 +133,17 @@ def dashboard():
                 new_channel = request.form.get('channel_new')
                 new_time = request.form.get('time_new')
 
-                if len(session['roles']) > 0:
-                    new_interval = int(request.form.get('interval_new'))
 
-                    if new_interval == 0 or not bool(new_interval):
+                if len(session['roles']) > 0:
+                    try:
+                        new_interval = int(request.form.get('interval_new'))
+                    except ValueError:
+                        flash('Input error in interval field.')
                         new_interval = None
+
+                    else:
+                        if new_interval == 0 or not bool(new_interval):
+                            new_interval = None
                 else:
                     new_interval = None
 
