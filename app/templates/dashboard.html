@@ -32,11 +32,6 @@
 
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js" integrity="sha256-GqCMs8eqcNJo0k1Zw3TBSve9COCvjIX45PYKJlH0urU=" crossorigin="anonymous"></script>
-
-        <script src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
-
-        <script src="{{ url_for('static', filename='js/jquery.slimscroll.min.js') }}"></script>
 
         <script src="{{ url_for('static', filename='js/adminlte.min.js') }}"></script>
 
@@ -333,7 +328,11 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
             </section>
 
             {% else %}
-            <p class="lead" style="margin-left: 5vw;">Please select a guild from the sidebar</p>
+            <section class="content-header">
+                <h1>
+                    Please select a guild.
+                </h1>
+            </section>
             {% endif %}
 
             <!-- /.content -->
