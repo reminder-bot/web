@@ -262,7 +262,7 @@ def dashboard():
             session['reminders'] = r
 
             if not session.get('roles'):
-                return redirect('dashboard', refresh=1)
+                return redirect(url_for('dashboard', refresh=1))
 
             return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server, title='Dashboard', user=user, timezones=app.config['TIMEZONES'], patreon=len(session['roles']))
 
