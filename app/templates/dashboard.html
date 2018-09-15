@@ -203,11 +203,14 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                     <div class="modal fade col-md-12" id="addModal" data-backdrop="false">
                         <div class="modal-dialog">
                             <div class="modal-content">
-                                <form method="post">
+                                <form method="post" onsubmit="return validate_input()" novalidate>
                                     <div class="modal-header">
                                         <h4>Add Reminder</h4>
                                     </div>
                                     <div class="modal-body">
+                                        <div id="modal">
+
+                                        </div>
                                         <!-- MESSAGE -->
                                         <div class="form-group">
                                             <label>Message:</label>
@@ -216,9 +219,9 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                                     <i class="fa fa-envelope"></i>
                                                 </div>
                                                 {% if patreon == 2 %}
-                                                <textarea type="text" name="message_new" class="form-control pull-right" maxlength="1900"></textarea>
+                                                <textarea type="text" name="message_new" class="form-control pull-right" maxlength="1900" id="input-message" required></textarea>
                                                 {% else %}
-                                                <textarea type="text" name="message_new" class="form-control pull-right" maxlength="200"></textarea>
+                                                <textarea type="text" name="message_new" class="form-control pull-right" maxlength="200" id="input-message" required></textarea>
                                                 {% endif %}
                                             </div>
                                             <!-- /.input group -->
@@ -230,7 +233,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                                 <div class="input-group-addon">
                                                     <i class="fa fa-users"></i>
                                                 </div>
-                                                <input type="text" name="channel_new" id="input-channel" hidden>
+                                                <input type="text" name="channel_new" id="input-channel" hidden required>
                                                 <div class="dropdown">
                                                     <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-channel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                                         Select One
@@ -365,6 +368,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
         </div>
 
         <script>
+
 //Date picker
 $('#datepicker').datepicker({
     format: 'yyyy/mm/dd',
@@ -425,6 +429,39 @@ function send_delete(index)
     };
     xhttp.open("GET", "{{ url_for('delete') }}" + "?index=" + index, true);
     xhttp.send();
+}
+
+function validate_input()
+{
+    message = document.getElementById('input-message');
+    channel = document.getElementById('input-channel');
+
+    modal = document.getElementById('modal');
+
+    modal.innerHTML = '';
+
+    failed = false;
+
+    if (message.value == '')
+    {
+        a = document.createElement('div');
+        a.className = 'alert alert-danger';
+        a.innerHTML = 'Please add a message';
+        modal.appendChild(a);
+
+        failed = true;
+    }
+    if (channel.value == '')
+    {
+        a = document.createElement('div');
+        a.className = 'alert alert-danger';
+        a.innerHTML = 'Please add a channel';
+        modal.appendChild(a);
+
+        failed = true;
+    }
+
+    return !failed;
 }
 
         </script>
