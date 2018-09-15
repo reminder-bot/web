@@ -138,7 +138,6 @@ def dashboard():
                     try:
                         new_interval = int(request.form.get('interval_new'))
                     except ValueError:
-                        flash('Input error in interval field.')
                         new_interval = None
 
                     else:
