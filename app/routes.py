@@ -185,7 +185,8 @@ def dashboard():
 
         user = discord.get('api/users/@me').json()
 
-        if session.get('guilds') is None or request.args.get('refresh'): # the code below is time-consuming; only run on first load and if the user wants to refresh the guild list.
+        if session.get('guilds') is None or session.get('reminders') is None or session.get('roles') is None or session.get('channels') is None or request.args.get('refresh'):
+            # the code below is time-consuming; only run on first load and if the user wants to refresh the guild list.
 
             guilds = discord.get('api/users/@me/guilds').json()
 
@@ -233,7 +234,7 @@ def dashboard():
                 if guild['id'] == request.args.get('id'):
                     server = Server.query.filter( Server.id == guild['id'] ).first()
 
-                    channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if x['type'] == 0]
+                    channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if isinstance(x, dict) and x['type'] == 0]
 
                     session['channels'] = channels
                     break
@@ -260,9 +261,6 @@ def dashboard():
                 index += 1
 
             session['reminders'] = r
-
-            if session.get('roles') is None:
-                return redirect(url_for('dashboard', refresh=1))
 
             return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server, title='Dashboard', user=user, timezones=app.config['TIMEZONES'], patreon=len(session['roles']))
 
