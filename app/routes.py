@@ -116,7 +116,7 @@ def dashboard():
                     elif not 0 < len(message) < 2000 and len(session['roles']) == 2:
                         flash('Error setting reminder message (length wrong)')
 
-                    elif channel not in [x['id'] for x in session['channels']]:
+                    elif channel not in session['channels']:
                         flash('Error setting reminder channel (channel not found)')
 
                     else:
@@ -153,7 +153,7 @@ def dashboard():
                 elif int(new_time) - 1576800000 > time.time():
                     flash('Error setting reminder (time is too long)')
 
-                elif new_msg and new_channel in [x['id'] for x in session['channels']]:
+                elif new_msg and new_channel in session['channels']:
 
                     if not 0 < len(new_msg) <= 200 and len(session['roles']) != 2:
                         flash('Error setting reminder (message length wrong)')
@@ -170,7 +170,7 @@ def dashboard():
                         db.session.add(reminder)
                         db.session.commit()
 
-                elif new_channel not in [x['id'] for x in session['channels']]:
+                elif new_channel not in session['channels']:
                     flash('Error setting reminder (channel not found)')
 
             try:
@@ -234,7 +234,7 @@ def dashboard():
 
                     channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if isinstance(x, dict) and x['type'] == 0]
 
-                    session['channels'] = channels
+                    session['channels'] = [x['id'] for x in channels]
                     break
 
             else:
