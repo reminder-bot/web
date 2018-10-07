@@ -55,6 +55,8 @@ class Config(object):
 
     BOT_TOKEN = token
 
+    SESSION_TYPE = 'sqlalchemy'
+
     if passwd is not None:
         SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}/{db}?charset=utf8mb4'.format(user=user, password=passwd, host=host, db=db)
         SQLALCHEMY_BINDS = {
