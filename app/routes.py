@@ -181,8 +181,6 @@ def dashboard():
         return redirect(url_for('dashboard', id=request.args.get('id')))
 
     else:
-        r = []
-
         user = discord.get('api/users/@me').json()
 
         if session.get('guilds') is None or session.get('reminders') is None or session.get('roles') is None or session.get('channels') is None or request.args.get('refresh'):
@@ -245,23 +243,32 @@ def dashboard():
 
             reminders = Reminder.query.filter(Reminder.channel.in_([x['id'] for x in channels])).all()
 
-            index = 0
-            for reminder in reminders:
+            r = []
+            s_r = []
+
+            for index, reminder in enumerate(reminders):
 
                 r.append({})
+                s_r.append({})
 
                 r[index]['message'] = reminder.message
                 channel = [x for x in channels if int(x['id']) == reminder.channel][0]
                 r[index]['channel'] = channel
+
                 r[index]['time'] = reminder.time
+
                 r[index]['interval'] = reminder.interval
+
                 r[index]['id'] = reminder.id
+                s_r[index]['id'] = reminder.id
+
                 r[index]['index'] = index
+                s_r[index]['index'] = index
 
                 index += 1
 
-            session['reminders'] = r
+            session['reminders'] = s_r
 
-            return render_template('dashboard.html', guilds=session['guilds'], reminders=session['reminders'], channels=channels, server=server, title='Dashboard', user=user, timezones=app.config['TIMEZONES'], patreon=len(session['roles']))
+            return render_template('dashboard.html', guilds=session['guilds'], reminders=r, channels=channels, server=server, title='Dashboard', user=user, timezones=app.config['TIMEZONES'], patreon=len(session['roles']))
 
         return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None, title='Dashboard', user=user, timezones=app.config['TIMEZONES'], patreon=len(session['roles']))
