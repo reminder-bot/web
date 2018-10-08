@@ -204,7 +204,7 @@ def dashboard():
                 restrictions = s.restrictions
 
                 if (guild['permissions'] & 0x00002000) or (guild['permissions'] & 0x00000020) or (guild['permissions'] & 0x00000008):
-                    available_guilds.append(guild)
+                    available_guilds.append({'id': guild['id'], 'name': guild['name']})
                     continue
 
                 elif restrictions['data'] == []:
