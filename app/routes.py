@@ -110,10 +110,10 @@ def dashboard():
                     channel = request.form.get('channel_{}'.format(reminder['index']))
                     message = request.form.get('message_{}'.format(reminder['index']))
 
-                    if not 0 < len(message) <= 200 and len(session['roles']) != 2:
+                    if not 0 < len(message) <= 200 and session['roles'] != 2:
                         flash('Error setting reminder message (length wrong)')
 
-                    elif not 0 < len(message) < 2000 and len(session['roles']) == 2:
+                    elif not 0 < len(message) < 2000 and session['roles'] == 2:
                         flash('Error setting reminder message (length wrong)')
 
                     elif channel not in session['channels']:
@@ -134,7 +134,7 @@ def dashboard():
                 new_time = request.form.get('time_new')
 
 
-                if len(session['roles']) > 0:
+                if session['roles'] > 0:
                     try:
                         new_interval = int(request.form.get('interval_new'))
                     except ValueError:
@@ -155,10 +155,10 @@ def dashboard():
 
                 elif new_msg and new_channel in session['channels']:
 
-                    if not 0 < len(new_msg) <= 200 and len(session['roles']) != 2:
+                    if not 0 < len(new_msg) <= 200 and session['roles'] != 2:
                         flash('Error setting reminder (message length wrong)')
 
-                    elif not 0 < len(new_msg) < 2000 and len(session['roles']) == 2:
+                    elif not 0 < len(new_msg) < 2000 and session['roles'] == 2:
                         flash('Error setting reminder (message length wrong)')
 
                     elif new_interval is not None and not 8 < new_interval < 1576800000:
@@ -220,10 +220,10 @@ def dashboard():
             if reminder_guild_member.status_code == 200:
 
                 roles = list(set([int(x) for x in reminder_guild_member.json()['roles']]) & set(app.config['PATREON_ROLES']))
-                session['roles'] = roles
+                session['roles'] = len(roles)
 
             else:
-                session['roles'] = []
+                session['roles'] = 0
 
             session['guilds'] = available_guilds
 
@@ -269,6 +269,6 @@ def dashboard():
 
             session['reminders'] = s_r
 
-            return render_template('dashboard.html', guilds=session['guilds'], reminders=r, channels=channels, server=server, title='Dashboard', user=user, timezones=app.config['TIMEZONES'], patreon=len(session['roles']))
+            return render_template('dashboard.html', guilds=session['guilds'], reminders=r, channels=channels, server=server, title='Dashboard', user=user, timezones=app.config['TIMEZONES'], patreon=session['roles'])
 
-        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None, title='Dashboard', user=user, timezones=app.config['TIMEZONES'], patreon=len(session['roles']))
+        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None, title='Dashboard', user=user, timezones=app.config['TIMEZONES'], patreon=session['roles'])
