@@ -1,6 +1,6 @@
 from flask import redirect, render_template, request, url_for, session, abort, flash
 from app import app, discord, db
-from app.models import Server, Reminder, User
+from app.models import Server, Reminder
 import os
 import io
 import requests
@@ -29,24 +29,6 @@ def help():
         s = eval(f.read())
 
     return render_template('help.html', help=s['help_raw'], languages=all_langs, title='Help', logo='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg')
-
-
-@app.route('/webhook/', methods=['POST'], strict_slashes=False)
-def webhook():
-    print(request.json)
-
-    user = User.query.filter_by(id=request.json['user']).first()
-
-    if user is None:
-        user = User(id=request.json['user'], last_vote=time.time())
-        db.session.add(user)
-
-    else:
-        user.last_vote = time.time()
-
-    db.session.commit()
-
-    return '', 200
 
 
 @app.route('/delete', strict_slashes=False)
