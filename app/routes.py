@@ -14,6 +14,7 @@ import pytz
 def index():
     return redirect( url_for('help') )
 
+
 @app.route('/help/')
 def help():
     all_langs = sorted([s[-5:-3] for s in os.listdir(app.config['BASE_URI'] + 'languages') if s.startswith('strings_')])
@@ -89,24 +90,29 @@ def dashboard():
 
                     r = Reminder.query.get(reminder['id'])
 
-                    channel = request.form.get('channel_{}'.format(reminder['index']))
-                    message = request.form.get('message_{}'.format(reminder['index']))
-
-                    if not 0 < len(message) <= 200 and session['roles'] != 2:
-                        flash('Error setting reminder message (length wrong)')
-
-                    elif not 0 < len(message) < 2000 and session['roles'] == 2:
-                        flash('Error setting reminder message (length wrong)')
-
-                    elif channel not in session['channels']:
-                        flash('Error setting reminder channel (channel not found)')
+                    if r is None:
+                        flash('Reminder not found. Please reload the page')
 
                     else:
 
-                        r.message = message
-                        r.channel = channel
+                        channel = request.form.get('channel_{}'.format(reminder['index']))
+                        message = request.form.get('message_{}'.format(reminder['index']))
 
-                        db.session.commit()
+                        if not 0 < len(message) <= 200 and session['roles'] != 2:
+                            flash('Error setting reminder message (length wrong)')
+
+                        elif not 0 < len(message) < 2000 and session['roles'] == 2:
+                            flash('Error setting reminder message (length wrong)')
+
+                        elif channel not in session['channels']:
+                            flash('Error setting reminder channel (channel not found)')
+
+                        else:
+
+                            r.message = message
+                            r.channel = channel
+
+                            db.session.commit()
 
                     break
 
@@ -163,7 +169,10 @@ def dashboard():
         return redirect(url_for('dashboard', id=request.args.get('id')))
 
     else:
-        user = discord.get('api/users/@me').json()
+        try:
+            user = discord.get('api/users/@me').json()
+        except:
+            return redirect( url_for('discord.login') )
 
         if session.get('guilds') is None or session.get('reminders') is None or session.get('roles') is None or session.get('channels') is None or request.args.get('refresh'):
             # the code below is time-consuming; only run on first load and if the user wants to refresh the guild list.
