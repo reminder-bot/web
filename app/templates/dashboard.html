@@ -222,7 +222,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                                 <textarea type="text" name="message_new" class="form-control pull-right" maxlength="200" id="input-message" required></textarea>
                                                 {% endif %}
                                             </div>
-                                            <div class="input-group">
+                                            <div class="input-group" id="mention-input" style="visibility: hidden;">
                                                 <div class="input-group-addon">
                                                     <i class="fas fa-at"></i>
                                                 </div>
@@ -511,6 +511,8 @@ function manage_characters(e)
 
     if ( type === "@" )
     {
+        document.getElementById("mention-input").style.visibility = "visible";
+
         for (key in members)
         {
             if ( key.includes(name) )
@@ -521,6 +523,8 @@ function manage_characters(e)
     }
     else if ( type === "#" )
     {
+        document.getElementById("mention-input").style.visibility = "visible";
+
         for (key in channels)
         {
             if ( key.includes(name) )
@@ -528,6 +532,9 @@ function manage_characters(e)
                 out.push("#" + key);
             }
         }
+    }
+    else {
+        document.getElementById("mention-input").style.visibility = "hidden";
     }
 
     document.getElementById("dropdown-mention").innerHTML = "";
