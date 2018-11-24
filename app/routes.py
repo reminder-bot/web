@@ -45,10 +45,10 @@ def delete():
 
 @app.route('/oauth/')
 def oauth():
-    if not discord.authorized:
-        return redirect(url_for('discord.login'))
 
-    return redirect(url_for('dashboard'))
+    session.clear()
+
+    return redirect(url_for('discord.login'))
 
 
 @app.route('/dashboard/', methods=['GET', 'POST'])
@@ -172,7 +172,7 @@ def dashboard():
         try:
             user = discord.get('api/users/@me').json()
         except:
-            return redirect( url_for('discord.login') )
+            return redirect( url_for('oauth') )
 
         if session.get('guilds') is None or session.get('reminders') is None or session.get('roles') is None or session.get('channels') is None or request.args.get('refresh'):
             # the code below is time-consuming; only run on first load and if the user wants to refresh the guild list.
