@@ -392,7 +392,6 @@ var channels = {
 var members = {
     {% for member in members %}
     "{{ member['user']['username'].lower() }}": "{{ member['user']['id'] }}",
-    "{{ member['nick'].lower() }}": "{{ member['user']['id'] }}",
     {% endfor %}
 }
 
