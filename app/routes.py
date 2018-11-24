@@ -226,7 +226,7 @@ def dashboard():
 
                     session['channels'] = [x['id'] for x in channels]
 
-                    members = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/members'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if isinstance(x, dict)]
+                    members = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/members?limit=200'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
                     break
 
             else:
