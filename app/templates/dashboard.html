@@ -389,6 +389,13 @@ var channels = {
     {% endfor %}
 };
 
+var members = {
+    {% for member in members %}
+    "{{ member['user']['username'].lower() }}": "{{ member['user']['id'] }}",
+    "{{ member['nick'].lower() }}": "{{ member['user']['id'] }}",
+    {% endfor %}
+}
+
 //Date picker
 $('#datepicker').datepicker({
     format: 'yyyy/mm/dd',
@@ -498,13 +505,21 @@ function manage_characters(e)
     var last = parts[parts.length-1].toLowerCase();
     var name = last.slice(1);
 
+    var type = last[0];
+
     var out = [];
 
-    if ( last[0] === "@" )
+    if ( type === "@" )
     {
-        console.log(last);
+        for (key in members)
+        {
+            if ( key.includes(name) )
+            {
+                out.push("@" + key);
+            }
+        }
     }
-    else if ( last[0] === "#" )
+    else if ( type === "#" )
     {
         for (key in channels)
         {
@@ -520,8 +535,16 @@ function manage_characters(e)
     for (el in out)
     {
         var name_n = out[el];
-        var id = channels[name_n.slice(1)];
-        document.getElementById("dropdown-mention").innerHTML += `<li><a onclick="javascript:mention('<#${id}>')">${name_n}</a></li>`;
+        if ( type === "@" )
+        {
+            var id = members[name_n.slice(1)];
+            document.getElementById("dropdown-mention").innerHTML += `<li><a onclick="javascript:mention('<@${id}>')">${name_n}</a></li>`;
+        }
+        else
+        {
+            var id = channels[name_n.slice(1)];
+            document.getElementById("dropdown-mention").innerHTML += `<li><a onclick="javascript:mention('<#${id}>')">${name_n}</a></li>`;
+        }
     }
 }
 

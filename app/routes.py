@@ -173,7 +173,7 @@ def dashboard():
         except:
             return redirect( url_for('oauth') )
 
-        if session.get('guilds') is None or session.get('reminders') is None or session.get('roles') is None or session.get('channels') is None or request.args.get('refresh'):
+        if any([session.get(x) is None for x in ('guilds', 'reminders', 'roles', 'channels')]) or request.args.get('refresh'):
             # the code below is time-consuming; only run on first load and if the user wants to refresh the guild list.
 
             guilds = discord.get('api/users/@me/guilds').json()
@@ -225,6 +225,8 @@ def dashboard():
                     channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if isinstance(x, dict) and x['type'] == 0]
 
                     session['channels'] = [x['id'] for x in channels]
+
+                    members = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/members'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if isinstance(x, dict)]
                     break
 
             else:
@@ -259,6 +261,22 @@ def dashboard():
 
             session['reminders'] = s_r
 
-            return render_template('dashboard.html', guilds=session['guilds'], reminders=r, channels=channels, server=server, title='Dashboard', user=user, timezones=app.config['TIMEZONES'], patreon=session['roles'])
+            return render_template('dashboard.html',
+                guilds=session['guilds'],
+                reminders=r,
+                channels=channels,
+                members=members,
+                server=server,
+                user=user,
+                timezones=app.config['TIMEZONES'],
+                patreon=session['roles'])
 
-        return render_template('dashboard.html', guilds=session['guilds'], reminders=[], channels=[], server=None, title='Dashboard', user=user, timezones=app.config['TIMEZONES'], patreon=session['roles'])
+        return render_template('dashboard.html',
+            guilds=session['guilds'],
+            reminders=[],
+            channels=[],
+            members=[],
+            server=None,
+            user=user,
+            timezones=app.config['TIMEZONES'],
+            patreon=session['roles'])
