@@ -17,7 +17,7 @@
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
         <!-- Theme style -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/AdminLTE.min.css') }}">
         <!-- AdminLTE Skins. Choose a skin from the css/skins
@@ -222,14 +222,28 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                                 <textarea type="text" name="message_new" class="form-control pull-right" maxlength="200" id="input-message" required></textarea>
                                                 {% endif %}
                                             </div>
+                                            <div class="input-group">
+                                                <div class="input-group-addon">
+                                                    <i class="fas fa-at"></i>
+                                                </div>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                        Mention...
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" aria-labelledby="dropdown-mention" id="dropdown-mention">
+                                                    </ul>
+                                                </div>
+                                            </div>
                                             <!-- /.input group -->
                                         </div>
+
                                         <!-- CHANNEL -->
                                         <div class="form-group">
                                             <label>Channel:</label>
                                             <div class="input-group">
                                                 <div class="input-group-addon">
-                                                    <i class="fa fa-users"></i>
+                                                    <i class="fas fa-comment-alt"></i>
                                                 </div>
                                                 <input type="text" name="channel_new" id="input-channel" hidden required>
                                                 <div class="dropdown">
@@ -237,7 +251,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                                         Select One
                                                         <span class="caret"></span>
                                                     </button>
-                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                                    <ul class="dropdown-menu" aria-labelledby="dropdown-channel">
                                                         {% for channel in channels %}
                                                             <li><a onclick="javascript:change_channel('{{ channel['id'] }}', '{{ channel['name'] }}')">{{ channel['name'] }}</a></li>
                                                         {% endfor %}
@@ -266,7 +280,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                                 <label>Time:</label>
                                                 <div class="input-group">
                                                     <div class="input-group-addon">
-                                                        <i class="fa fa-clock-o"></i>
+                                                        <i class="fas fa-clock"></i>
                                                     </div>
                                                     <input type="text" class="form-control timepicker" id="timepicker" name="time"></input>
                                                 </div>
@@ -281,7 +295,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                                 <label>Interval (seconds, optional):</label>
                                                 <div class="input-group">
                                                     <div class="input-group-addon">
-                                                        <i class="fa fa-clock-o"></i>
+                                                        <i class="fas fa-clock"></i>
                                                     </div>
                                                     <input type="number" class="form-control pull-right" name="interval_new"></input>
                                                 </div>
@@ -327,7 +341,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                             <label>Timezone:</label>
                                             <div class="input-group">
                                                 <div class="input-group-addon">
-                                                    <i class="fa fa-clock-o"></i>
+                                                    <i class="fas fa-clock"></i>
                                                 </div>
                                                 <input type="text" name="timezone" id="timezone" hidden>
                                                 <div class="dropdown">
@@ -367,6 +381,13 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
         </div>
 
         <script>
+
+
+var channels = {
+    {% for channel in channels %}
+    "{{ channel['name'] }}": "{{ channel['id'] }}",
+    {% endfor %}
+};
 
 //Date picker
 $('#datepicker').datepicker({
@@ -462,6 +483,49 @@ function validate_input()
 
     return !failed;
 }
+
+function mention(id)
+{
+    var value = document.getElementById("input-message").value;
+    value = value.split(" ").slice(0, -1).join(" ") + " " + id;
+    document.getElementById("input-message").value = value;
+}
+
+function manage_characters(e)
+{
+    var text = e.target.value;
+    var parts = text.split(" ");
+    var last = parts[parts.length-1].toLowerCase();
+    var name = last.slice(1);
+
+    var out = [];
+
+    if ( last[0] === "@" )
+    {
+        console.log(last);
+    }
+    else if ( last[0] === "#" )
+    {
+        for (key in channels)
+        {
+            if ( key.includes(name) )
+            {
+                out.push("#" + key);
+            }
+        }
+    }
+
+    document.getElementById("dropdown-mention").innerHTML = "";
+
+    for (el in out)
+    {
+        var name_n = out[el];
+        var id = channels[name_n.slice(1)];
+        document.getElementById("dropdown-mention").innerHTML += `<li><a onclick="javascript:mention('<#${id}>')">${name_n}</a></li>`;
+    }
+}
+
+document.getElementById("input-message").addEventListener("input", manage_characters);
 
         </script>
     </body>
