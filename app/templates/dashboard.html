@@ -223,7 +223,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                                 <div class="input-group-addon">
                                                     <i class="fa fa-envelope"></i>
                                                 </div>
-                                                {% if patreon == 2 %}
+                                                {% if patreon > 1 %}
                                                 <textarea type="text" name="message_new" class="form-control pull-right" maxlength="1900" id="input-message" required></textarea>
                                                 {% else %}
                                                 <textarea type="text" name="message_new" class="form-control pull-right" maxlength="200" id="input-message" required></textarea>
@@ -317,7 +317,9 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                                 <input type="checkbox" id="checkb" name="embed" onclick="toggle_colorpicker()"></input>
                                             </div>
                                         </div>
+                                        {% endif %}
 
+                                        {% if patreon > 1 %}
                                         <div class="colorpicker-component" id="colorpicker">
                                             <div class="form-group">
                                                 <label>Embed Color:</label>
