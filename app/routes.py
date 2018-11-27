@@ -119,7 +119,8 @@ def dashboard():
                 new_msg = request.form.get('message_new')
                 new_channel = request.form.get('channel_new')
                 new_time = request.form.get('time_new')
-
+                new_interval = None
+                embed = None
 
                 if session['roles'] > 0:
                     try:
@@ -139,10 +140,6 @@ def dashboard():
                         else:
                             if 0 > embed or embed > 16777215:
                                 embed = None
-
-                else:
-                    new_interval = None
-                    embed = None
 
 
                 if not all([x in '0123456789' for x in new_time]):
