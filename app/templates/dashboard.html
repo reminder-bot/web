@@ -30,6 +30,8 @@
 
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-colorpicker.min.css') }}">
 
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/minimal.css') }}">
+
         <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
         <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
 
@@ -309,7 +311,14 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                             <!-- /.form group -->
                                         </div>
 
-                                        <div class="colorpicker-component">
+                                        <div class="form-group">
+                                            <label>Send as Embed?</label>
+                                            <div class="input-group">
+                                                <input type="checkbox" id="checkb" name="embed" onclick="toggle_colorpicker()"></input>
+                                            </div>
+                                        </div>
+
+                                        <div class="colorpicker-component" id="colorpicker">
                                             <div class="form-group">
                                                 <label>Embed Color:</label>
                                                 <div class="input-group">
@@ -317,7 +326,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = momen
                                                         <i class="fas fa-palette"></i>
                                                     </div>
                                                     <div id="cp2" class="input-group">
-                                                        <input type="text" value="#000000" class="form-control"/>
+                                                        <input type="text" value="#000000" class="form-control" name="color"></input>
                                                         <span class="input-group-addon"><i></i></span>
                                                     </div>
                                                 </div>
@@ -578,7 +587,21 @@ function manage_characters(e)
     }
 }
 
+function toggle_colorpicker()
+{
+    check = document.getElementById("checkb");
+    if (check.checked)
+    {
+        document.getElementById("colorpicker").style.opacity = 1;
+    }
+    else
+    {
+        document.getElementById("colorpicker").style.opacity = 0;
+    }
+}
+
 document.getElementById("input-message").addEventListener("input", manage_characters);
+toggle_colorpicker();
 
         </script>
     </body>
