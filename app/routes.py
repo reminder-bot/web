@@ -175,7 +175,6 @@ def dashboard():
 
         if any([session.get(x) is None for x in ('guilds', 'reminders', 'roles', 'channels')]) or request.args.get('refresh'):
             # the code below is time-consuming; only run on first load and if the user wants to refresh the guild list.
-
             guilds = discord.get('api/users/@me/guilds').json()
 
             user_id = user['id']
