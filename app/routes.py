@@ -57,7 +57,7 @@ def dashboard():
 
     if request.method == 'POST':
 
-        if request.form.get('update-server') is not None:
+        if request.form.get('update-server') is not None: # updated server
 
             server = Server.query.filter(Server.id == request.args.get('id')).first()
 
@@ -85,7 +85,7 @@ def dashboard():
 
         else:
             for reminder in session['reminders']:
-                if 'message_{}'.format(reminder['index']) in request.form.keys():
+                if 'message_{}'.format(reminder['index']) in request.form.keys(): # editted reminder
 
                     r = Reminder.query.get(reminder['id'])
 
@@ -115,7 +115,7 @@ def dashboard():
 
                     break
 
-            else:
+            else: # new reminder
                 new_msg = request.form.get('message_new')
                 new_channel = request.form.get('channel_new')
                 new_time = request.form.get('time_new')
@@ -130,8 +130,19 @@ def dashboard():
                     else:
                         if new_interval == 0 or not bool(new_interval):
                             new_interval = None
+
+                    if request.form.get('embed') == 'on':
+                        try:
+                            embed = int(request.form.get('color')[1:], 16)
+                        except ValueError:
+                            embed = None
+                        else:
+                            if 0 > embed or embed > 16777215:
+                                embed = None
+
                 else:
                     new_interval = None
+                    embed = None
 
 
                 if not all([x in '0123456789' for x in new_time]):
@@ -152,7 +163,7 @@ def dashboard():
                         flash('Error setting reminder (interval timer is out of bounds)')
 
                     else:
-                        reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=new_interval)
+                        reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=new_interval, embed=embed, method='dashboard')
 
                         db.session.add(reminder)
                         db.session.commit()

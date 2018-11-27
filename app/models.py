@@ -11,6 +11,11 @@ class Reminder(db.Model):
     time = db.Column( db.BigInteger )
     interval = db.Column( db.Integer )
 
+    avatar = db.Column( db.Text )
+
+    method = db.Column( db.Text )
+    embed = db.Column( db.Integer, nullable=True)
+
     mysql_charset = 'utf8mb4'
 
     def __repr__(self):
