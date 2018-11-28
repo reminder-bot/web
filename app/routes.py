@@ -10,6 +10,11 @@ import time
 import pytz
 
 
+@app.errorhandler(500)
+def internal_error(error):
+    session.clear()
+    return "An error has occured! We've made a report, and cleared your cache on this website. If you encounter this error again, please send us a message on Discord!"
+
 @app.route('/')
 def index():
     return redirect( url_for('help') )
@@ -185,10 +190,12 @@ def dashboard():
             # the code below is time-consuming; only run on first load and if the user wants to refresh the guild list.
             guilds = discord.get('api/users/@me/guilds').json()
 
+            print(user)
             user_id = user['id']
 
             available_guilds = []
 
+            print(guilds)
             for guild in guilds:
 
                 idx = guild['id']
