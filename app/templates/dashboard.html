@@ -126,10 +126,12 @@
                                     {% for reminder in reminders %}
                                         <tr>
                                             <td>{{ reminder['message'] }}</td>
-                                            <td id="time_val_{{ reminder['index'] }}">{{ reminder['time'] }}</td>
+                                            <td id="time_val_{{ reminder['index'] }}"><a data-toggle="tooltip" title="tooltip text">{{ reminder['time'] }}</a></td>
                                             <script>
 
-document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = moment.unix({{ reminder['time'] }}).calendar();
+var l = moment.unix({{ reminder['time'] }}).calendar();
+var t = moment.unix({{ reminder['time'] }}).format("dddd, MMM Do YYYY, HH:mm");
+document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a data-toggle="tooltip" title="${t}">${l}</a>`;
 
                                             </script>
                                             <td>#{{ reminder['channel']['name'] }}</td>
@@ -604,6 +606,11 @@ function toggle_colorpicker()
 
 document.getElementById("input-message").addEventListener("input", manage_characters);
 toggle_colorpicker();
+
+$(document).ready(function(){
+    // Initialize
+    $('[data-toggle="tooltip"]').tooltip();
+});
 
         </script>
     </body>
