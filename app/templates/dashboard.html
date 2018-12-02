@@ -82,6 +82,7 @@
                 <section class="sidebar">
                     <ul class="sidebar-menu" data-widget="tree">
                         <li class="header">GUILDS</li>
+                        <li style="margin-left: 2rem; margin-bottom: 1rem;"><a href="{{ url_for('dashboard', id=0) }}">@{{ user['username'] }}</a></li>
                         {% for guild in guilds %}
                             <li style="margin-left: 2rem;"><a href="{{ url_for('dashboard', id=guild['id']) }}">{{ guild['name'] }}</a></li>
                         {% endfor %}
@@ -142,7 +143,9 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a d
                                             <td>{{ reminder['interval'] }}{% if reminder['interval'] != None %}s{% endif %}</td>
                                             <td>
                                                 <button onclick="send_delete('{{ reminder['index'] }}')" class="guildbtn btn btn-danger btn-fill"><i class="fa fa-times"></i></button>
+                                                {% if server != None %}
                                                 <button data-toggle="modal" data-target="#editModal{{ reminder['index'] }}" class="guildbtn btn btn-info btn-fill"><i class="fas fa-edit"></i></button>
+                                                {% endif %}
                                                 <div class="modal fade col-md-12" id="editModal{{ reminder['index'] }}" data-backdrop="false">
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">
@@ -453,7 +456,7 @@ $('#datepicker').datepicker('update', new Date());
 $('.timepicker').timepicker({
     minuteStep: 1,
     showInputs: false,
-    showSeconds: true
+    showSeconds: true,
 })
 
 $("#datepicker").change(update_time);
@@ -601,6 +604,7 @@ function manage_characters(e)
     }
 }
 
+{% if server != None %}
 function toggle_colorpicker()
 {
     check = document.getElementById("checkb");
@@ -613,9 +617,10 @@ function toggle_colorpicker()
         document.getElementById("colorpicker").style.opacity = 0;
     }
 }
+toggle_colorpicker();
+{% endif %}
 
 document.getElementById("input-message").addEventListener("input", manage_characters);
-toggle_colorpicker();
 
 $(document).ready(function(){
     // Initialize
