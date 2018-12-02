@@ -283,8 +283,6 @@ def dashboard():
 
             session['reminders'] = s_r
 
-            print(user)
-
             return render_template('dashboard.html',
                 out=False,
                 guilds=session['guilds'],
