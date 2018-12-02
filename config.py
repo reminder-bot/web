@@ -45,8 +45,6 @@ class Config(object):
         passwd = None
     host = config.get('MYSQL', 'host')
     db = config.get('MYSQL', 'database')
-    db_sfx = config.get('MYSQL', 'database_sfx')
-
 
     SECRET_KEY = os.environ.get('SECRET_KEY') or secret
 

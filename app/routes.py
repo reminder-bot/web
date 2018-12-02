@@ -140,7 +140,7 @@ def dashboard():
                     if request.form.get('embed') == 'on':
                         try:
                             embed = int(request.form.get('color')[1:], 16)
-                        except ValueError:
+                        except:
                             embed = None
                         else:
                             if 0 > embed or embed > 16777215:
@@ -190,12 +190,10 @@ def dashboard():
             # the code below is time-consuming; only run on first load and if the user wants to refresh the guild list.
             guilds = discord.get('api/users/@me/guilds').json()
 
-            print(user)
             user_id = user['id']
 
             available_guilds = []
 
-            print(guilds)
             for guild in guilds:
 
                 idx = guild['id']
@@ -243,11 +241,21 @@ def dashboard():
                     members = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/members?limit=200'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
                     break
 
+                elif request.args.get('id') == '0':
+                    server = None
+
+                    channels = [requests.post('https://discordapp.com/api/v6/users/@me/channels', json={'recipient_id': user['id']}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
+                    print(channels)
+                    session['channels'] = [x['id'] for x in channels]
+
+                    members = []
+                    break
+
             else:
                 flash('You do not have permission to view this guild')
                 return redirect(url_for('dashboard'))
 
-            reminders = Reminder.query.filter(Reminder.channel.in_([x['id'] for x in channels])).all()
+            reminders = Reminder.query.filter(Reminder.channel.in_(session['channels'])).all()
 
             r = []
             s_r = []
@@ -276,6 +284,7 @@ def dashboard():
             session['reminders'] = s_r
 
             return render_template('dashboard.html',
+                out=False,
                 guilds=session['guilds'],
                 reminders=r,
                 channels=channels,
@@ -286,6 +295,7 @@ def dashboard():
                 patreon=session['roles'])
 
         return render_template('dashboard.html',
+            out=True,
             guilds=session['guilds'],
             reminders=[],
             channels=[],

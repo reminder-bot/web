@@ -101,7 +101,7 @@
                     {% endif %}
                 {% endwith %}
 
-                {% if server %}
+                {% if not out %}
                 <section class="content-header">
                     <h1>
                         Dashboard
@@ -117,7 +117,9 @@
                                     <tr>
                                         <th>Message</th>
                                         <th>Time</th>
+                                        {% if server != None %}
                                         <th>Channel</th>
+                                        {% endif %}
                                         <th>Interval</th>
                                         <th>Actions</th>
                                     </tr>
@@ -134,7 +136,9 @@ var t = moment.unix({{ reminder['time'] }}).format("dddd, MMM Do YYYY, HH:mm");
 document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a data-toggle="tooltip" title="${t}">${l}</a>`;
 
                                             </script>
+                                            {% if server != None %}
                                             <td>#{{ reminder['channel']['name'] }}</td>
+                                            {% endif %}
                                             <td>{{ reminder['interval'] }}{% if reminder['interval'] != None %}s{% endif %}</td>
                                             <td>
                                                 <button onclick="send_delete('{{ reminder['index'] }}')" class="guildbtn btn btn-danger btn-fill"><i class="fa fa-times"></i></button>
@@ -202,7 +206,9 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a d
                             <div class="text-center">
                                 <hr>
                                 <button data-toggle="modal" data-target="#addModal" class="guildbtn btn btn-success btn-fill">Add Reminder</button>
-                                <button data-toggle="modal" data-target="#addModal2" class="guildbtn btn btn-primary btn-fill">Edit Server Settings</button>
+                                {% if server != None %}
+                                    <button data-toggle="modal" data-target="#addModal2" class="guildbtn btn btn-primary btn-fill">Edit Server Settings</button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -248,6 +254,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a d
                                         </div>
 
                                         <!-- CHANNEL -->
+                                        {% if server != None %}
                                         <div class="form-group">
                                             <label>Channel:</label>
                                             <div class="input-group">
@@ -269,6 +276,9 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a d
                                             </div>
                                             <!-- /.input group -->
                                         </div>
+                                        {% else %}
+                                        <input type="text" name="channel_new" value="{{ channels[0]['id'] }}" id="input-channel" hidden required>
+                                        {% endif %}
 
                                         <input name="time_new" value="0" id="time_new" hidden></input>
 
@@ -312,16 +322,16 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a d
                                             </div>
                                             <!-- /.form group -->
                                         </div>
+                                        {% endif %}
 
+                                        {% if patreon > 1 and server != None %}
                                         <div class="form-group">
                                             <label>Send as Embed?</label>
                                             <div class="input-group">
                                                 <input type="checkbox" id="checkb" name="embed" onclick="toggle_colorpicker()"></input>
                                             </div>
                                         </div>
-                                        {% endif %}
 
-                                        {% if patreon > 1 %}
                                         <div class="colorpicker-component" id="colorpicker">
                                             <div class="form-group">
                                                 <label>Embed Color:</label>
