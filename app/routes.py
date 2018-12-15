@@ -99,7 +99,6 @@ def dashboard():
 
                     else:
 
-                        channel = request.form.get('channel_{}'.format(reminder['index']))
                         message = request.form.get('message_{}'.format(reminder['index']))
 
                         if not 0 < len(message) <= 200 and session['roles'] != 2:
@@ -114,7 +113,6 @@ def dashboard():
                         else:
 
                             r.message = message
-                            r.channel = channel
 
                             db.session.commit()
 
@@ -137,14 +135,15 @@ def dashboard():
                         if new_interval == 0 or not bool(new_interval):
                             new_interval = None
 
-                    if request.form.get('embed') == 'on':
-                        try:
-                            embed = int(request.form.get('color')[1:], 16)
-                        except:
-                            embed = None
-                        else:
-                            if 0 > embed or embed > 16777215:
+                    if session['roles'] > 1:
+                        if request.form.get('embed') == 'on':
+                            try:
+                                embed = int(request.form.get('color')[1:], 16)
+                            except:
                                 embed = None
+                            else:
+                                if 0 > embed or embed > 16777215:
+                                    embed = None
 
 
                 if not all([x in '0123456789' for x in new_time]):
@@ -165,7 +164,17 @@ def dashboard():
                         flash('Error setting reminder (interval timer is out of bounds)')
 
                     else:
-                        reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=new_interval, embed=embed, method='dashboard')
+                        webhooks = requests.get('https://discordapp.com/api/v6/channels/{}/webhooks'.format(new_channel), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
+                        print(webhooks)
+                        existing = [x for x in webhooks if x['user']['id'] == app.config['DISCORD_OAUTH_CLIENT_ID']]
+
+                        if len(existing) == 0:
+                            wh = requests.post('https://discordapp.com/api/v6/channels/{}/webhooks'.format(new_channel), json={'name': 'Reminders'}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
+                            wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(wh['id'], wh['token'])
+                        else:
+                            wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
+
+                        reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=new_interval, embed=embed, method='dashboard', webhook=wh)
 
                         db.session.add(reminder)
                         db.session.commit()

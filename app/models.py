@@ -11,6 +11,7 @@ class Reminder(db.Model):
     time = db.Column( db.BigInteger )
     interval = db.Column( db.Integer )
 
+    webhook = db.Column( db.String(200) )
     avatar = db.Column( db.Text )
 
     method = db.Column( db.Text )
