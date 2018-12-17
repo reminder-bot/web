@@ -164,15 +164,18 @@ def dashboard():
                         flash('Error setting reminder (interval timer is out of bounds)')
 
                     else:
-                        webhooks = requests.get('https://discordapp.com/api/v6/channels/{}/webhooks'.format(new_channel), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
-                        print(webhooks)
-                        existing = [x for x in webhooks if x['user']['id'] == app.config['DISCORD_OAUTH_CLIENT_ID']]
+                        wh = None
 
-                        if len(existing) == 0:
-                            wh = requests.post('https://discordapp.com/api/v6/channels/{}/webhooks'.format(new_channel), json={'name': 'Reminders'}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
-                            wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(wh['id'], wh['token'])
-                        else:
-                            wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
+                        if request.args.get('id') != '0':
+                            webhooks = requests.get('https://discordapp.com/api/v6/channels/{}/webhooks'.format(new_channel), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
+                            if isinstance(webhooks, list):
+                                existing = [x for x in webhooks if x['user']['id'] == app.config['DISCORD_OAUTH_CLIENT_ID']]
+
+                                if len(existing) == 0:
+                                    wh = requests.post('https://discordapp.com/api/v6/channels/{}/webhooks'.format(new_channel), json={'name': 'Reminders'}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
+                                    wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(wh['id'], wh['token'])
+                                else:
+                                    wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
 
                         reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=new_interval, embed=embed, method='dashboard', webhook=wh)
 
