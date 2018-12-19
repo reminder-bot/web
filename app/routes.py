@@ -101,14 +101,11 @@ def dashboard():
 
                         message = request.form.get('message_{}'.format(reminder['index']))
 
-                        if not 0 < len(message) <= 200 and session['roles'] != 2:
+                        if not 0 < len(message) <= 250 and session['roles'] != 2:
                             flash('Error setting reminder message (length wrong)')
 
                         elif not 0 < len(message) < 2000 and session['roles'] == 2:
                             flash('Error setting reminder message (length wrong)')
-
-                        elif channel not in session['channels']:
-                            flash('Error setting reminder channel (channel not found)')
 
                         else:
 
