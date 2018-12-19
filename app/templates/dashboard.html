@@ -169,28 +169,6 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a d
                                                                         </div>
                                                                         <!-- /.input group -->
                                                                     </div>
-                                                                    <!-- CHANNEL -->
-                                                                    <div class="form-group">
-                                                                        <label>Channel:</label>
-                                                                        <div class="input-group">
-                                                                            <div class="input-group-addon">
-                                                                                <i class="fa fa-users"></i>
-                                                                            </div>
-                                                                            <input type="text" name="channel_{{ reminder['index'] }}" id="input-channel-{{ reminder['index'] }}" value="{{ reminder['channel']['id'] }}" hidden>
-                                                                            <div class="dropdown">
-                                                                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-channel-{{ reminder['index'] }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                                                                    {{ reminder['channel']['name'] }}
-                                                                                    <span class="caret"></span>
-                                                                                </button>
-                                                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                                                                    {% for channel in channels %}
-                                                                                        <li><a onclick="javascript:change_channel('{{ channel['id'] }}', '{{ channel['name'] }}', {{ reminder['index'] }})">{{ channel['name'] }}</a></li>
-                                                                                    {% endfor %}
-                                                                                </ul>
-                                                                            </div>
-                                                                        </div>
-                                                                        <!-- /.input group -->
-                                                                    </div>
                                                                     <div class="modal-footer">
                                                                         <button type="submit" class="btn btn-success">Submit</button>
                                                                         <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
