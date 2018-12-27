@@ -121,6 +121,12 @@ def dashboard():
                 new_time = request.form.get('time_new')
                 new_interval = None
                 embed = None
+                avatar = None
+
+                username = request.form.get('username')
+                if username is not None:
+                    if not (0 < len(username) <= 32):
+                        username = None
 
                 if session['roles'] > 0:
                     try:
@@ -132,15 +138,19 @@ def dashboard():
                         if new_interval == 0 or not bool(new_interval):
                             new_interval = None
 
-                    if session['roles'] > 1:
-                        if request.form.get('embed') == 'on':
-                            try:
-                                embed = int(request.form.get('color')[1:], 16)
-                            except:
+                    if request.form.get('embed') == 'on':
+                        try:
+                            embed = int(request.form.get('color')[1:], 16)
+                        except:
+                            embed = None
+                        else:
+                            if 0 > embed or embed > 16777215:
                                 embed = None
-                            else:
-                                if 0 > embed or embed > 16777215:
-                                    embed = None
+
+                    if session['roles'] > 1:
+                        avatar = request.form.get('avatar')
+                        if not avatar:
+                            avatar = None
 
 
                 if not all([x in '0123456789' for x in new_time]):
@@ -174,7 +184,7 @@ def dashboard():
                                 else:
                                     wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
 
-                        reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=new_interval, embed=embed, method='dashboard', webhook=wh)
+                        reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=new_interval, embed=embed, method='dashboard', webhook=wh, username=username, avatar=avatar)
 
                         db.session.add(reminder)
                         db.session.commit()

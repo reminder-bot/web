@@ -13,6 +13,7 @@ class Reminder(db.Model):
 
     webhook = db.Column( db.String(200) )
     avatar = db.Column( db.Text )
+    username = db.Column( db.String(32) )
 
     method = db.Column( db.Text )
     embed = db.Column( db.Integer, nullable=True)
