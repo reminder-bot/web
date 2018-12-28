@@ -149,7 +149,7 @@ def dashboard():
 
                     if session['roles'] > 1:
                         avatar = request.form.get('avatar')
-                        if not avatar or not avatar.startswith('http') or not avatar.contains('.'):
+                        if not avatar or not avatar.startswith('http') or not '.' in avatar:
                             avatar = None
 
 
