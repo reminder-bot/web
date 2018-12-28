@@ -224,7 +224,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a d
                                                 </div>
                                                 <div class="dropdown">
                                                     <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                                        Mention...
+                                                        Mention... (hint: use a double @ to get roles)
                                                         <span class="caret"></span>
                                                     </button>
                                                     <ul class="dropdown-menu" aria-labelledby="dropdown-mention" id="dropdown-mention" style="max-height: 40vh; overflow-y: scroll;">
@@ -439,7 +439,14 @@ var members = {
     {% for member in members %}
     "{{ member['user']['username'].lower() }}": "{{ member['user']['id'] }}",
     {% endfor %}
-}
+};
+
+var roles = {
+    {% for role in roles %}
+    "@{{ role['name'].lower() }}": "&{{ role['id'] }}",
+    {% endfor %}
+};
+
 
 $(function() {
     $('#cp2').colorpicker({"format": "hex"});
@@ -560,9 +567,20 @@ function manage_characters(e)
 
     if ( type === "@" )
     {
+        var roles_also = last[1] == "@";
+
+        if ( roles_also ) 
+        {
+            var set = roles;
+        }
+        else 
+        {
+            var set = members
+        }
+
         document.getElementById("mention-input").style.visibility = "visible";
 
-        for (key in members)
+        for ( key in set )
         {
             if ( key.includes(name) )
             {
@@ -582,18 +600,28 @@ function manage_characters(e)
             }
         }
     }
-    else {
+    else
+    {
         document.getElementById("mention-input").style.visibility = "hidden";
     }
 
     document.getElementById("dropdown-mention").innerHTML = "";
+
+    out.sort();
 
     for (el in out)
     {
         var name_n = out[el];
         if ( type === "@" )
         {
-            var id = members[name_n.slice(1)];
+            if ( last[1] === "@" ) 
+            {
+                var id = roles[name_n.slice(1)];
+            }
+            else
+            {
+                var id = members[name_n.slice(1)];
+            }
             document.getElementById("dropdown-mention").innerHTML += `<li><a onclick="javascript:mention('<@${id}>')">${name_n}</a></li>`;
         }
         else

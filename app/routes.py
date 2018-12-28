@@ -258,16 +258,18 @@ def dashboard():
                     session['channels'] = [x['id'] for x in channels]
 
                     members = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/members?limit=200'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
+
+                    roles = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/roles'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
                     break
 
                 elif request.args.get('id') == '0':
                     server = None
 
                     channels = [requests.post('https://discordapp.com/api/v6/users/@me/channels', json={'recipient_id': user['id']}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
-                    print(channels)
                     session['channels'] = [x['id'] for x in channels]
 
                     members = []
+                    roles = []
                     break
 
             else:
@@ -308,6 +310,7 @@ def dashboard():
                 reminders=r,
                 channels=channels,
                 members=members,
+                roles=roles,
                 server=server,
                 user=user,
                 timezones=app.config['TIMEZONES'],
@@ -319,6 +322,7 @@ def dashboard():
             reminders=[],
             channels=[],
             members=[],
+            roles=[],
             server=None,
             user=user,
             timezones=app.config['TIMEZONES'],
