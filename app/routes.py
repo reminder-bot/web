@@ -55,8 +55,8 @@ def oauth():
     return redirect(url_for('discord.login'))
 
 
-@app.route('/add_reminder', methods=['POST'])
-def add_reminder():
+@app.route('/creminder', methods=['POST'])
+def change_reminder():
     new_msg = request.form.get('message_new')
     new_channel = request.form.get('channel_new')
     new_time = request.form.get('time_new')
@@ -125,9 +125,30 @@ def add_reminder():
                     else:
                         wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
 
-            reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=new_interval, embed=embed, method='dashboard', webhook=wh, username=username, avatar=avatar)
 
-            db.session.add(reminder)
+            index = request.args.get('index')
+
+            if index is not None:
+                rem = None 
+
+                for reminder in session['reminders']:
+                    if str( reminder['index'] ) == index:
+                        rem = Reminder.query.get(reminder['id'])
+
+                rem.message = new_msg
+                rem.time = int( new_time )
+                rem.channel = int( new_channel )
+                rem.interval = new_interval
+                rem.embed = embed
+                rem.method = 'dashboard'
+                rem.webhook = wh
+                rem.username = username
+                rem.avatar = avatar
+
+            else:
+                reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=new_interval, embed=embed, method='dashboard', webhook=wh, username=username, avatar=avatar)
+                db.session.add(reminder)
+
             db.session.commit()
 
     elif new_channel not in session['channels']:

@@ -145,15 +145,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a d
                                                 <button onclick="send_delete('{{ reminder['index'] }}')" class="guildbtn btn btn-danger btn-fill"><i class="fa fa-times"></i></button>
                                                 {% if server != None %}
 
-                                                    <button data-toggle="modal" data-target="#editModal" class="guildbtn btn btn-success btn-fill"><i class="fas fa-edit"></i></button>
-
-                                                    <div class="modal fade col-md-12" id="editModal" data-backdrop="false">
-                                                        <div class="modal-dialog">
-                                                            <div class="modal-content">
-                                                                {% set action = 'Edit' %}
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    <button data-toggle="modal" data-target="#addModal" class="guildbtn btn btn-info btn-fill" onclick="set_form_action('{{ url_for('change_reminder', redirect=server.id, index=reminder['index']) }}')"><i class="fas fa-edit"></i></button>
 
                                                 {% endif %}
                                             </td>
@@ -175,8 +167,6 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a d
                     <div class="modal fade col-md-12" id="addModal" data-backdrop="false">
                         <div class="modal-dialog">
                             <div class="modal-content">
-                                {% set action = 'Add' %}
-                                {% set form_action = url_for('add_reminder', redirect=server.id) %}
                                 {% include "modal.html" %}
                             </div>
                         </div>
@@ -289,6 +279,11 @@ $('.timepicker').timepicker({
 
 $("#datepicker").change(update_time);
 $("#timepicker").change(update_time);
+
+function set_form_action(action)
+{
+    document.getElementById('form1').action = action;
+}
 
 function update_time()
 {
