@@ -55,6 +55,95 @@ def oauth():
     return redirect(url_for('discord.login'))
 
 
+@app.route('/add_reminder', methods=['POST'])
+def add_reminder():
+    new_msg = request.form.get('message_new')
+    new_channel = request.form.get('channel_new')
+    new_time = request.form.get('time_new')
+    new_interval = None
+    embed = None
+    avatar = None
+
+    username = request.form.get('username')
+    if username is not None:
+        if not (0 < len(username) <= 32):
+            username = None
+
+    if session['roles'] > 0:
+        try:
+            new_interval = int(request.form.get('interval_new'))
+        except ValueError:
+            new_interval = None
+
+        else:
+            if new_interval == 0 or not bool(new_interval):
+                new_interval = None
+
+        if request.form.get('embed') == 'on':
+            try:
+                embed = int(request.form.get('color')[1:], 16)
+            except:
+                embed = None
+            else:
+                if 0 > embed or embed > 16777215:
+                    embed = None
+
+        if session['roles'] > 1:
+            avatar = request.form.get('avatar')
+            if not avatar or not avatar.startswith('http') or not '.' in avatar:
+                avatar = None
+
+
+    if not all([x in '0123456789' for x in new_time]):
+        flash('Error setting reminder')
+
+    elif int(new_time) - 1576800000 > time.time():
+        flash('Error setting reminder (time is too long)')
+
+    elif new_msg and new_channel in session['channels']:
+
+        if not 0 < len(new_msg) <= 200 and session['roles'] != 2:
+            flash('Error setting reminder (message length wrong)')
+
+        elif not 0 < len(new_msg) < 2000 and session['roles'] == 2:
+            flash('Error setting reminder (message length wrong)')
+
+        elif new_interval is not None and not 8 < new_interval < 1576800000:
+            flash('Error setting reminder (interval timer is out of bounds)')
+
+        else:
+            wh = None
+
+            if request.args.get('id') != '0':
+                webhooks = requests.get('https://discordapp.com/api/v6/channels/{}/webhooks'.format(new_channel), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
+                if isinstance(webhooks, list):
+                    existing = [x for x in webhooks if x['user']['id'] == app.config['DISCORD_OAUTH_CLIENT_ID']]
+
+                    if len(existing) == 0:
+                        wh = requests.post('https://discordapp.com/api/v6/channels/{}/webhooks'.format(new_channel), json={'name': 'Reminders'}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
+                        wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(wh['id'], wh['token'])
+                    else:
+                        wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
+
+            reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=new_interval, embed=embed, method='dashboard', webhook=wh, username=username, avatar=avatar)
+
+            db.session.add(reminder)
+            db.session.commit()
+
+    elif new_channel not in session['channels']:
+        flash('Error setting reminder (channel not found)')
+
+    try:
+        session.pop('reminders')
+    except:
+        pass
+
+    if request.args.get('redirect'):
+        return redirect(url_for('dashboard', id=request.args.get('redirect')))
+    else:
+        return redirect(url_for('dashboard'))
+
+
 @app.route('/dashboard/', methods=['GET', 'POST'])
 def dashboard():
     if not discord.authorized:
@@ -114,83 +203,6 @@ def dashboard():
                             db.session.commit()
 
                     break
-
-            else: # new reminder
-                new_msg = request.form.get('message_new')
-                new_channel = request.form.get('channel_new')
-                new_time = request.form.get('time_new')
-                new_interval = None
-                embed = None
-                avatar = None
-
-                username = request.form.get('username')
-                if username is not None:
-                    if not (0 < len(username) <= 32):
-                        username = None
-
-                if session['roles'] > 0:
-                    try:
-                        new_interval = int(request.form.get('interval_new'))
-                    except ValueError:
-                        new_interval = None
-
-                    else:
-                        if new_interval == 0 or not bool(new_interval):
-                            new_interval = None
-
-                    if request.form.get('embed') == 'on':
-                        try:
-                            embed = int(request.form.get('color')[1:], 16)
-                        except:
-                            embed = None
-                        else:
-                            if 0 > embed or embed > 16777215:
-                                embed = None
-
-                    if session['roles'] > 1:
-                        avatar = request.form.get('avatar')
-                        if not avatar or not avatar.startswith('http') or not '.' in avatar:
-                            avatar = None
-
-
-                if not all([x in '0123456789' for x in new_time]):
-                    flash('Error setting reminder')
-
-                elif int(new_time) - 1576800000 > time.time():
-                    flash('Error setting reminder (time is too long)')
-
-                elif new_msg and new_channel in session['channels']:
-
-                    if not 0 < len(new_msg) <= 200 and session['roles'] != 2:
-                        flash('Error setting reminder (message length wrong)')
-
-                    elif not 0 < len(new_msg) < 2000 and session['roles'] == 2:
-                        flash('Error setting reminder (message length wrong)')
-
-                    elif new_interval is not None and not 8 < new_interval < 1576800000:
-                        flash('Error setting reminder (interval timer is out of bounds)')
-
-                    else:
-                        wh = None
-
-                        if request.args.get('id') != '0':
-                            webhooks = requests.get('https://discordapp.com/api/v6/channels/{}/webhooks'.format(new_channel), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
-                            if isinstance(webhooks, list):
-                                existing = [x for x in webhooks if x['user']['id'] == app.config['DISCORD_OAUTH_CLIENT_ID']]
-
-                                if len(existing) == 0:
-                                    wh = requests.post('https://discordapp.com/api/v6/channels/{}/webhooks'.format(new_channel), json={'name': 'Reminders'}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
-                                    wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(wh['id'], wh['token'])
-                                else:
-                                    wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
-
-                        reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=new_interval, embed=embed, method='dashboard', webhook=wh, username=username, avatar=avatar)
-
-                        db.session.add(reminder)
-                        db.session.commit()
-
-                elif new_channel not in session['channels']:
-                    flash('Error setting reminder (channel not found)')
 
             try:
                 session.pop('reminders')
