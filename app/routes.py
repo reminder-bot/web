@@ -165,6 +165,17 @@ def change_reminder():
         return redirect(url_for('dashboard'))
 
 
+@app.route('/edit')
+def edit():
+
+    for r in session['reminders']:
+        if str( r['index'] ) == request.args.get('reminder'):
+            print(r)
+            return render_template('edit.html', reminder=r, patreon=session['roles'], server=request.args.get('server'))
+
+    return redirect( url_for('dashboard', refresh=1) )
+
+
 @app.route('/dashboard/', methods=['GET', 'POST'])
 def dashboard():
     if not discord.authorized:

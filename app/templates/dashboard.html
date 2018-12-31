@@ -143,6 +143,11 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a d
                                             <td>{{ reminder['interval'] }}{% if reminder['interval'] != None %}s{% endif %}</td>
                                             <td>
                                                 <button onclick="send_delete('{{ reminder['index'] }}')" class="guildbtn btn btn-danger btn-fill"><i class="fa fa-times"></i></button>
+                                                {% if server != None %}
+
+                                                    <a href="{{ url_for('edit', reminder=reminder['index'], server=server.id) }}" class="guildbtn btn btn-info btn-fill"><i class="fas fa-edit"></i></a>
+
+                                                {% endif %}
                                             </td>
                                         </tr>
                                     {% endfor %}
