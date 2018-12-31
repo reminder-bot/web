@@ -128,7 +128,7 @@
                                 <tbody>
                                     {% for reminder in reminders %}
                                         <tr>
-                                            <td>{{ reminder['message'] }}</td>
+                                            <td style="max-width: 45vw; overflow: hidden;">{{ reminder['message'] }}</td>
                                             <td id="time_val_{{ reminder['index'] }}"><a data-toggle="tooltip" title="tooltip text">{{ reminder['time'] }}</a></td>
                                             <script>
 
