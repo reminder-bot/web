@@ -1,6 +1,6 @@
-<form method="post" action="{{ form_action }}" onsubmit="return validate_input()" id="form1" novalidate>
+<form method="post" action="{{ url_for('change_reminder', redirect=server.id) }}" onsubmit="return validate_input()" novalidate>
     <div class="modal-header">
-        <h4>{{ action }} Reminder</h4>
+        <h4>Add Reminder</h4>
     </div>
     <div class="modal-body">
         <div id="modal">
@@ -14,7 +14,7 @@
                     <i class="fa fa-envelope"></i>
                 </div>
                 {% if patreon > 1 %}
-                <textarea type="text" name="message_new" class="form-control pull-right" maxlength="1900" id="input-message" required></textarea>
+                <textarea type="text" name="message_new" class="form-control pull-right" maxlength="2000" id="input-message" required></textarea>
                 {% else %}
                 <textarea type="text" name="message_new" class="form-control pull-right" maxlength="200" id="input-message" required></textarea>
                 {% endif %}
