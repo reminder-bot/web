@@ -30,8 +30,6 @@
 
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-colorpicker.min.css') }}">
 
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/minimal.css') }}">
-
         <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
         <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
 
@@ -237,19 +235,19 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a d
 
 var channels = {
     {% for channel in channels %}
-    "{{ channel['name'] }}": "{{ channel['id'] }}",
+    "{{ channel['name'].replace('\\', '')[:16] }}": "{{ channel['id'] }}",
     {% endfor %}
 };
 
 var members = {
     {% for member in members %}
-    "{{ member['user']['username'].lower() }}": "{{ member['user']['id'] }}",
+    "{{ member['user']['username'].replace('\\', '').lower()[:16] }}": "{{ member['user']['id'] }}",
     {% endfor %}
 };
 
 var roles = {
     {% for role in roles %}
-    "@{{ role['name'].lower() }}": "&{{ role['id'] }}",
+    "@{{ role['name'].replace('\\', '').lower()[:16] }}": "&{{ role['id'] }}",
     {% endfor %}
 };
 
