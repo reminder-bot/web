@@ -106,7 +106,7 @@
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th style="width: 50%;">Message</th>
+                                        <th style="width: 50%; overflow: hidden;">Message</th>
                                         <th style="width: 10%;">Time</th>
                                         {% if server != None %}
                                         <th style="width: 15%;">Channel</th>
@@ -117,31 +117,47 @@
                                 </thead>
                                 <tbody>
                                     {% for reminder in reminders %}
+
+                                    <form action="{{ url_for('change_reminder', index=reminder['index'], redirect=server.id) }}" method="POST">
+
                                         <tr>
-                                            <td style="width: 50%; overflow: hidden;">{{ reminder['message'] }}</td>
-                                            <td style="width: 10%;" id="time_val_{{ reminder['index'] }}"><a data-toggle="tooltip" title="tooltip text">{{ reminder['time'] }}</a></td>
+                                            <td>
+                                                <textarea name="message_new" style="width: 100%">{{ reminder['message'] }}</textarea>
+                                            </td>
+
+                                            <td id="time_val_{{ reminder['index'] }}"><a data-toggle="tooltip" title="tooltip text">{{ reminder['time'] }}</a></td>
+                                            <input name="time_new" value="{{ reminder['time'] }}" hidden></input>
+
                                             <script>
 
-var l = moment.unix({{ reminder['time'] }}).calendar();
-var t = moment.unix({{ reminder['time'] }}).format("dddd, MMM Do YYYY, HH:mm");
+var t2 = {{ reminder['time'] }};
+var l = moment.unix(t2).calendar();
+var t = moment.unix(t2).format("dddd, MMM Do YYYY, HH:mm");
 document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a data-toggle="tooltip" title="${t}">${l}</a>`;
 
                                             </script>
+
                                             {% if server != None %}
-                                            <td style="width: 15%;">#{{ reminder['channel']['name'] }}</td>
+                                            <td>#{{ reminder['channel']['name'] }}</td>
+                                            <input name="channel_new" value="{{ reminder['channel']['id'] }}" hidden></input>
                                             {% endif %}
-                                            <td style="width: 10%;">{{ reminder['interval'] }}{% if reminder['interval'] != None %}s{% endif %}</td>
-                                            <td style="width: 15%;">
+
+                                            <td>{{ reminder['interval'] }}{% if reminder['interval'] != None %}s{% endif %}</td>
+
+                                            <td>
                                                 <button onclick="send_delete('{{ reminder['index'] }}')" class="guildbtn btn btn-danger btn-fill"><i class="fa fa-times"></i></button>
+                                                <button type="submit" class="guildbtn btn btn-info btn-fill"><i class="fas fa-save"></i></button>
                                             </td>
                                         </tr>
+                                    </form>
+
                                     {% endfor %}
 
                                 </tbody>
                             </table>
                             <div class="text-center">
                                 <hr>
-                                <button data-toggle="modal" data-target="#addModal" class="guildbtn btn btn-success btn-fill" onclick="">Add Reminder</button>
+                                <button data-toggle="modal" data-target="#addModal" class="guildbtn btn btn-success btn-fill">Add Reminder</button>
                                 {% if server != None %}
                                     <button data-toggle="modal" data-target="#addModal2" class="guildbtn btn btn-primary btn-fill">Edit Server Settings</button>
                                 {% endif %}

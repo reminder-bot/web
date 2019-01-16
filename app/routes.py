@@ -75,10 +75,6 @@ def change_reminder():
         except ValueError:
             new_interval = None
 
-        else:
-            if new_interval == 0 or not bool(new_interval):
-                new_interval = None
-
         if request.form.get('embed') == 'on':
             try:
                 embed = int(request.form.get('color')[1:], 16)
@@ -168,10 +164,22 @@ def change_reminder():
 @app.route('/edit')
 def edit():
 
+    index = request.args.get('index')
+
+    message = request.form.get('message')
+    newtime = request.form.get('time')
+    interval = request.form.get('interval')
+    channel = request.form.get('channel')
+
     for r in session['reminders']:
-        if str( r['index'] ) == request.args.get('reminder'):
-            print(r)
-            return render_template('edit.html', reminder=r, patreon=session['roles'], server=request.args.get('server'))
+        if str( r['index'] ) == index:
+            reminder = Reminder.query.get( r['id'] )
+
+            reminder.message = message or reminder.message
+            reminder.time = newtime or reminder.time
+            reminder.interval = interval
+            reminder.channel = channel or reminder.channel
+
 
     return redirect( url_for('dashboard', refresh=1) )
 
