@@ -161,29 +161,6 @@ def change_reminder():
         return redirect(url_for('dashboard'))
 
 
-@app.route('/edit')
-def edit():
-
-    index = request.args.get('index')
-
-    message = request.form.get('message')
-    newtime = request.form.get('time')
-    interval = request.form.get('interval')
-    channel = request.form.get('channel')
-
-    for r in session['reminders']:
-        if str( r['index'] ) == index:
-            reminder = Reminder.query.get( r['id'] )
-
-            reminder.message = message or reminder.message
-            reminder.time = newtime or reminder.time
-            reminder.interval = interval
-            reminder.channel = channel or reminder.channel
-
-
-    return redirect( url_for('dashboard', refresh=1) )
-
-
 @app.route('/dashboard/', methods=['GET', 'POST'])
 def dashboard():
     if not discord.authorized:
