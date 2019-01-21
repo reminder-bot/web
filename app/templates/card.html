@@ -1,5 +1,5 @@
 <div class="card box box-body col-md-6 col-lg-4">
-    <form method="post" action="{{ url_for('change_reminder', redirect=server.id) }}" onsubmit="return validate_input()" novalidate>
+    <form method="post" action="{{ url_for('change_reminder', redirect=server.id, index=reminder['index']) }}">
         <div class="card-header">
             <h4>Reminder</h4>
         </div>
@@ -43,7 +43,8 @@
                             <i class="fas fa-comment-alt"></i>
                         </div>
                         <div class="dropdown">
-                            <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 30px; width: 6vw; border: 1px solid #ccc">
+                            <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 30px; width: 12vw; border: 1px solid #ccc">
+                                <option value="{{ reminder.channel.id }}" selected>{{ reminder.channel.name }} (current)</option>
                                 {% for channel in channels %}
                                     <option value="{{ channel['id'] }}">{{ channel['name'] }}</option>
                                 {% endfor %}
@@ -59,15 +60,15 @@
                         <div class="input-group-addon">
                             <i class="fas fa-file-signature"></i>
                         </div>
-                        <input type="text" class="form-control pull-right" name="username" maxlength="32"></input>
+                        <input type="text" class="form-control pull-right" name="username" maxlength="32" value="{{ reminder.username }}"></input>
                     </div>
                 </div>
 
             {% else %}
-                <input type="text" name="channel_new" value="{{ channels[0]['id'] }}" id="input-channel" hidden required>
+                <input type="text" name="channel_new" value="{{ channels[0].id }}" id="input-channel" hidden required>
             {% endif %}
 
-            <input name="time_new" value="0" id="time_new" hidden></input>
+            <input name="time_new" value="{{ reminder.time }}" id="time_new{{ reminder.index }}" hidden></input>
 
             <!-- DATE -->
             <div class="form-group">
@@ -76,7 +77,7 @@
                     <div class="input-group-addon">
                         <i class="fa fa-calendar"></i>
                     </div>
-                    <input type="text" class="form-control pull-right" id="datepicker" name="date"></input>
+                    <input type="text" class="form-control pull-right" id="datepicker{{ reminder.index }}" name="date"></input>
                 </div>
                 <!-- /.input group -->
             </div>
@@ -88,12 +89,48 @@
                         <div class="input-group-addon">
                             <i class="fas fa-clock"></i>
                         </div>
-                        <input type="text" class="form-control timepicker" id="timepicker" name="time"></input>
+                        <input type="text" class="form-control timepicker" id="timepicker{{ reminder.index }}" name="time"></input>
                     </div>
                     <!-- /.input group -->
                 </div>
                 <!-- /.form group -->
             </div>
+
+            <script>
+
+function update_time()
+{
+    t_time = document.getElementById("timepicker{{ reminder.index }}");
+    d_time = document.getElementById("datepicker{{ reminder.index }}");
+
+    m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A');
+
+    document.getElementById("time_new{{ reminder.index }}").value = m.unix();
+}
+
+current = moment.unix({{ reminder.time }});
+
+//Date picker
+$('#datepicker{{ reminder.index }}').datepicker({
+    format: 'yyyy/mm/dd',
+    autoclose: true,
+});
+
+$('#datepicker{{ reminder.index }}').datepicker('update', current.toDate());
+//Timepicker
+$('#timepicker{{ reminder.index }}').timepicker({
+    minuteStep: 1,
+    showInputs: false,
+    showSeconds: true,
+    defaultTime: current.format('hh:mm A'),
+});
+
+$("#datepicker{{ reminder.index }}").change(update_time);
+$("#timepicker{{ reminder.index }}").change(update_time);
+
+update_time();
+
+            </script>
 
             {% if patreon > 0 %}
                 <div class="bootstrap-timepicker">
@@ -126,7 +163,7 @@
                                     <i class="fas fa-palette"></i>
                                 </div>
                                 <div id="cp2" class="input-group">
-                                    <input type="text" value="#00A65A" class="form-control" name="color"></input>
+                                    <input type="text" value="{% if reminder.embed %}{{ reminder.embed }}{% else %}#00A65A{% endif %}" class="form-control" name="color"></input>
                                     <span class="input-group-addon"><i></i></span>
                                 </div>
                             </div>
@@ -139,7 +176,7 @@
                                 <div class="input-group-addon">
                                     <i class="fas fa-camera"></i>
                                 </div>
-                                <input type="text" class="form-control pull-right" name="avatar"></input>
+                                <input type="text" class="form-control pull-right" name="avatar" value="{{ reminder.avatar }}"></input>
                             </div>
                         </div>
                     {% endif %}

@@ -319,6 +319,9 @@ def dashboard():
                 r[index]['message'] = reminder.message
                 channel = [x for x in channels if int(x['id']) == reminder.channel][0]
                 r[index]['channel'] = channel
+ 
+                r[index]['username'] = reminder.username
+                r[index]['avatar'] = reminder.avatar
 
                 r[index]['time'] = reminder.time
 

@@ -52,7 +52,7 @@
                 <!-- Logo -->
                 <a href="{{ url_for('help') }}" class="logo">
                     <!-- logo for regular state and mobile devices -->
-                    <span class="logo-lg"><b>Reminder</b>BOT</span>
+                    <span class="logo-lg"><strong>Reminder</strong> Bot</span>
                 </a>
                 <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
                     <i class="fas fa-bars"></i>
@@ -102,80 +102,25 @@
 
                 <section class="content">
 
-                    <div class="container row">
-                        {% for reminder in reminders %}
+                    <div class="container">
+                        <div class="row" style="width: 100%">
+                            {% for reminder in reminders %}
 
-                            {% include "card.html" %}
+                                {% include "card.html" %}
 
-                        {% endfor %}
-                    </div>
-
-                    {% if server != None %}
-                        <button data-toggle="modal" data-target="#addModal2" class="guildbtn btn btn-primary btn-fill">Edit Server Settings</button>
-                    {% endif %}
-
-                    <!-- BLOCK CONTENT -->
-                    <div class="modal fade col-md-12" id="addModal2" data-backdrop="false">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form method="post">
-                                    <input name="update-server" hidden></input>
-
-                                    <div class="modal-header">
-                                        <h4>Edit Server Settings</h4>
-                                    </div>
-                                    <div class="modal-body">
-                                        <!-- MESSAGE -->
-                                        <div class="form-group">
-                                            <label>Prefix:</label>
-                                            <div class="input-group">
-                                                <div class="input-group-addon">
-                                                    <i class="fa fa-exclamation-circle"></i>
-                                                </div>
-                                                <input type="text" name="prefix" class="form-control pull-right" value="{{ server.prefix }}" maxlength="5">
-                                            </div>
-                                            <!-- /.input group -->
-                                        </div>
-                                        <!-- CHANNEL -->
-                                        <div class="form-group">
-                                            <label>Timezone:</label>
-                                            <div class="input-group">
-                                                <div class="input-group-addon">
-                                                    <i class="fas fa-clock"></i>
-                                                </div>
-                                                <input type="text" name="timezone" id="timezone" hidden>
-                                                <div class="dropdown">
-                                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-timezone" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                                        {{ server.timezone }}
-                                                        <span class="caret"></span>
-                                                    </button>
-                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="max-height: 40vh; overflow-y: scroll;">
-                                                        {% for tz in timezones %}
-                                                            <li><a onclick="javascript:change_tz('{{ tz[1] }}')">{{ tz[1] }} (GMT {{ tz[0] }})</a></li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <!-- /.input group -->
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="submit" class="btn btn-success">Submit</button>
-                                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
+                            {% endfor %}
                         </div>
                     </div>
+
                 </section>
 
                 {% else %}
-                <section class="content-header">
-                    <h1>
-                        Please select a guild.
-                    </h1>
-                    <p class="text-muted">This website is tested on Chrome and Firefox. Please report any issues in my Discord guild.</p>
-                </section>
+                    <section class="content-header">
+                        <h1>
+                            Please select a guild.
+                        </h1>
+                        <p class="text-muted">This website is tested on Chrome and Firefox. Please report any issues in my Discord guild.</p>
+                    </section>
                 {% endif %}
             </div>
         </div>
@@ -308,56 +253,8 @@ $(function() {
     $('#cp2').colorpicker({"format": "hex"});
 });
 
-//Date picker
-$('#datepicker').datepicker({
-    format: 'yyyy/mm/dd',
-    autoclose: true
-})
-
-$('#datepicker').datepicker('update', new Date());
-//Timepicker
-$('.timepicker').timepicker({
-    minuteStep: 1,
-    showInputs: false,
-    showSeconds: true,
-})
-
-$("#datepicker").change(update_time);
-$("#timepicker").change(update_time);
-
-
-function update_time()
-{
-    t_time = document.getElementById("timepicker");
-    d_time = document.getElementById("datepicker");
-
-    m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A')
-
-    document.getElementById("time_new").value = m.unix();
-}
 
 update_time();
-
-function change_channel(id, name, index)
-{
-
-    if (index === undefined)
-    {
-        document.getElementById('input-channel').value = id;
-        document.getElementById('dropdown-channel').innerHTML = name + "<span class=\"caret\"></span>";
-    }
-    else
-    {
-        document.getElementById('input-channel-' + index).value = id;
-        document.getElementById('dropdown-channel-' + index).innerHTML = name + "<span class=\"caret\"></span>";
-    }
-}
-
-function change_tz(timezone)
-{
-    document.getElementById('timezone').value = timezone;
-    document.getElementById('dropdown-timezone').innerHTML = timezone + "<span class=\"caret\"></span>"
-}
 
 function send_delete(index)
 {
@@ -370,34 +267,6 @@ function send_delete(index)
     xhttp.open("GET", "{{ url_for('delete') }}" + "?index=" + index, true);
     xhttp.send();
 }
-
-function validate_input()
-{
-    message = document.getElementById('input-message');
-
-    modal = document.getElementById('modal');
-
-    modal.innerHTML = '';
-
-    failed = false;
-
-    if (message.value == '')
-    {
-        a = document.createElement('div');
-        a.className = 'alert alert-danger';
-        a.innerHTML = 'Please add a message';
-        modal.appendChild(a);
-
-        failed = true;
-    }
-
-    return !failed;
-}
-
-$(document).ready(function(){
-    // Initialize
-    $('[data-toggle="tooltip"]').tooltip();
-});
 
         </script>
     </body>
