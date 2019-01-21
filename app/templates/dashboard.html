@@ -240,7 +240,7 @@ document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a d
 
         <script>
 
-
+{% if server != None %}
 var channels = {
     {% for channel in channels %}
     "{{ channel['name'].replace('\\', '')[:16] }}": "{{ channel['id'] }}",
@@ -259,6 +259,108 @@ var roles = {
     {% endfor %}
 };
 
+function mention(id)
+{
+    var value = document.getElementById("input-message").value;
+    value = value.split(" ").slice(0, -1).join(" ") + " " + id;
+    document.getElementById("input-message").value = value;
+}
+
+function manage_characters(e)
+{
+    var text = e.target.value;
+    var parts = text.split(" ");
+    var last = parts[parts.length-1].toLowerCase();
+    var name = last.slice(1);
+
+    var type = last[0];
+
+    var out = [];
+
+    if ( type === "@" )
+    {
+        var roles_also = last[1] == "@";
+
+        if ( roles_also ) 
+        {
+            var set = roles;
+        }
+        else 
+        {
+            var set = members
+        }
+
+        document.getElementById("mention-input").style.visibility = "visible";
+
+        for ( key in set )
+        {
+            if ( key.includes(name) )
+            {
+                out.push("@" + key);
+            }
+        }
+    }
+    else if ( type === "#" )
+    {
+        document.getElementById("mention-input").style.visibility = "visible";
+
+        for (key in channels)
+        {
+            if ( key.includes(name) )
+            {
+                out.push("#" + key);
+            }
+        }
+    }
+    else
+    {
+        document.getElementById("mention-input").style.visibility = "hidden";
+    }
+
+    document.getElementById("dropdown-mention").innerHTML = "";
+
+    out.sort();
+
+    for (el in out)
+    {
+        var name_n = out[el];
+        if ( type === "@" )
+        {
+            if ( last[1] === "@" ) 
+            {
+                var id = roles[name_n.slice(1)];
+            }
+            else
+            {
+                var id = members[name_n.slice(1)];
+            }
+            document.getElementById("dropdown-mention").innerHTML += `<li><a onclick="javascript:mention('<@${id}>')">${name_n}</a></li>`;
+        }
+        else
+        {
+            var id = channels[name_n.slice(1)];
+            document.getElementById("dropdown-mention").innerHTML += `<li><a onclick="javascript:mention('<#${id}>')">${name_n}</a></li>`;
+        }
+    }
+}
+
+document.getElementById("input-message").addEventListener("input", manage_characters);
+
+function toggle_colorpicker()
+{
+    check = document.getElementById("checkb");
+    if (check.checked)
+    {
+        document.getElementById("colorpicker").style.opacity = 1;
+    }
+    else
+    {
+        document.getElementById("colorpicker").style.opacity = 0;
+    }
+}
+
+toggle_colorpicker();
+{% endif %}
 
 $(function() {
     $('#cp2').colorpicker({"format": "hex"});
@@ -359,109 +461,6 @@ function validate_input()
 
     return !failed;
 }
-
-function mention(id)
-{
-    var value = document.getElementById("input-message").value;
-    value = value.split(" ").slice(0, -1).join(" ") + " " + id;
-    document.getElementById("input-message").value = value;
-}
-
-function manage_characters(e)
-{
-    var text = e.target.value;
-    var parts = text.split(" ");
-    var last = parts[parts.length-1].toLowerCase();
-    var name = last.slice(1);
-
-    var type = last[0];
-
-    var out = [];
-
-    if ( type === "@" )
-    {
-        var roles_also = last[1] == "@";
-
-        if ( roles_also ) 
-        {
-            var set = roles;
-        }
-        else 
-        {
-            var set = members
-        }
-
-        document.getElementById("mention-input").style.visibility = "visible";
-
-        for ( key in set )
-        {
-            if ( key.includes(name) )
-            {
-                out.push("@" + key);
-            }
-        }
-    }
-    else if ( type === "#" )
-    {
-        document.getElementById("mention-input").style.visibility = "visible";
-
-        for (key in channels)
-        {
-            if ( key.includes(name) )
-            {
-                out.push("#" + key);
-            }
-        }
-    }
-    else
-    {
-        document.getElementById("mention-input").style.visibility = "hidden";
-    }
-
-    document.getElementById("dropdown-mention").innerHTML = "";
-
-    out.sort();
-
-    for (el in out)
-    {
-        var name_n = out[el];
-        if ( type === "@" )
-        {
-            if ( last[1] === "@" ) 
-            {
-                var id = roles[name_n.slice(1)];
-            }
-            else
-            {
-                var id = members[name_n.slice(1)];
-            }
-            document.getElementById("dropdown-mention").innerHTML += `<li><a onclick="javascript:mention('<@${id}>')">${name_n}</a></li>`;
-        }
-        else
-        {
-            var id = channels[name_n.slice(1)];
-            document.getElementById("dropdown-mention").innerHTML += `<li><a onclick="javascript:mention('<#${id}>')">${name_n}</a></li>`;
-        }
-    }
-}
-
-{% if server != None %}
-function toggle_colorpicker()
-{
-    check = document.getElementById("checkb");
-    if (check.checked)
-    {
-        document.getElementById("colorpicker").style.opacity = 1;
-    }
-    else
-    {
-        document.getElementById("colorpicker").style.opacity = 0;
-    }
-}
-toggle_colorpicker();
-{% endif %}
-
-document.getElementById("input-message").addEventListener("input", manage_characters);
 
 $(document).ready(function(){
     // Initialize
