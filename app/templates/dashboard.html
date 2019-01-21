@@ -146,14 +146,14 @@ var roles = {
     {% endfor %}
 };
 
-function mention(id)
+function mention(id, i)
 {
-    var value = document.getElementById("input-message").value;
+    var value = document.getElementById("input-message" + i).value;
     value = value.split(" ").slice(0, -1).join(" ") + " " + id;
-    document.getElementById("input-message").value = value;
+    document.getElementById("input-message" + i).value = value;
 }
 
-function manage_characters(e)
+function manage_characters(e, i)
 {
     var text = e.target.value;
     var parts = text.split(" ");
@@ -177,7 +177,7 @@ function manage_characters(e)
             var set = members
         }
 
-        document.getElementById("mention-input").style.visibility = "visible";
+        document.getElementById("mention-input" + i).style.visibility = "visible";
 
         for ( key in set )
         {
@@ -189,7 +189,7 @@ function manage_characters(e)
     }
     else if ( type === "#" )
     {
-        document.getElementById("mention-input").style.visibility = "visible";
+        document.getElementById("mention-input" + i).style.visibility = "visible";
 
         for (key in channels)
         {
@@ -201,10 +201,10 @@ function manage_characters(e)
     }
     else
     {
-        document.getElementById("mention-input").style.visibility = "hidden";
+        document.getElementById("mention-input" + i).style.visibility = "hidden";
     }
 
-    document.getElementById("dropdown-mention").innerHTML = "";
+    document.getElementById("dropdown-mention" + i).innerHTML = "";
 
     out.sort();
 
@@ -221,17 +221,25 @@ function manage_characters(e)
             {
                 var id = members[name_n.slice(1)];
             }
-            document.getElementById("dropdown-mention").innerHTML += `<li><a onclick="javascript:mention('<@${id}>')">${name_n}</a></li>`;
+            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="javascript:mention('<@${id}>', ${i})">${name_n}</a></li>`;
         }
         else
         {
             var id = channels[name_n.slice(1)];
-            document.getElementById("dropdown-mention").innerHTML += `<li><a onclick="javascript:mention('<#${id}>')">${name_n}</a></li>`;
+            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="javascript:mention('<#${id}>', ${i})">${name_n}</a></li>`;
         }
     }
 }
 
-document.getElementById("input-message").addEventListener("input", manage_characters);
+{% for reminder in reminders %}
+    
+    function m{{ reminder.index }}(e) {
+        manage_characters(e, {{ reminder.index }});
+    }
+
+    document.getElementById("input-message{{ reminder.index }}").addEventListener("input", m{{ reminder.index }});
+
+{% endfor %}
 
 function toggle_colorpicker()
 {

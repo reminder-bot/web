@@ -6,14 +6,14 @@ class Reminder(db.Model):
     __tablename__ = 'reminders'
 
     id = db.Column( db.Integer, primary_key=True, unique=True)
-    message = db.Column( db.Unicode(2000) )
+    message = db.Column( db.String(2000) )
     channel = db.Column( db.BigInteger )
     time = db.Column( db.BigInteger )
     interval = db.Column( db.Integer )
 
     webhook = db.Column( db.String(200) )
-    avatar = db.Column( db.Text )
-    username = db.Column( db.String(32) )
+    avatar = db.Column( db.String(1000), default="https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg" )
+    username = db.Column( db.String(32), default="Reminder" )
 
     method = db.Column( db.Text )
     embed = db.Column( db.Integer, nullable=True)

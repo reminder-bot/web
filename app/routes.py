@@ -333,8 +333,6 @@ def dashboard():
                 r[index]['index'] = index
                 s_r[index]['index'] = index
 
-                index += 1
-
             session['reminders'] = s_r
 
             return render_template('dashboard.html',

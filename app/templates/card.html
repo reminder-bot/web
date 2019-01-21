@@ -15,10 +15,10 @@
                         <i class="fa fa-envelope"></i>
                     </div>
 
-                    <textarea type="text" name="message_new" class="form-control pull-right" maxlength="2000" id="input-message" required>{{ reminder.message }}</textarea>
+                    <textarea type="text" name="message_new" class="form-control pull-right" maxlength="2000" id="input-message{{ reminder.index }}" required>{{ reminder.message }}</textarea>
 
                 </div>
-                <div class="input-group" id="mention-input" style="visibility: hidden;">
+                <div class="input-group" id="mention-input{{ reminder.index }}" style="visibility: hidden;">
                     <div class="input-group-addon">
                         <i class="fas fa-at"></i>
                     </div>
@@ -27,7 +27,7 @@
                             Mention... (hint: use a double @ to get roles)
                             <span class="caret"></span>
                         </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdown-mention" id="dropdown-mention" style="max-height: 40vh; overflow-y: scroll;">
+                        <ul class="dropdown-menu" aria-labelledby="dropdown-mention" id="dropdown-mention{{ reminder.index }}" style="max-height: 40vh; overflow-y: scroll;">
                         </ul>
                     </div>
                 </div>
