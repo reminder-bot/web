@@ -101,77 +101,172 @@
                 </section>
 
                 <section class="content">
-                    <div class="box">
-                        <div class="box-body">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 50%; overflow: hidden;">Message</th>
-                                        <th style="width: 10%;">Time</th>
-                                        {% if server != None %}
-                                        <th style="width: 15%;">Channel</th>
+                    <div class="card box box-body">
+                        <form method="post" action="{{ url_for('change_reminder', redirect=server.id) }}" onsubmit="return validate_input()" novalidate>
+                            <div class="card-header">
+                                <h4>Add Reminder</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="modal">
+                                    <!-- This div is for writing error messages into DO NOT DELETE -->
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Message:</label>
+                                    <div class="input-group">
+                                        <div class="input-group-addon">
+                                            <i class="fa fa-envelope"></i>
+                                        </div>
+                                        {% if patreon > 1 %}
+                                        <textarea type="text" name="message_new" class="form-control pull-right" maxlength="2000" id="input-message" required></textarea>
+                                        {% else %}
+                                        <textarea type="text" name="message_new" class="form-control pull-right" maxlength="200" id="input-message" required></textarea>
                                         {% endif %}
-                                        <th style="width: 10%;">Interval</th>
-                                        <th style="width: 15%;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for reminder in reminders %}
+                                    </div>
+                                    <div class="input-group" id="mention-input" style="visibility: hidden;">
+                                        <div class="input-group-addon">
+                                            <i class="fas fa-at"></i>
+                                        </div>
+                                        <div class="dropdown">
+                                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                Mention... (hint: use a double @ to get roles)
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdown-mention" id="dropdown-mention" style="max-height: 40vh; overflow-y: scroll;">
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <!-- /.input group -->
+                                </div>
 
-                                    <form action="{{ url_for('change_reminder', index=reminder['index'], redirect=server.id) }}" method="POST">
-
-                                        <tr>
-                                            <td>
-                                                <textarea name="message_new" style="width: 100%">{{ reminder['message'] }}</textarea>
-                                            </td>
-
-                                            <td id="time_val_{{ reminder['index'] }}"><a data-toggle="tooltip" title="tooltip text">{{ reminder['time'] }}</a></td>
-                                            <input name="time_new" value="{{ reminder['time'] }}" hidden></input>
-
-                                            <script>
-
-var t2 = {{ reminder['time'] }};
-var l = moment.unix(t2).calendar();
-var t = moment.unix(t2).format("dddd, MMM Do YYYY, HH:mm");
-document.getElementById('time_val_' + {{ reminder['index'] }}).innerHTML = `<a data-toggle="tooltip" title="${t}">${l}</a>`;
-
-                                            </script>
-
-                                            {% if server != None %}
-                                            <td>#{{ reminder['channel']['name'] }}</td>
-                                            <input name="channel_new" value="{{ reminder['channel']['id'] }}" hidden></input>
-                                            {% endif %}
-
-                                            <td>{{ reminder['interval'] }}{% if reminder['interval'] != None %}s{% endif %}</td>
-
-                                            <td>
-                                                <button type="button" onclick="send_delete('{{ reminder['index'] }}')" class="guildbtn btn btn-danger btn-fill"><i class="fa fa-times"></i></button>
-                                                <button type="submit" class="guildbtn btn btn-info btn-fill"><i class="fas fa-save"></i></button>
-                                            </td>
-                                        </tr>
-                                    </form>
-
-                                    {% endfor %}
-
-                                </tbody>
-                            </table>
-                            <div class="text-center">
-                                <hr>
-                                <button data-toggle="modal" data-target="#addModal" class="guildbtn btn btn-success btn-fill">Add Reminder</button>
+                                <!-- CHANNEL -->
                                 {% if server != None %}
-                                    <button data-toggle="modal" data-target="#addModal2" class="guildbtn btn btn-primary btn-fill">Edit Server Settings</button>
+                                <div class="form-group">
+                                    <label>Channel:</label>
+                                    <div class="input-group">
+                                        <div class="input-group-addon">
+                                            <i class="fas fa-comment-alt"></i>
+                                        </div>
+                                        <input type="text" name="channel_new" id="input-channel" hidden required>
+                                        <div class="dropdown">
+                                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-channel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                Select One
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdown-channel">
+                                                {% for channel in channels %}
+                                                    <li><a onclick="javascript:change_channel('{{ channel['id'] }}', '{{ channel['name'] }}')">{{ channel['name'] }}</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <!-- /.input group -->
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Username (optional):</label>
+                                    <div class="input-group">
+                                        <div class="input-group-addon">
+                                            <i class="fas fa-file-signature"></i>
+                                        </div>
+                                        <input type="text" class="form-control pull-right" name="username" maxlength="32"></input>
+                                    </div>
+                                </div>
+
+                                {% else %}
+                                <input type="text" name="channel_new" value="{{ channels[0]['id'] }}" id="input-channel" hidden required>
                                 {% endif %}
+
+                                <input name="time_new" value="0" id="time_new" hidden></input>
+
+                                <!-- DATE -->
+                                <div class="form-group">
+                                    <label>Date:</label>
+                                    <div class="input-group date">
+                                        <div class="input-group-addon">
+                                            <i class="fa fa-calendar"></i>
+                                        </div>
+                                        <input type="text" class="form-control pull-right" id="datepicker" name="date"></input>
+                                    </div>
+                                    <!-- /.input group -->
+                                </div>
+                                <!-- TIME -->
+                                <div class="bootstrap-timepicker">
+                                    <div class="form-group">
+                                        <label>Time:</label>
+                                        <div class="input-group">
+                                            <div class="input-group-addon">
+                                                <i class="fas fa-clock"></i>
+                                            </div>
+                                            <input type="text" class="form-control timepicker" id="timepicker" name="time"></input>
+                                        </div>
+                                        <!-- /.input group -->
+                                    </div>
+                                    <!-- /.form group -->
+                                </div>
+
+                                {% if patreon > 0 %}
+                                <div class="bootstrap-timepicker">
+                                    <div class="form-group">
+                                        <label>Interval (seconds, optional):</label>
+                                        <div class="input-group">
+                                            <div class="input-group-addon">
+                                                <i class="fas fa-clock"></i>
+                                            </div>
+                                            <input type="number" class="form-control pull-right" name="interval_new"></input>
+                                        </div>
+                                        <!-- /.input group -->
+                                    </div>
+                                    <!-- /.form group -->
+                                </div>
+
+                                    {% if server != None %}
+                                        <div class="form-group">
+                                            <label>Send as Embed?</label>
+                                            <div class="input-group">
+                                                <input type="checkbox" id="checkb" name="embed" onclick="toggle_colorpicker()"></input>
+                                            </div>
+                                        </div>
+
+                                        <div class="colorpicker-component" id="colorpicker">
+                                            <div class="form-group">
+                                                <label>Embed Color:</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-addon">
+                                                        <i class="fas fa-palette"></i>
+                                                    </div>
+                                                    <div id="cp2" class="input-group">
+                                                        <input type="text" value="#00A65A" class="form-control" name="color"></input>
+                                                        <span class="input-group-addon"><i></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% if patreon > 1 %}
+                                            <div class="form-group">
+                                                <label>Avatar (provide a direct link, optional):</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-addon">
+                                                        <i class="fas fa-camera"></i>
+                                                    </div>
+                                                    <input type="text" class="form-control pull-right" name="avatar"></input>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-success">Submit</button>
+                                </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
 
-                    <div class="modal fade col-md-12" id="addModal" data-backdrop="false">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                {% include "modal.html" %}
-                            </div>
-                        </div>
-                    </div>
+                    {% if server != None %}
+                        <button data-toggle="modal" data-target="#addModal2" class="guildbtn btn btn-primary btn-fill">Edit Server Settings</button>
+                    {% endif %}
+
                     <!-- BLOCK CONTENT -->
                     <div class="modal fade col-md-12" id="addModal2" data-backdrop="false">
                         <div class="modal-dialog">
