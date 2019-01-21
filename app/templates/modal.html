@@ -47,7 +47,7 @@
                         </div>
 
                         <div class="dropdown">
-                            <select>
+                            <select name="channel_new">
                                 {% for channel in channels %}
                                     <option value="{{ channel['id'] }}">{{ channel['name'] }}</option>
                                 {% endfor %}

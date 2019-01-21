@@ -15,6 +15,7 @@ def internal_error(error):
     session.clear()
     return "An error has occured! We've made a report, and cleared your cache on this website. If you encounter this error again, please send us a message on Discord!"
 
+
 @app.route('/')
 def index():
     return redirect( url_for('help') )
@@ -99,11 +100,8 @@ def change_reminder():
 
     elif new_msg and new_channel in session['channels']:
 
-        if not 0 < len(new_msg) <= 200 and session['roles'] != 2:
-            flash('Error setting reminder (message length wrong)')
-
-        elif not 0 < len(new_msg) < 2000 and session['roles'] == 2:
-            flash('Error setting reminder (message length wrong)')
+        if not 0 < len(new_msg) < 2000:
+            flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
 
         elif new_interval is not None and not 8 < new_interval < 1576800000:
             flash('Error setting reminder (interval timer is out of bounds)')
@@ -208,11 +206,8 @@ def dashboard():
 
                         message = request.form.get('message_{}'.format(reminder['index']))
 
-                        if not 0 < len(message) <= 250 and session['roles'] != 2:
-                            flash('Error setting reminder message (length wrong)')
-
-                        elif not 0 < len(message) < 2000 and session['roles'] == 2:
-                            flash('Error setting reminder message (length wrong)')
+                        if not 0 < len(message) < 2000:
+                            flash('Error setting reminder message (length wrong: maximum length is 2000 characters)')
 
                         else:
 
@@ -344,6 +339,7 @@ def dashboard():
                 roles=roles,
                 server=server,
                 user=user,
+                time=time.time(),
                 timezones=app.config['TIMEZONES'],
                 patreon=session['roles'])
 
@@ -356,5 +352,6 @@ def dashboard():
             roles=[],
             server=None,
             user=user,
+            time=time.time(),
             timezones=app.config['TIMEZONES'],
             patreon=session['roles'])

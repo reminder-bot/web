@@ -102,13 +102,17 @@
 
                 <section class="content">
 
-                    <div class="container">
+                    <div class="container" style="width: 100%">
                         <div class="row" style="width: 100%">
                             {% for reminder in reminders %}
 
                                 {% include "card.html" %}
 
                             {% endfor %}
+
+                            {% set reminder = False %}
+
+                            {% include "card.html" %}
                         </div>
                     </div>
 
