@@ -1,6 +1,9 @@
 <div class="col-md-6 col-lg-4">
-    <div class="card box box-body">
-        <form method="post" action="{{ url_for('change_reminder', redirect=server.id, index=reminder.index if reminder else None) }}">
+    <div class="card box box-body" {% if not reminder %}style="
+-webkit-box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);
+-moz-box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);
+box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
+        <form method="post" action="{{ url_for('change_reminder', redirect=server.id, index=reminder.index if reminder else None) }}" id="form{{ reminder.index }}">
             <div class="card-header">
                 <h4><strong>{% if not reminder %}Add {% endif %}Reminder</strong></h4>
             </div>
@@ -44,7 +47,7 @@
                                 <i class="fas fa-comment-alt"></i>
                             </div>
                             <div class="dropdown">
-                                <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 30px; width: 12vw; border: 1px solid #ccc">
+                                <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 30px; width: 12vw; border: 1px solid #ccc; cursor: pointer;">
                                     {% if reminder %}<option value="{{ reminder.channel.id }}" selected>{{ reminder.channel.name }} (current)</option>{% endif %}
                                     {% for channel in channels %}
                                         <option value="{{ channel['id'] }}">{{ channel['name'] }}</option>
@@ -97,7 +100,80 @@
                     <!-- /.form group -->
                 </div>
 
+                {% if patreon > 0 %}
+                    <div class="bootstrap-timepicker">
+                        <div class="form-group">
+                            <label>Interval (seconds):</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <input type="number" class="form-control pull-right" name="interval_new" value="{{ reminder.interval }}"></input>
+                            </div>
+                            <!-- /.input group -->
+                        </div>
+                        <!-- /.form group -->
+                    </div>
+
+                    {% if server != None %}
+                        <div class="form-group">
+                            <label>Send as Embed?</label>
+                            <div class="input-group">
+                                <input type="checkbox" id="checkb{{ reminder.index }}" name="embed" onclick="toggle_colorpicker()"></input>
+                            </div>
+                        </div>
+
+                        <div class="colorpicker-component" id="colorpicker{{ reminder.index }}">
+                            <div class="form-group">
+                                <label>Embed Color:</label>
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        <i class="fas fa-palette"></i>
+                                    </div>
+                                    <div id="cp2" class="input-group">
+                                        <input type="text" value="{% if reminder.embed %}{{ reminder.embed }}{% else %}#00A65A{% endif %}" class="form-control" name="color"></input>
+                                        <span class="input-group-addon"><i></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+
+function toggle_colorpicker()
+{
+    check = document.getElementById("checkb{{ reminder.index }}");
+    if (check.checked)
+    {
+        document.getElementById("colorpicker{{ reminder.index }}").style.opacity = 1;
+    }
+    else
+    {
+        document.getElementById("colorpicker{{ reminder.index }}").style.opacity = 0;
+    }
+}
+
+toggle_colorpicker();
+
+                        </script>
+
+                        {% if patreon > 1 %}
+                            <div class="form-group">
+                                <label>Avatar:</label>
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        <i class="fas fa-camera"></i>
+                                    </div>
+                                    <input type="text" class="form-control pull-right" name="avatar" value="{{ reminder.avatar }}"></input>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+                
                 <script>
+
+document.getElementById("form{{ reminder.index }}").reset();
 
 function update_time()
 {
@@ -134,63 +210,12 @@ update_time();
 
                 </script>
 
-                {% if patreon > 0 %}
-                    <div class="bootstrap-timepicker">
-                        <div class="form-group">
-                            <label>Interval (seconds):</label>
-                            <div class="input-group">
-                                <div class="input-group-addon">
-                                    <i class="fas fa-clock"></i>
-                                </div>
-                                <input type="number" class="form-control pull-right" name="interval_new" value="{{ reminder.interval }}"></input>
-                            </div>
-                            <!-- /.input group -->
-                        </div>
-                        <!-- /.form group -->
-                    </div>
-
-                    {% if server != None %}
-                        <div class="form-group">
-                            <label>Send as Embed?</label>
-                            <div class="input-group">
-                                <input type="checkbox" id="checkb" name="embed" onclick="toggle_colorpicker()"></input>
-                            </div>
-                        </div>
-
-                        <div class="colorpicker-component" id="colorpicker">
-                            <div class="form-group">
-                                <label>Embed Color:</label>
-                                <div class="input-group">
-                                    <div class="input-group-addon">
-                                        <i class="fas fa-palette"></i>
-                                    </div>
-                                    <div id="cp2" class="input-group">
-                                        <input type="text" value="{% if reminder.embed %}{{ reminder.embed }}{% else %}#00A65A{% endif %}" class="form-control" name="color"></input>
-                                        <span class="input-group-addon"><i></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% if patreon > 1 %}
-                            <div class="form-group">
-                                <label>Avatar:</label>
-                                <div class="input-group">
-                                    <div class="input-group-addon">
-                                        <i class="fas fa-camera"></i>
-                                    </div>
-                                    <input type="text" class="form-control pull-right" name="avatar" value="{{ reminder.avatar }}"></input>
-                                </div>
-                            </div>
-                        {% endif %}
-                    {% endif %}
-                {% endif %}
-
                 <div class="card-footer">
                     {% if reminder %}
-                    <button type="submit" class="btn btn-success">Save Changes</button>
-                    <button type="button" onclick="send_delete('{{ reminder['index'] }}')" class="btn btn-danger">Delete</button>
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                        <button type="button" onclick="send_delete('{{ reminder['index'] }}')" class="btn btn-danger">Delete</button>
                     {% else %}
-                    <button type="submit" class="btn btn-success">Create New</button>
+                        <button type="submit" class="btn btn-success">Create New</button>
                     {% endif %}
                 </div>
             </div>

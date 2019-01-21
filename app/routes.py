@@ -65,6 +65,7 @@ def change_reminder():
     new_interval = None
     embed = None
     avatar = None
+    username = None
 
     username = request.form.get('username')
     if username is not None:

@@ -244,21 +244,6 @@ function manage_characters(e, i)
     document.getElementById("input-message{{ reminder.index }}").addEventListener("input", m{{ reminder.index }});
 
 {% endfor %}
-
-function toggle_colorpicker()
-{
-    check = document.getElementById("checkb");
-    if (check.checked)
-    {
-        document.getElementById("colorpicker").style.opacity = 1;
-    }
-    else
-    {
-        document.getElementById("colorpicker").style.opacity = 0;
-    }
-}
-
-toggle_colorpicker();
 {% endif %}
 
 $(function() {
