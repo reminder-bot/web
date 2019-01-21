@@ -60,6 +60,7 @@ def change_reminder():
     new_msg = request.form.get('message_new')
     new_channel = request.form.get('channel_new')
     new_time = request.form.get('time_new')
+
     new_interval = None
     embed = None
     avatar = None

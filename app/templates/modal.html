@@ -45,17 +45,13 @@
                         <div class="input-group-addon">
                             <i class="fas fa-comment-alt"></i>
                         </div>
-                        <input type="text" name="channel_new" id="input-channel" hidden required>
+
                         <div class="dropdown">
-                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-channel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                Select One
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdown-channel">
+                            <select>
                                 {% for channel in channels %}
-                                    <li><a onclick="javascript:change_channel('{{ channel['id'] }}', '{{ channel['name'] }}')">{{ channel['name'] }}</a></li>
+                                    <option value="{{ channel['id'] }}">{{ channel['name'] }}</option>
                                 {% endfor %}
-                            </ul>
+                            </select>
                         </div>
                     </div>
                     <!-- /.input group -->
