@@ -270,7 +270,7 @@ def dashboard():
                 session['roles'] = len(roles)
 
             else:
-                session['roles'] = 0
+                session['roles'] = 4
 
             session['guilds'] = available_guilds
 
@@ -316,12 +316,17 @@ def dashboard():
                 channel = [x for x in channels if int(x['id']) == reminder.channel][0]
                 r[index]['channel'] = channel
  
-                r[index]['username'] = reminder.username
+                r[index]['username'] = reminder.username or 'Reminder'
                 r[index]['avatar'] = reminder.avatar
 
                 r[index]['time'] = reminder.time
 
                 r[index]['interval'] = reminder.interval
+
+                r[index]['embed'] = hex(reminder.embed).strip('0x') if reminder.embed is not None else '00A65A'
+                r[index]['embedded'] = not (reminder.embed is None)
+
+                r[index]['avatar'] = reminder.avatar or 'https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg'
 
                 r[index]['id'] = reminder.id
                 s_r[index]['id'] = reminder.id
