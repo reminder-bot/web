@@ -5,9 +5,7 @@ import os
 import io
 import requests
 import json
-from datetime import datetime
 import time
-import pytz
 
 
 @app.errorhandler(500)
@@ -94,7 +92,7 @@ def change_reminder():
 
 
     if not all([x in '0123456789' for x in new_time]):
-        flash('Error setting reminder')
+        flash('Error setting reminder (form data malformed)')
 
     elif int(new_time) - 1576800000 > time.time():
         flash('Error setting reminder (time is too long)')
@@ -166,65 +164,6 @@ def dashboard():
     if not discord.authorized:
         return redirect(url_for('oauth'))
 
-    if request.method == 'POST':
-
-        if request.form.get('update-server') is not None: # updated server
-
-            server = Server.query.filter(Server.server == request.args.get('id')).first()
-
-            p = request.form.get('prefix')
-
-            if p is not None:
-                if len(p) <= 5:
-                    server.prefix = p
-
-                    db.session.commit()
-
-                elif p != '':
-                    flash('There was an error setting your prefix.')
-
-            tz = request.form.get('timezone')
-
-            if tz is not None:
-                if tz in pytz.all_timezones:
-                    server.timezone = tz
-
-                    db.session.commit()
-
-                elif tz != '':
-                    flash('There was an error setting your timezone.')
-
-        else:
-            for reminder in session['reminders']:
-                if 'message_{}'.format(reminder['index']) in request.form.keys(): # editted reminder
-
-                    r = Reminder.query.get(reminder['id'])
-
-                    if r is None:
-                        flash('Reminder not found. Please reload the page')
-
-                    else:
-
-                        message = request.form.get('message_{}'.format(reminder['index']))
-
-                        if not 0 < len(message) < 2000:
-                            flash('Error setting reminder message (length wrong: maximum length is 2000 characters)')
-
-                        else:
-
-                            r.message = message
-
-                            db.session.commit()
-
-                    break
-
-            try:
-                session.pop('reminders')
-            except KeyError:
-                pass
-
-        return redirect(url_for('dashboard', id=request.args.get('id')))
-
     else:
         try:
             user = discord.get('api/users/@me').json()
@@ -259,7 +198,7 @@ def dashboard():
                 session['roles'] = len(roles)
 
             else:
-                session['roles'] = 4
+                session['roles'] = 0
 
             session['guilds'] = available_guilds
 
@@ -272,7 +211,7 @@ def dashboard():
 
                     session['channels'] = [x['id'] for x in channels]
 
-                    members = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/members?limit=200'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
+                    members = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/members?limit=50'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
 
                     roles = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/roles'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
                     break
@@ -335,7 +274,6 @@ def dashboard():
                 server=server,
                 user=user,
                 time=time.time(),
-                timezones=app.config['TIMEZONES'],
                 patreon=session['roles'])
 
         return render_template('dashboard.html',
@@ -348,5 +286,4 @@ def dashboard():
             server=None,
             user=user,
             time=time.time(),
-            timezones=app.config['TIMEZONES'],
             patreon=session['roles'])

@@ -3,7 +3,7 @@
 -webkit-box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);
 -moz-box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);
 box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
-        <form method="post" action="{{ url_for('change_reminder', redirect=server.id, index=reminder.index if reminder else None) }}" id="form{{ reminder.index }}">
+        <form method="post" action="{{ url_for('change_reminder', redirect=server.server, index=reminder.index if reminder else None) }}" id="form{{ reminder.index }}">
             <div class="card-header">
                 <h4><strong>{% if not reminder %}Add {% endif %}Reminder</strong></h4>
             </div>

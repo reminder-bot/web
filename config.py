@@ -1,6 +1,5 @@
 import os
 import configparser
-import pytz
 from datetime import datetime
 
 
@@ -61,7 +60,5 @@ class Config(object):
         SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}@{host}/{db}?charset=utf8mb4'.format(user=user, host=host, db=db)
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    TIMEZONES = sorted([(produce_offset(x), x) for x in pytz.all_timezones], key=lambda y: pytz.timezone(y[1]).utcoffset(datetime.now()))
 
     PATREON_ROLES = [353630811561394206, 353226278435946496]
