@@ -170,7 +170,7 @@ def dashboard():
 
         if request.form.get('update-server') is not None: # updated server
 
-            server = Server.query.filter(Server.id == request.args.get('id')).first()
+            server = Server.query.filter(Server.server == request.args.get('id')).first()
 
             p = request.form.get('prefix')
 
@@ -243,25 +243,14 @@ def dashboard():
 
                 idx = guild['id']
 
-                s = Server.query.filter_by(id=idx).first()
+                s = Server.query.filter_by(server=idx).first()
 
                 if s is None:
                     continue
 
-                restrictions = s.restrictions
-
                 if (guild['permissions'] & 0x00002000) or (guild['permissions'] & 0x00000020) or (guild['permissions'] & 0x00000008):
                     available_guilds.append({'id': guild['id'], 'name': guild['name']})
                     continue
-
-                elif restrictions['data'] == []:
-                    continue
-
-                member = requests.get('https://discordapp.com/api/v6/guilds/{}/members/{}'.format(idx, user_id), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
-                for role in member['roles']:
-                    if int(role) in restrictions['data']:
-                        available_guilds.append(guild)
-                        break
 
             reminder_guild_member = requests.get('https://discordapp.com/api/v6/guilds/350391364896161793/members/{}'.format(user_id), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
             if reminder_guild_member.status_code == 200:
@@ -277,7 +266,7 @@ def dashboard():
         if request.args.get('id') is not None:
             for guild in session['guilds']:
                 if guild['id'] == request.args.get('id'):
-                    server = Server.query.filter( Server.id == guild['id'] ).first()
+                    server = Server.query.filter( Server.server == guild['id'] ).first()
 
                     channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if isinstance(x, dict) and x['type'] == 0]
 
