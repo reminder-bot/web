@@ -54,6 +54,22 @@ def oauth():
     return redirect(url_for('discord.login'))
 
 
+def get_webhook(channel: int):
+    webhooks = requests.get('https://discordapp.com/api/v6/channels/{}/webhooks'.format(channel), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
+    if isinstance(webhooks, list):
+        existing = [x for x in webhooks if x['user']['id'] == app.config['DISCORD_OAUTH_CLIENT_ID']]
+
+        if len(existing) == 0:
+            wh = requests.post('https://discordapp.com/api/v6/channels/{}/webhooks'.format(channel), json={'name': 'Reminders'}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
+            wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(wh['id'], wh['token'])
+        else:
+            wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
+        return wh
+        
+    else:
+        return None
+
+
 @app.route('/creminder', methods=['POST'])
 def change_reminder():
     new_msg = request.form.get('message_new')
@@ -108,18 +124,6 @@ def change_reminder():
         else:
             wh = None
 
-            if request.args.get('id') != '0':
-                webhooks = requests.get('https://discordapp.com/api/v6/channels/{}/webhooks'.format(new_channel), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
-                if isinstance(webhooks, list):
-                    existing = [x for x in webhooks if x['user']['id'] == app.config['DISCORD_OAUTH_CLIENT_ID']]
-
-                    if len(existing) == 0:
-                        wh = requests.post('https://discordapp.com/api/v6/channels/{}/webhooks'.format(new_channel), json={'name': 'Reminders'}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
-                        wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(wh['id'], wh['token'])
-                    else:
-                        wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
-
-
             index = request.args.get('index')
 
             if index is not None:
@@ -134,15 +138,21 @@ def change_reminder():
                 else:
                     rem.message = new_msg
                     rem.time = int( new_time )
-                    rem.channel = int( new_channel )
-                    rem.webhook = wh
+                    if int( new_channel ) != rem.channel:
+                        rem.channel = int( new_channel )
+                        rem.webhook = get_webhook(new_channel)
                     rem.embed = embed
                     rem.method = 'dashboard'
                     rem.username = username or 'Reminder'
                     rem.avatar = avatar or 'https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg'
 
             else:
-                reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), position=0 if new_interval is not None else None, embed=embed, method='dashboard', webhook=wh, username=username, avatar=avatar)
+                if request.args.get('id') != '0':
+                    webhook = get_webhook(new_channel)
+                else:
+                    webhook = None
+
+                reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), position=0 if new_interval is not None else None, embed=embed, method='dashboard', webhook=webhook, username=username, avatar=avatar)
                 db.session.add(reminder)
 
                 if new_interval is not None:
