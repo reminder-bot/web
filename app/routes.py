@@ -204,7 +204,7 @@ def dashboard():
                 session['roles'] = len(roles)
 
             else:
-                session['roles'] = 4
+                session['roles'] = 0
 
             session['guilds'] = available_guilds
 
