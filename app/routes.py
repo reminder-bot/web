@@ -70,7 +70,7 @@ def change_reminder():
         if not (0 < len(username) <= 32):
             username = None
 
-    if session['roles'] > 0:
+    if session.get('roles', 0) > 0:
         try:
             new_interval = int(request.form.get('interval_new'))
         except ValueError:
@@ -135,11 +135,11 @@ def change_reminder():
                     rem.message = new_msg
                     rem.time = int( new_time )
                     rem.channel = int( new_channel )
+                    rem.webhook = wh
                     rem.embed = embed
                     rem.method = 'dashboard'
-                    rem.webhook = wh
-                    rem.username = username
-                    rem.avatar = avatar
+                    rem.username = username or 'Reminder'
+                    rem.avatar = avatar or 'https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg'
 
             else:
                 reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), position=0 if new_interval is not None else None, embed=embed, method='dashboard', webhook=wh, username=username, avatar=avatar)
