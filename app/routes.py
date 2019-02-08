@@ -129,14 +129,17 @@ def change_reminder():
                     if str( reminder['index'] ) == index:
                         rem = Reminder.query.get(reminder['id'])
 
-                rem.message = new_msg
-                rem.time = int( new_time )
-                rem.channel = int( new_channel )
-                rem.embed = embed
-                rem.method = 'dashboard'
-                rem.webhook = wh
-                rem.username = username
-                rem.avatar = avatar
+                if rem is None:
+                    flash('Error changing reminder: Reminder not found')
+                else:
+                    rem.message = new_msg
+                    rem.time = int( new_time )
+                    rem.channel = int( new_channel )
+                    rem.embed = embed
+                    rem.method = 'dashboard'
+                    rem.webhook = wh
+                    rem.username = username
+                    rem.avatar = avatar
 
             else:
                 reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), position=0 if new_interval is not None else None, embed=embed, method='dashboard', webhook=wh, username=username, avatar=avatar)
