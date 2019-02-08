@@ -65,7 +65,7 @@ def get_webhook(channel: int):
         else:
             wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
         return wh
-        
+
     else:
         return None
 
@@ -249,7 +249,7 @@ def dashboard():
                 flash('You do not have permission to view this guild')
                 return redirect(url_for('dashboard'))
 
-            reminders = Reminder.query.filter(Reminder.channel.in_(session['channels'])).all()
+            reminders = Reminder.query.filter(Reminder.channel.in_(session['channels'])).order_by(Reminder.time).all()
 
             r = []
             s_r = []
