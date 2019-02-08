@@ -7,7 +7,7 @@ class Reminder(db.Model):
     message = db.Column( db.String(2000) )
     channel = db.Column( db.BigInteger )
     time = db.Column( db.BigInteger )
-    interval = db.Column( db.Integer )
+    position = db.Column( db.Integer )
 
     webhook = db.Column( db.String(256) )
     avatar = db.Column( db.String(512), default="https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg", nullable=False )
@@ -15,6 +15,16 @@ class Reminder(db.Model):
 
     method = db.Column( db.Text )
     embed = db.Column( db.Integer, nullable=True )
+
+
+class Interval(db.Model):
+    __tablename__ = 'intervals'
+
+    id = db.Column( db.Integer, primary_key=True, unique=True)
+
+    reminder = db.Column(db.Integer, db.ForeignKey('reminders.id'))
+    period = db.Column(db.Integer)
+    position = db.Column(db.Integer)
 
 
 class Server(db.Model):

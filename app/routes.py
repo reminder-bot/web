@@ -1,6 +1,6 @@
 from flask import redirect, render_template, request, url_for, session, abort, flash
 from app import app, discord, db
-from app.models import Server, Reminder
+from app.models import Server, Reminder, Interval
 import os
 import io
 import requests
@@ -132,7 +132,6 @@ def change_reminder():
                 rem.message = new_msg
                 rem.time = int( new_time )
                 rem.channel = int( new_channel )
-                rem.interval = new_interval
                 rem.embed = embed
                 rem.method = 'dashboard'
                 rem.webhook = wh
@@ -140,8 +139,15 @@ def change_reminder():
                 rem.avatar = avatar
 
             else:
-                reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), interval=new_interval, embed=embed, method='dashboard', webhook=wh, username=username, avatar=avatar)
+                reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), position=0 if new_interval is not None else None, embed=embed, method='dashboard', webhook=wh, username=username, avatar=avatar)
                 db.session.add(reminder)
+
+                if new_interval is not None:
+                    db.session.commit()
+
+                    interval = Interval(reminder=reminder.id, period=new_interval, position=0)
+                    db.session.add(interval)                    
+
 
             db.session.commit()
 
@@ -191,14 +197,14 @@ def dashboard():
                     available_guilds.append({'id': guild['id'], 'name': guild['name']})
                     continue
 
-            reminder_guild_member = requests.get('https://discordapp.com/api/v6/guilds/350391364896161793/members/{}'.format(user_id), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
+            reminder_guild_member = requests.get('https://discordapp.com/api/v6/guilds/{}/members/{}'.format(app.config['PATREON_SERVER'], user_id), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
             if reminder_guild_member.status_code == 200:
 
                 roles = list(set([int(x) for x in reminder_guild_member.json()['roles']]) & set(app.config['PATREON_ROLES']))
                 session['roles'] = len(roles)
 
             else:
-                session['roles'] = 0
+                session['roles'] = 4
 
             session['guilds'] = available_guilds
 
@@ -249,7 +255,13 @@ def dashboard():
 
                 r[index]['time'] = reminder.time
 
-                r[index]['interval'] = reminder.interval
+                period = None
+
+                if reminder.position is not None:
+                    i = Interval.query.filter(Interval.reminder == reminder.id).first()
+                    period = i.period
+
+                r[index]['interval'] = period
 
                 r[index]['embed'] = hex(reminder.embed).strip('0x') if reminder.embed is not None else '00A65A'
                 r[index]['embedded'] = not (reminder.embed is None)
