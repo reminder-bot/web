@@ -4,6 +4,7 @@ class Reminder(db.Model):
     __tablename__ = 'reminders'
 
     id = db.Column( db.Integer, primary_key=True, unique=True )
+    hashpack = db.Column( db.String(64), unique=True )
     message = db.Column( db.String(2000) )
     channel = db.Column( db.BigInteger )
     time = db.Column( db.BigInteger )

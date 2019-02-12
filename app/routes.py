@@ -6,6 +6,7 @@ import io
 import requests
 import json
 import time
+import random
 
 
 @app.errorhandler(500)
@@ -152,7 +153,9 @@ def change_reminder():
                 else:
                     webhook = None
 
-                reminder = Reminder(message=new_msg, time=int(new_time), channel=int(new_channel), position=0 if new_interval is not None else None, embed=embed, method='dashboard', webhook=webhook, username=username, avatar=avatar)
+                full = hex(int(new_channel) * 10000000000000000 + int(new_channel) * 100000000 + random.randint(0, 999999999))
+
+                reminder = Reminder(message=new_msg, hashpack=full, time=int(new_time), channel=int(new_channel), position=0 if new_interval is not None else None, embed=embed, method='dashboard', webhook=webhook, username=username, avatar=avatar)
                 db.session.add(reminder)
 
                 if new_interval is not None:
