@@ -128,11 +128,7 @@ def change_reminder():
             index = request.args.get('index')
 
             if index is not None:
-                rem = None 
-
-                for reminder in session['reminders']:
-                    if str( reminder['index'] ) == index:
-                        rem = Reminder.query.get(reminder['id'])
+                rem = Reminder.query.filter(Reminder.hashpack == index).first()
 
                 if rem is None:
                     flash('Error changing reminder: Reminder not found')
@@ -192,7 +188,7 @@ def dashboard():
         except:
             return redirect( url_for('oauth') )
 
-        if any([session.get(x) is None for x in ('guilds', 'reminders', 'roles', 'channels')]) or request.args.get('refresh'):
+        if any([session.get(x) is None for x in ('guilds', 'roles', 'channels')]) or request.args.get('refresh'):
             # the code below is time-consuming; only run on first load and if the user wants to refresh the guild list.
             guilds = discord.get('api/users/@me/guilds').json()
 
@@ -255,12 +251,10 @@ def dashboard():
             reminders = Reminder.query.filter(Reminder.channel.in_(session['channels'])).order_by(Reminder.time).all()
 
             r = []
-            s_r = []
 
             for index, reminder in enumerate(reminders):
 
                 r.append({})
-                s_r.append({})
 
                 r[index]['message'] = reminder.message
                 channel = [x for x in channels if int(x['id']) == reminder.channel][0]
@@ -285,12 +279,8 @@ def dashboard():
                 r[index]['avatar'] = reminder.avatar or 'https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg'
 
                 r[index]['id'] = reminder.id
-                s_r[index]['id'] = reminder.id
 
-                r[index]['index'] = index
-                s_r[index]['index'] = index
-
-            session['reminders'] = s_r
+                r[index]['index'] = reminder.hashpack
 
             return render_template('dashboard.html',
                 out=False,
