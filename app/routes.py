@@ -71,6 +71,20 @@ def get_webhook(channel: int):
         return None
 
 
+def create_hashpack(self, i1, i2):
+    m = i2
+    while m > 0:
+        i1 *= 10
+        m //= 10
+    
+    bigint = i1 + i2
+    full = hex(bigint)[2:]
+    while len(full) < 64:
+        full += random.choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
+
+    return full
+
+
 @app.route('/creminder', methods=['POST'])
 def change_reminder():
     new_msg = request.form.get('message_new')
@@ -149,7 +163,7 @@ def change_reminder():
                 else:
                     webhook = None
 
-                full = hex(int(new_channel) * 10000000000000000 + int(new_channel) * 100000000 + random.randint(0, 999999999))
+                full = create_hashpack(int(new_channel), int(new_channel))
 
                 reminder = Reminder(message=new_msg, hashpack=full, time=int(new_time), channel=int(new_channel), position=0 if new_interval is not None else None, embed=embed, method='dashboard', webhook=webhook, username=username, avatar=avatar)
                 db.session.add(reminder)
