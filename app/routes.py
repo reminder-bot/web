@@ -71,7 +71,7 @@ def get_webhook(channel: int):
         return None
 
 
-def create_hashpack(self, i1, i2):
+def create_hashpack(i1, i2):
     m = i2
     while m > 0:
         i1 *= 10
