@@ -39,7 +39,7 @@ def help():
 @app.route('/delete', strict_slashes=False)
 def delete():
 
-    reminder = Reminder.query.filter(Reminder.id == session['reminders'][int( request.args.get('index') )]['id'])
+    reminder = Reminder.query.filter(Reminder.hashpack == request.args.get('index'))
     reminder.delete(synchronize_session='fetch')
 
     db.session.commit()
@@ -264,42 +264,10 @@ def dashboard():
 
             reminders = Reminder.query.filter(Reminder.channel.in_(session['channels'])).order_by(Reminder.time).all()
 
-            r = []
-
-            for index, reminder in enumerate(reminders):
-
-                r.append({})
-
-                r[index]['message'] = reminder.message
-                channel = [x for x in channels if int(x['id']) == reminder.channel][0]
-                r[index]['channel'] = channel
- 
-                r[index]['username'] = reminder.username or 'Reminder'
-                r[index]['avatar'] = reminder.avatar
-
-                r[index]['time'] = reminder.time
-
-                period = None
-
-                if reminder.position is not None:
-                    i = Interval.query.filter(Interval.reminder == reminder.id).first()
-                    period = i.period
-
-                r[index]['interval'] = period
-
-                r[index]['embed'] = hex(reminder.embed).strip('0x') if reminder.embed is not None else '00A65A'
-                r[index]['embedded'] = not (reminder.embed is None)
-
-                r[index]['avatar'] = reminder.avatar or 'https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg'
-
-                r[index]['id'] = reminder.id
-
-                r[index]['index'] = reminder.hashpack
-
             return render_template('dashboard.html',
                 out=False,
                 guilds=session['guilds'],
-                reminders=r,
+                reminders=reminders,
                 channels=channels,
                 members=members,
                 roles=roles,
