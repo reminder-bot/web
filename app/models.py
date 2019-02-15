@@ -19,6 +19,8 @@ class Reminder(db.Model):
 
     intervals = db.relationship('Interval', backref='r', lazy='dynamic')
 
+    channel_name = 'unknown'
+
 
 class Interval(db.Model):
     __tablename__ = 'intervals'

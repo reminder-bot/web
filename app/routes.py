@@ -273,6 +273,12 @@ def dashboard():
 
             reminders = Reminder.query.filter(Reminder.channel.in_(session['channels'])).order_by(Reminder.time).all()
 
+            for reminder in reminders:
+                for channel in channels:
+                    if int(channel['id']) == reminder.channel:
+                        reminder.channel_name = channel['name']
+                        break
+
             return render_template('dashboard.html',
                 out=False,
                 guilds=session['guilds'],

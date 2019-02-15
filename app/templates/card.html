@@ -48,7 +48,7 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                             </div>
                             <div class="dropdown">
                                 <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 30px; width: 65%; border: 1px solid #ccc; cursor: pointer;">
-                                    {% if reminder %}<option value="{{ reminder.channel }}" selected>{{ reminder.channel }} (current)</option>{% endif %}
+                                    {% if reminder %}<option value="{{ reminder.channel }}" selected>{{ reminder.channel_name }} (current)</option>{% endif %}
                                     {% for channel in channels %}
                                         <option value="{{ channel.id }}">{{ channel.name }}</option>
                                     {% endfor %}
