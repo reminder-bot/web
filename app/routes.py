@@ -166,6 +166,14 @@ def change_reminder():
                         interval = Interval(reminder=rem.id, period=new_interval, position=rem.intervals.order_by(Interval.position.desc()).first().position + 1)
                         db.session.add(interval)
 
+                    for interval in rem.intervals:
+                        field = request.form.get('interval_{}'.format(interval.position))
+                        if field is not None and all(x in '0123456789' for x in field):
+                            val = int(field)
+
+                            if 8 < val < 1576800000:
+                                interval.period = val
+
             else:
                 if request.args.get('id') != '0':
                     webhook = get_webhook(new_channel)
