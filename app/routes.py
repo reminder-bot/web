@@ -146,6 +146,7 @@ def change_reminder():
 
                 if rem is None:
                     flash('Error changing reminder: Reminder not found')
+
                 else:
                     rem.message = new_msg
                     rem.time = int( new_time )
@@ -154,12 +155,21 @@ def change_reminder():
                         rem.webhook = get_webhook(new_channel)
                     rem.embed = embed
                     rem.method = 'dashboard'
-                    rem.username = username or 'Reminder'
-                    rem.avatar = avatar or 'https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg'
+
+                    if username is not None:
+                        rem.username = username
+
+                    if avatar is not None:
+                        rem.avatar = avatar
+
+                    if new_interval is not None:
+                        interval = Interval(reminder=rem.id, period=new_interval, position=rem.intervals.order_by(Interval.position.desc()).first().position + 1)
+                        db.session.add(interval)
 
             else:
                 if request.args.get('id') != '0':
                     webhook = get_webhook(new_channel)
+
                 else:
                     webhook = None
 
@@ -172,8 +182,7 @@ def change_reminder():
                     db.session.commit()
 
                     interval = Interval(reminder=reminder.id, period=new_interval, position=0)
-                    db.session.add(interval)                    
-
+                    db.session.add(interval)
 
             db.session.commit()
 
