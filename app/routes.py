@@ -125,7 +125,7 @@ def change_reminder():
     if not all([x in '0123456789' for x in new_time]):
         flash('Error setting reminder (form data malformed)')
 
-    elif int(new_time) - 1576800000 > time.time():
+    elif 0 < int(new_time) or int(new_time) > time.time() + 1576800000:
         flash('Error setting reminder (time is too long)')
 
     elif new_msg and new_channel in session['channels']:
@@ -168,8 +168,8 @@ def change_reminder():
 
                     for interval in rem.intervals:
                         field = request.form.get('interval_{}'.format(interval.position))
-                        if field is not None and all(x in '0123456789' for x in field):
-                            val = int(field)
+                        if field is not None and all(x in '0123456789.' for x in field):
+                            val = float(field)
 
                             if 8 < val < 1576800000:
                                 interval.period = val
@@ -196,11 +196,6 @@ def change_reminder():
 
     elif new_channel not in session['channels']:
         flash('Error setting reminder (channel not found)')
-
-    try:
-        session.pop('reminders')
-    except:
-        pass
 
     if request.args.get('redirect'):
         return redirect(url_for('dashboard', id=request.args.get('redirect')))

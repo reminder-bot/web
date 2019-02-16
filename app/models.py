@@ -41,3 +41,50 @@ class Server(db.Model):
     prefix = db.Column( db.String(5), default="$", nullable=False )
     language = db.Column( db.String(2), default="EN", nullable=False )
     timezone = db.Column( db.String(30), default="UTC", nullable=False )
+
+
+# CACHING MODELS
+guild_members = db.Table('guild_members',
+    db.Column('guild', db.BigInteger, db.ForeignKey('guild_cache.guild')),
+    db.Column('member', db.BigInteger, db.ForeignKey('member_cache.member')),
+    db.Column('permissions', db.Boolean),
+)
+
+class Member(db.Model):
+    __tablename__ = 'member_cache'
+
+    id = db.Column( db.Integer, primary_key=True )
+    member = db.Column( db.BigInteger, unique=True )
+
+    patreon = db.Column( db.Integer )
+    name = db.Column( db.Text )
+
+    cache_time = db.Column( db.Integer )
+
+
+class GuildData(db.Model):
+    __tablename__ = 'guild_cache'
+
+    id = db.Column( db.Integer, primary_key=True )
+    guild = db.Column( db.BigInteger, unique=True )
+
+    name = db.Column( db.Text )
+    channels = db.relationship('ChannelData', backref='g', lazy='dynamic')
+    members = db.relationship(
+        'Member', secondary=guild_members,
+        primaryjoin=(guild_members.c.guild == guild),
+        secondaryjoin=(guild_members.c.member == Member.member),
+        backref=db.backref('guilds', lazy='dynamic'), lazy='dynamic'
+        )
+
+    cache_time = db.Column( db.Integer )
+
+
+class ChannelData(db.Model):
+    __tablename__ = 'channel_cache'
+
+    id = db.Column( db.Integer, primary_key=True )
+    channel = db.Column( db.BigInteger, unique=True )
+    guild = db.Column( db.BigInteger, db.ForeignKey('guild_cache.guild') )
+
+    name = db.Column( db.Text )
