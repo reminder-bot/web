@@ -115,19 +115,19 @@
 
 {% if server != None %}
 var channels = {
-    {% for channel in channels %}
+    {% for channel in guild.channels %}
     "{{ channel.name.replace('\\', '')[:32] }}": "{{ channel.channel }}",
     {% endfor %}
 };
 
 var members = {
-    {% for m in members %}
+    {% for m in guild.partials %}
     "{{ m.name.replace('\\', '').lower()[:32] }}": "{{ m.user }}",
     {% endfor %}
 };
 
 var roles = {
-    {% for role in roles %}
+    {% for role in guild.roles %}
     "@{{ role.name.replace('\\', '').lower()[:32] }}": "&{{ role.role }}",
     {% endfor %}
 };

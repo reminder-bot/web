@@ -137,7 +137,7 @@ def change_reminder():
     if not (0 < int(new_time) < time.time() + 1576800000):
         flash('Error setting reminder (time is too long)')
 
-    elif new_msg and new_channel in [x.channel for x in guild.channels]:
+    elif new_msg and (new_channel == member.dm_channel or new_channel in [x.channel for x in guild.channels]):
 
         if not 0 < len(new_msg) < 2000:
             flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
@@ -366,23 +366,20 @@ def dashboard():
 
             guild = GuildData.query.filter(GuildData.guild == guild_id).first()
             server = Server.query.filter(Server.server == guild_id).first()
-            reminders = Reminder.query.filter(Reminder.channel.in_([x.channel for x in guild.channels])).order_by(Reminder.time).all() # fetch reminders
+            reminders = Reminder.query.filter(Reminder.channel.in_([x for x in channels])).order_by(Reminder.time).all() # fetch reminders
 
-            for reminder in reminders: # assign channel names to all reminders
-                for channel in guild.channels:
-                    if reminder.channel == channel.channel:
-                        reminder.channel_name = channel.name
-                        break
-
-            print(guild.partials.all())
+            if guild is not None:
+                for reminder in reminders: # assign channel names to all reminders
+                    for channel in guild.channels:
+                        if reminder.channel == channel.channel:
+                            reminder.channel_name = channel.name
+                            break
 
             return render_template('dashboard.html',
                 out=False,
                 guilds=member.guilds,
                 reminders=reminders,
-                channels=guild.channels,
-                members=guild.partials.all(),
-                roles=guild.roles,
+                guild=guild,
                 server=server,
                 member=member,
                 time=time.time())
@@ -390,10 +387,7 @@ def dashboard():
         return render_template('dashboard.html',
             out=True,
             guilds=member.guilds,
-            reminders=[],
-            channels=[],
-            members=[],
-            roles=[],
+            guild=None,
             server=None,
             member=member,
             time=time.time())
