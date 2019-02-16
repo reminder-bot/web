@@ -356,6 +356,7 @@ def dashboard():
 
                                 guild.cache_time = time.time() + 86400 # 1 day cache length
 
+                            channels = [x.channel for x in guild.channels]
                             db.session.commit() # commit 
 
                             break
