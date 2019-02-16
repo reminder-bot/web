@@ -47,7 +47,7 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                                 <i class="fas fa-comment-alt"></i>
                             </div>
                             <div class="dropdown">
-                                <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 30px; width: 65%; border: 1px solid #ccc; cursor: pointer;">
+                                <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;">
                                     {% if reminder %}<option value="{{ reminder.channel }}" selected>{{ reminder.channel_name }} (current)</option>{% endif %}
                                     {% for channel in guild.channels %}
                                         <option value="{{ channel.channel }}">{{ channel.name }}</option>
@@ -109,11 +109,18 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 {% for interval in reminder.intervals %}
-                                    <input type="number" class="form-control pull-right" name="interval_{{ interval.position }}" value="{{ interval.period }}"></input>
+                                    <input type="number" class="form-control pull-left" name="interval_{{ interval.position }}" value="{{ interval.period }}" style="width: 75%"></input>
+
+                                    <select name="multiplier_{{ interval.position }}" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
+                                        <option value="1" selected>seconds</option>
+                                        <option value="60">minutes</option>
+                                        <option value="3600">hours</option>
+                                        <option value="86400">days</option>
+                                    </select>
                                 {% endfor %}
                                 <input type="number" class="form-control pull-left" name="interval_new" value="" style="width: 75%;"></input>
 
-                                <select style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
+                                <select name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
                                     <option value="1" selected>seconds</option>
                                     <option value="60">minutes</option>
                                     <option value="3600">hours</option>

@@ -105,6 +105,7 @@ def change_reminder():
         flash('Error setting reminder (form data malformed)')
 
     new_interval = None
+    multiplier = None
     embed = None
     avatar = None
     username = None
@@ -117,6 +118,7 @@ def change_reminder():
     if member.patreon > 0:
         try:
             new_interval = int(request.form.get('interval_new'))
+            multiplier = int(request.form.get('multiplier_new'))
         except ValueError:
             new_interval = None
 
@@ -172,16 +174,17 @@ def change_reminder():
                         rem.avatar = avatar
 
                     if new_interval is not None:
-                        interval = Interval(reminder=rem.id, period=new_interval, position=rem.intervals.order_by(Interval.position.desc()).first().position + 1)
+                        interval = Interval(reminder=rem.id, period=new_interval * multiplier, position=rem.intervals.order_by(Interval.position.desc()).first().position + 1)
                         db.session.add(interval)
 
                     for interval in rem.intervals:
                         field = request.form.get('interval_{}'.format(interval.position))
-                        if field is not None and all(x in '0123456789.' for x in field):
+                        mul_field = request.form.get('multiplier_{}'.format(interval.position))
+                        if field is not None and all(x in '0123456789.' for x in field) and mul_field is not None and all(x in '0123456789' for x in mul_field):
                             val = float(field)
 
                             if 8 < val < 1576800000:
-                                interval.period = val
+                                interval.period = val * int(mul_field)
 
             else:
                 if request.args.get('id') != '0':
@@ -198,7 +201,7 @@ def change_reminder():
                 if new_interval is not None:
                     db.session.commit()
 
-                    interval = Interval(reminder=reminder.id, period=new_interval, position=0)
+                    interval = Interval(reminder=reminder.id, period=new_interval * multiplier, position=0)
                     db.session.add(interval)
 
             db.session.commit()
