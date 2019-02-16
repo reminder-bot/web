@@ -1,6 +1,6 @@
 from flask import redirect, render_template, request, url_for, session, abort, flash
 from app import app, discord, db
-from app.models import Server, Reminder, Interval
+from app.models import Server, Reminder, Interval, User, PartialMember, GuildData, ChannelData
 import os
 import io
 import requests
@@ -71,7 +71,7 @@ def get_webhook(channel: int):
         return None
 
 
-def create_hashpack(i1, i2):
+def create_hashpack(i1, i2): # misnomer- not actually a hash in any way, was originally going to be a hash but changed my mind
     m = i2
     while m > 0:
         i1 *= 10
@@ -80,9 +80,13 @@ def create_hashpack(i1, i2):
     bigint = i1 + i2
     full = hex(bigint)[2:]
     while len(full) < 64:
-        full += random.choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
+        full += random.choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.')
 
     return full
+
+
+def api_get(endpoint):
+    return requests.get('https://discordapp.com/api/v6/{}'.format(endpoint), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
 
 
 @app.route('/creminder', methods=['POST'])
@@ -214,13 +218,40 @@ def dashboard():
         except:
             return redirect( url_for('oauth') )
 
-        if any([session.get(x) is None for x in ('guilds', 'roles', 'channels')]) or request.args.get('refresh'):
-            # the code below is time-consuming; only run on first load and if the user wants to refresh the guild list.
+
+        user_id = user['id'] # get user id from oauth
+
+        m_query = User.query.filter(User.user == user_id)
+
+        if m_query.filter(User.cache_time < time.time()).count() > 0 and request.args.get('refresh') is None: # member located in cache, is in date and no refresh requested
+            member = m_query.first()
+
+        else: # need to recache
+            member = m_query.first()
+
+            if member is None:
+                member = User(user=user_id)
+                session.add(member)
+
+            member.name = user['name']
+
+            reminder_guild_member = api_get('guilds/{}/members/{}'.format(app.config['PATREON_SERVER'], user_id))
+            if reminder_guild_member.status_code == 200:
+
+                roles = list(set([int(x) for x in reminder_guild_member.json()['roles']]) & set(app.config['PATREON_ROLES']))
+                member.patreon = len(roles)
+                member.cache_time = time.time() + 345600 # 4 day cache period if the user is patreon
+
+            else:
+                member.patreon = 0
+                member.cache_time = time.time() + 7200 # 2 hour cache period is the user is not patreon ( means it'll get updated if they become patreon )
+
+            channel = requests.post('https://discordapp.com/api/v6/users/@me/channels', json={'recipient_id': user['id']}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
+            member.dm_channel = channel['id']
+
+            member.guilds = []
+
             guilds = discord.get('api/users/@me/guilds').json()
-
-            user_id = user['id']
-
-            available_guilds = []
 
             for guild in guilds:
 
@@ -231,60 +262,110 @@ def dashboard():
                 if s is None:
                     continue
 
-                if (guild['permissions'] & 0x00002000) or (guild['permissions'] & 0x00000020) or (guild['permissions'] & 0x00000008):
-                    available_guilds.append({'id': guild['id'], 'name': guild['name']})
-                    continue
+                elif (guild['permissions'] & 0x00002000) or (guild['permissions'] & 0x00000020) or (guild['permissions'] & 0x00000008):
+                    g_query = GuildData.query.filter(GuildData.guild == idx)
 
-            reminder_guild_member = requests.get('https://discordapp.com/api/v6/guilds/{}/members/{}'.format(app.config['PATREON_SERVER'], user_id), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
-            if reminder_guild_member.status_code == 200:
+                    if g_query.filter(GuildData.cache_time < time.time()).count() > 0:
+                        member.guilds.append(g_query.first())
 
-                roles = list(set([int(x) for x in reminder_guild_member.json()['roles']]) & set(app.config['PATREON_ROLES']))
-                session['roles'] = len(roles)
+                    else:
+                        g = g_query.first()
 
-            else:
-                session['roles'] = 0
-
-            session['guilds'] = available_guilds
+                        if g is None:
+                            g = GuildData(guild=idx, name=guild['name'], cache_time=0)
+                            session.add(g)
+                            
+                        member.guilds.append(g)
+        # end of usercache procedure
 
         if request.args.get('id') is not None:
-            for guild in session['guilds']:
-                if guild['id'] == request.args.get('id'):
-                    server = Server.query.filter( Server.server == guild['id'] ).first()
+            try:
+                guild_id = int(request.args.get('id'))
+            except:
+                flash('Guild not found')
+                return redirect( url_for('dashboard') )
 
-                    channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if isinstance(x, dict) and x['type'] == 0]
-
-                    session['channels'] = [x['id'] for x in channels]
-
-                    members = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/members?limit=50'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
-
-                    roles = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/roles'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
-                    break
-
-                elif request.args.get('id') == '0':
-                    server = None
-
-                    channels = [requests.post('https://discordapp.com/api/v6/users/@me/channels', json={'recipient_id': user['id']}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
-                    session['channels'] = [x['id'] for x in channels]
-
-                    members = []
-                    roles = []
-                    break
+            if guild_id == 0:
+                channels = [member.dm_channel]
 
             else:
-                flash('You do not have permission to view this guild')
-                return redirect(url_for('dashboard'))
+                for guild in member.guilds:
+                    if guild.guild == guild_id:
+                        server_data = Server.query.filter( Server.server == guild_id ).first()
 
-            reminders = Reminder.query.filter(Reminder.channel.in_(session['channels'])).order_by(Reminder.time).all()
+                        if server_data is None:
+                            flash('Guild not found')
+                            return redirect( url_for('dashboard') )
 
-            for reminder in reminders:
+                        else:
+                            if guild.cache_time < time.time()
+                                channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if isinstance(x, dict) and x['type'] == 0]
+
+                                ChannelData.query.filter(ChannelData.guild == guild_id & ChannelData.channel.notin_([x['id'] for x in channels])).delete(synchronize_session='fetch')
+
+                                for channel in channels:
+                                    c = ChannelData.query.filter(ChannelData.channel == channel['id'])
+
+                                    if c.count() > 0:
+                                        ch = c.first()
+                                        ch.name = channel['name']
+
+                                    else:
+                                        ch = ChannelData(channel=channel['id'], name=channel['name'], guild=guild_id)
+                                        session.add(ch)
+
+
+                                members = api_get('guilds/{}/members?limit=150'.format(guild['id'])).json()
+
+                                guild.members = []
+
+                                for member in members:
+                                    m = PartialMember.query.filter(PartialMember.user == member['user']['id']).first()
+
+                                    if m is not None:
+                                        m.name = member['user']['name']
+
+                                    else:
+                                        m = PartialMember(user=member['user']['id'], name=member['user']['name'])
+                                        session.add(m)
+
+                                    guild.members.append(m)
+
+
+                                roles = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/roles'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
+
+                                RoleData.query.filter(RoleData.guild == guild_id & RoleData.role.notin_([x['id'] for x in roles])).delete(synchronize_session='fetch')
+
+                                for role in roles:
+                                    c = RoleData.query.filter(RoleData.role == role['id'])
+
+                                    if c.count() > 0:
+                                        ch = c.first()
+                                        ch.name = role['name']
+
+                                    else:
+                                        ch = RoleData(role=role['id'], name=role['name'], guild=guild_id)
+                                        session.add(ch)
+
+                            channels = [x.channel for x in guild.channels] # turn the channels into Ids 
+
+                            break
+
+                else:
+                    flash('You do not have permission to view this guild')
+                    return redirect(url_for('dashboard'))
+
+            reminders = Reminder.query.filter(Reminder.channel.in_(channels)).order_by(Reminder.time).all() # fetch reminders
+
+            for reminder in reminders: # assign channel names to all reminders
                 for channel in channels:
-                    if int(channel['id']) == reminder.channel:
-                        reminder.channel_name = channel['name']
+                    if channel.channel == reminder.channel:
+                        reminder.channel_name = channel.name
                         break
 
             return render_template('dashboard.html',
                 out=False,
-                guilds=session['guilds'],
+                guilds=member.guilds,
                 reminders=reminders,
                 channels=channels,
                 members=members,

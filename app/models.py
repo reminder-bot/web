@@ -44,22 +44,35 @@ class Server(db.Model):
 
 
 # CACHING MODELS
-guild_members = db.Table('guild_members',
+guild_users = db.Table('guild_users',
     db.Column('guild', db.BigInteger, db.ForeignKey('guild_cache.guild')),
-    db.Column('member', db.BigInteger, db.ForeignKey('member_cache.member')),
-    db.Column('permissions', db.Boolean),
+    db.Column('user', db.BigInteger, db.ForeignKey('user_cache.user')),
 )
 
-class Member(db.Model):
-    __tablename__ = 'member_cache'
+guild_partials = db.Table('guild_partials',
+    db.Column('guild', db.BigInteger, db.ForeignKey('guild_cache.guild')),
+    db.Column('user', db.BigInteger, db.ForeignKey('partial_cache.user')),
+)
+
+class User(db.Model):
+    __tablename__ = 'user_cache'
 
     id = db.Column( db.Integer, primary_key=True )
-    member = db.Column( db.BigInteger, unique=True )
+    user = db.Column( db.BigInteger, unique=True )
 
     patreon = db.Column( db.Integer )
     name = db.Column( db.Text )
+    dm_channel = db.Column( db.BigInteger )
 
     cache_time = db.Column( db.Integer )
+
+
+class PartialMember(db.Model):
+    __tablename__ = 'partial_cache'
+
+    id = db.Column( db.Integer, primary_key=True )
+    user = db.Column( db.BigInteger, unique=True )
+    name = db.Column( db.Text )
 
 
 class GuildData(db.Model):
@@ -69,15 +82,34 @@ class GuildData(db.Model):
     guild = db.Column( db.BigInteger, unique=True )
 
     name = db.Column( db.Text )
+
     channels = db.relationship('ChannelData', backref='g', lazy='dynamic')
-    members = db.relationship(
-        'Member', secondary=guild_members,
+    roles = db.relationship('RoleData', backref='g', lazy='dynamic')
+
+    users = db.relationship(
+        'User', secondary=guild_members,
         primaryjoin=(guild_members.c.guild == guild),
-        secondaryjoin=(guild_members.c.member == Member.member),
+        secondaryjoin=(guild_members.c.user == User.user),
         backref=db.backref('guilds', lazy='dynamic'), lazy='dynamic'
-        )
+    )
+    partials = db.relationship(
+        'PartialMember', secondary=guild_members,
+        primaryjoin=(guild_partials.c.guild == guild),
+        secondaryjoin=(guild_partials.c.user == PartialMember.user),
+        backref=db.backref('guild', lazy='dynamic'), lazy='dynamic'
+    )
 
     cache_time = db.Column( db.Integer )
+
+
+class RoleData(db.Model):
+    __tablename__ = 'role_cache'
+
+    id = db.Column( db.Integer, primary_key=True )
+    role = db.Column( db.BigInteger, unique=True )
+    guild = db.Column( db.BigInteger, db.ForeignKey('guild_cache.guild') )
+
+    name = db.Column( db.Text )
 
 
 class ChannelData(db.Model):
