@@ -87,13 +87,13 @@ class GuildData(db.Model):
     roles = db.relationship('RoleData', backref='g', lazy='dynamic')
 
     users = db.relationship(
-        'User', secondary=guild_members,
-        primaryjoin=(guild_members.c.guild == guild),
-        secondaryjoin=(guild_members.c.user == User.user),
+        'User', secondary=guild_users,
+        primaryjoin=(guild_users.c.guild == guild),
+        secondaryjoin=(guild_users.c.user == User.user),
         backref=db.backref('guilds', lazy='dynamic'), lazy='dynamic'
     )
     partials = db.relationship(
-        'PartialMember', secondary=guild_members,
+        'PartialMember', secondary=guild_partials,
         primaryjoin=(guild_partials.c.guild == guild),
         secondaryjoin=(guild_partials.c.user == PartialMember.user),
         backref=db.backref('guild', lazy='dynamic'), lazy='dynamic'

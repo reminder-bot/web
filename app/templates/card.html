@@ -50,7 +50,7 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                                 <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 30px; width: 65%; border: 1px solid #ccc; cursor: pointer;">
                                     {% if reminder %}<option value="{{ reminder.channel }}" selected>{{ reminder.channel_name }} (current)</option>{% endif %}
                                     {% for channel in channels %}
-                                        <option value="{{ channel.id }}">{{ channel.name }}</option>
+                                        <option value="{{ channel.channel }}">{{ channel.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -100,7 +100,7 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                     <!-- /.form group -->
                 </div>
 
-                {% if patreon > 0 %}
+                {% if member.patreon > 0 %}
                     <div class="bootstrap-timepicker">
                         <div class="form-group">
                             <label>Intervals:</label>
@@ -164,7 +164,7 @@ toggle_colorpicker();
 
                         </script>
 
-                        {% if patreon > 1 %}
+                        {% if member.patreon > 1 %}
                             <div class="form-group">
                                 <label>Avatar:</label>
                                 <div class="input-group">

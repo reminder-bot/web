@@ -1,48 +1,30 @@
 <!DOCTYPE html>
 <html>
     <head>
-
         <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
         <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
         <link rel="manifest" href="/{{ url_for('static', filename='favicon/site.webmanifest') }}">
         <meta name="msapplication-TileColor" content="#da532c">
         <meta name="theme-color" content="#ffffff">
-
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>Reminder Bot - Dashboard</title>
-        <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-        <!-- Font Awesome -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-
         <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
-        <!-- Theme style -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/AdminLTE.min.css') }}">
-        <!-- AdminLTE Skins. Choose a skin from the css/skins
-            folder instead of downloading all of them to reduce the load. -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/_all-skins.min.css') }}">
-        <!-- Date Picker -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-datepicker.min.css') }}">
-        <!-- Bootstrap time Picker -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-timepicker.min.css') }}">
-
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-colorpicker.min.css') }}">
-
         <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
         <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
-
         <script src="{{ url_for('static', filename='js/adminlte.min.js') }}"></script>
-
         <script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
-        <!-- datepicker -->
         <script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>
-        <!-- bootstrap time picker -->
         <script src="{{ url_for('static', filename='js/bootstrap-timepicker.min.js') }}"></script>
-
         <script src="{{ url_for('static', filename='js/bootstrap-colorpicker.min.js') }}"></script>
-
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
     </head>
 
@@ -72,9 +54,9 @@
                 <section class="sidebar">
                     <ul class="sidebar-menu" data-widget="tree">
                         <li class="header">GUILDS</li>
-                        <li style="margin-left: 2rem; margin-bottom: 1rem;"><a href="{{ url_for('dashboard', id=0) }}">@{{ user['username'] }}</a></li>
+                        <li style="margin-left: 2rem; margin-bottom: 1rem;"><a href="{{ url_for('dashboard', id=0) }}">@{{ member.name }}</a></li>
                         {% for guild in guilds %}
-                            <li style="margin-left: 2rem;"><a href="{{ url_for('dashboard', id=guild['id']) }}">{{ guild['name'] }}</a></li>
+                            <li style="margin-left: 2rem;"><a href="{{ url_for('dashboard', id=guild.guild) }}">{{ guild.name }}</a></li>
                         {% endfor %}
                     </ul>
                 </section>
@@ -134,19 +116,19 @@
 {% if server != None %}
 var channels = {
     {% for channel in channels %}
-    "{{ channel['name'].replace('\\', '')[:16] }}": "{{ channel['id'] }}",
+    "{{ channel.name.replace('\\', '')[:32] }}": "{{ channel.channel }}",
     {% endfor %}
 };
 
 var members = {
-    {% for member in members %}
-    "{{ member['user']['username'].replace('\\', '').lower()[:16] }}": "{{ member['user']['id'] }}",
+    {% for m in members %}
+    "{{ m.name.replace('\\', '').lower()[:32] }}": "{{ m.user }}",
     {% endfor %}
 };
 
 var roles = {
     {% for role in roles %}
-    "@{{ role['name'].replace('\\', '').lower()[:16] }}": "&{{ role['id'] }}",
+    "@{{ role.name.replace('\\', '').lower()[:32] }}": "&{{ role.role }}",
     {% endfor %}
 };
 
@@ -225,23 +207,23 @@ function manage_characters(e, i)
             {
                 var id = members[name_n.slice(1)];
             }
-            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="javascript:mention('<@${id}>', ${i})">${name_n}</a></li>`;
+            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="javascript:mention('<@${id}>', '${i}')">${name_n}</a></li>`;
         }
         else
         {
             var id = channels[name_n.slice(1)];
-            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="javascript:mention('<#${id}>', ${i})">${name_n}</a></li>`;
+            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="javascript:mention('<#${id}>', '${i}')">${name_n}</a></li>`;
         }
     }
 }
 
 {% for reminder in reminders %}
     
-    function m{{ reminder.index }}(e) {
-        manage_characters(e, {{ reminder.index }});
+    function m{{ reminder.hashpack }}(e) {
+        manage_characters(e, "{{ reminder.hashpack }}");
     }
 
-    document.getElementById("input-message{{ reminder.index }}").addEventListener("input", m{{ reminder.index }});
+    document.getElementById("input-message{{ reminder.hashpack }}").addEventListener("input", m{{ reminder.hashpack }});
 
 {% endfor %}
 {% endif %}

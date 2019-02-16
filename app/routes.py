@@ -1,6 +1,6 @@
 from flask import redirect, render_template, request, url_for, session, abort, flash
 from app import app, discord, db
-from app.models import Server, Reminder, Interval, User, PartialMember, GuildData, ChannelData
+from app.models import Server, Reminder, Interval, User, PartialMember, GuildData, ChannelData, RoleData
 import os
 import io
 import requests
@@ -80,7 +80,7 @@ def create_hashpack(i1, i2): # misnomer- not actually a hash in any way, was ori
     bigint = i1 + i2
     full = hex(bigint)[2:]
     while len(full) < 64:
-        full += random.choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.')
+        full += random.choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_')
 
     return full
 
@@ -95,11 +95,14 @@ def change_reminder():
     user_id = int(user['id'])
 
     member = User.query.filter(User.user == user_id).first()
-    guild = GuildData.query.filter(Guild.guild == int(request.args.get('redirect')))
+    guild = GuildData.query.filter(GuildData.guild == int(request.args.get('redirect'))).first()
 
-    new_msg = request.form.get('message_new')
-    new_channel = int(request.form.get('channel_new'))
-    new_time = int(request.form.get('time_new'))
+    try:
+        new_msg = request.form.get('message_new')
+        new_channel = int(request.form.get('channel_new'))
+        new_time = int(request.form.get('time_new'))
+    except:
+        flash('Error setting reminder (form data malformed)')
 
     new_interval = None
     embed = None
@@ -131,11 +134,7 @@ def change_reminder():
             if not avatar or not avatar.startswith('http') or not '.' in avatar:
                 avatar = None
 
-
-    if not all([x in '0123456789' for x in new_time]):
-        flash('Error setting reminder (form data malformed)')
-
-    elif 0 < int(new_time) or int(new_time) > time.time() + 1576800000:
+    if not (0 < int(new_time) < time.time() + 1576800000):
         flash('Error setting reminder (time is too long)')
 
     elif new_msg and new_channel in [x.channel for x in guild.channels]:
@@ -237,9 +236,9 @@ def dashboard():
 
             if member is None:
                 member = User(user=user_id)
-                session.add(member)
+                db.session.add(member)
 
-            member.name = user['name']
+            member.name = user['username']
 
             reminder_guild_member = api_get('guilds/{}/members/{}'.format(app.config['PATREON_SERVER'], user_id))
             if reminder_guild_member.status_code == 200:
@@ -279,9 +278,11 @@ def dashboard():
 
                         if g is None:
                             g = GuildData(guild=idx, name=guild['name'], cache_time=0) # empty cache so set cache time to something low
-                            session.add(g)
+                            db.session.add(g)
                             
                         member.guilds.append(g)
+
+            db.session.commit()
         # end of usercache procedure
 
         if request.args.get('id') is not None:
@@ -304,10 +305,10 @@ def dashboard():
                             return redirect( url_for('dashboard') )
 
                         else:
-                            if guild.cache_time < time.time()
-                                channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if isinstance(x, dict) and x['type'] == 0]
+                            if guild.cache_time < time.time():
+                                channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild.guild), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if isinstance(x, dict) and x['type'] == 0]
 
-                                ChannelData.query.filter(ChannelData.guild == guild_id & ChannelData.channel.notin_([x['id'] for x in channels])).delete(synchronize_session='fetch')
+                                ChannelData.query.filter((ChannelData.guild == guild_id) & ChannelData.channel.notin_([x['id'] for x in channels])).delete(synchronize_session='fetch')
 
                                 for channel in channels:
                                     c = ChannelData.query.filter(ChannelData.channel == channel['id'])
@@ -318,29 +319,29 @@ def dashboard():
 
                                     else:
                                         ch = ChannelData(channel=channel['id'], name=channel['name'], guild=guild_id)
-                                        session.add(ch)
+                                        db.session.add(ch)
 
 
-                                members = api_get('guilds/{}/members?limit=150'.format(guild['id'])).json()
+                                members = api_get('guilds/{}/members?limit=150'.format(guild.guild)).json()
 
-                                guild.members = []
+                                guild.partials = []
 
-                                for member in members:
-                                    m = PartialMember.query.filter(PartialMember.user == member['user']['id']).first()
+                                for me in members:
+                                    m = PartialMember.query.filter(PartialMember.user == me['user']['id']).first()
 
                                     if m is not None:
-                                        m.name = member['user']['name']
+                                        m.name = me['user']['username']
 
                                     else:
-                                        m = PartialMember(user=member['user']['id'], name=member['user']['name'])
-                                        session.add(m)
+                                        m = PartialMember(user=me['user']['id'], name=me['user']['username'])
+                                        db.session.add(m)
 
-                                    guild.members.append(m)
+                                    guild.partials.append(m)
 
 
-                                roles = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/roles'.format(guild['id']), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()]
+                                roles = api_get('guilds/{}/roles'.format(guild.guild)).json()
 
-                                RoleData.query.filter(RoleData.guild == guild_id & RoleData.role.notin_([x['id'] for x in roles])).delete(synchronize_session='fetch')
+                                RoleData.query.filter((RoleData.guild == guild_id) & RoleData.role.notin_([x['id'] for x in roles])).delete(synchronize_session='fetch')
 
                                 for role in roles:
                                     c = RoleData.query.filter(RoleData.role == role['id'])
@@ -351,11 +352,11 @@ def dashboard():
 
                                     else:
                                         ch = RoleData(role=role['id'], name=role['name'], guild=guild_id)
-                                        session.add(ch)
+                                        db.session.add(ch)
 
                                 guild.cache_time = time.time() + 86400 # 1 day cache length
 
-                            channels = [x.channel for x in guild.channels] # turn the channels into Ids 
+                            db.session.commit() # commit 
 
                             break
 
@@ -363,34 +364,36 @@ def dashboard():
                     flash('You do not have permission to view this guild')
                     return redirect(url_for('dashboard'))
 
-            reminders = Reminder.query.filter(Reminder.channel.in_(channels)).order_by(Reminder.time).all() # fetch reminders
+            guild = GuildData.query.filter(GuildData.guild == guild_id).first()
+            server = Server.query.filter(Server.server == guild_id).first()
+            reminders = Reminder.query.filter(Reminder.channel.in_([x.channel for x in guild.channels])).order_by(Reminder.time).all() # fetch reminders
 
             for reminder in reminders: # assign channel names to all reminders
-                for channel in channels:
-                    if channel.channel == reminder.channel:
+                for channel in guild.channels:
+                    if reminder.channel == channel.channel:
                         reminder.channel_name = channel.name
                         break
+
+            print(guild.partials.all())
 
             return render_template('dashboard.html',
                 out=False,
                 guilds=member.guilds,
                 reminders=reminders,
-                channels=channels,
-                members=members,
-                roles=roles,
+                channels=guild.channels,
+                members=guild.partials.all(),
+                roles=guild.roles,
                 server=server,
-                user=user,
-                time=time.time(),
-                patreon=session['roles'])
+                member=member,
+                time=time.time())
 
         return render_template('dashboard.html',
             out=True,
-            guilds=session['guilds'],
+            guilds=member.guilds,
             reminders=[],
             channels=[],
             members=[],
             roles=[],
             server=None,
-            user=user,
-            time=time.time(),
-            patreon=session['roles'])
+            member=member,
+            time=time.time())
