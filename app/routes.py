@@ -91,9 +91,15 @@ def api_get(endpoint):
 
 @app.route('/creminder', methods=['POST'])
 def change_reminder():
+    user = discord.get('api/users/@me').json()
+    user_id = int(user['id'])
+
+    member = User.query.filter(User.user == user_id).first()
+    guild = GuildData.query.filter(Guild.guild == int(request.args.get('redirect')))
+
     new_msg = request.form.get('message_new')
-    new_channel = request.form.get('channel_new')
-    new_time = request.form.get('time_new')
+    new_channel = int(request.form.get('channel_new'))
+    new_time = int(request.form.get('time_new'))
 
     new_interval = None
     embed = None
@@ -105,7 +111,7 @@ def change_reminder():
         if not (0 < len(username) <= 32):
             username = None
 
-    if session.get('roles', 0) > 0:
+    if member.patreon > 0:
         try:
             new_interval = int(request.form.get('interval_new'))
         except ValueError:
@@ -120,7 +126,7 @@ def change_reminder():
                 if 0 > embed or embed > 16777215:
                     embed = None
 
-        if session['roles'] > 1:
+        if member.patreon > 1:
             avatar = request.form.get('avatar')
             if not avatar or not avatar.startswith('http') or not '.' in avatar:
                 avatar = None
@@ -132,7 +138,7 @@ def change_reminder():
     elif 0 < int(new_time) or int(new_time) > time.time() + 1576800000:
         flash('Error setting reminder (time is too long)')
 
-    elif new_msg and new_channel in session['channels']:
+    elif new_msg and new_channel in [x.channel for x in guild.channels]:
 
         if not 0 < len(new_msg) < 2000:
             flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
@@ -198,11 +204,12 @@ def change_reminder():
 
             db.session.commit()
 
-    elif new_channel not in session['channels']:
+    elif new_channel not in [x.channel for x in guild.channels]:
         flash('Error setting reminder (channel not found)')
 
     if request.args.get('redirect'):
         return redirect(url_for('dashboard', id=request.args.get('redirect')))
+    
     else:
         return redirect(url_for('dashboard'))
 
@@ -210,14 +217,13 @@ def change_reminder():
 @app.route('/dashboard/', methods=['GET', 'POST'])
 def dashboard():
     if not discord.authorized:
-        return redirect(url_for('oauth'))
+        return redirect( url_for('oauth') )
 
     else:
         try:
             user = discord.get('api/users/@me').json()
         except:
             return redirect( url_for('oauth') )
-
 
         user_id = user['id'] # get user id from oauth
 
@@ -249,7 +255,7 @@ def dashboard():
             channel = requests.post('https://discordapp.com/api/v6/users/@me/channels', json={'recipient_id': user['id']}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
             member.dm_channel = channel['id']
 
-            member.guilds = []
+            member.guilds = [] # clear out the guilds via the orm to prep to readd them
 
             guilds = discord.get('api/users/@me/guilds').json()
 
@@ -272,7 +278,7 @@ def dashboard():
                         g = g_query.first()
 
                         if g is None:
-                            g = GuildData(guild=idx, name=guild['name'], cache_time=0)
+                            g = GuildData(guild=idx, name=guild['name'], cache_time=0) # empty cache so set cache time to something low
                             session.add(g)
                             
                         member.guilds.append(g)
@@ -346,6 +352,8 @@ def dashboard():
                                     else:
                                         ch = RoleData(role=role['id'], name=role['name'], guild=guild_id)
                                         session.add(ch)
+
+                                guild.cache_time = time.time() + 86400 # 1 day cache length
 
                             channels = [x.channel for x in guild.channels] # turn the channels into Ids 
 
