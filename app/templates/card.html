@@ -177,10 +177,10 @@ $(function() {
 
 function toggle_colorpicker{{ reminder.hashpack }}()
 {
-    check = document.getElementById("checkb{{ reminder.hashpack if reminder else "" }}");
+    check = document.getElementById("checkb{{ reminder.hashpack }}");
     if (check.checked)
     {
-        document.getElementById("colorpicker{{ reminder.hashpack if reminder else "" }}").style.opacity = 1;
+        document.getElementById("colorpicker{{ reminder.hashpack }}").style.opacity = 1;
     }
     else
     {

@@ -67,6 +67,12 @@ input[type="number"] {
                 <section class="sidebar">
                     <ul class="sidebar-menu" data-widget="tree">
                         <li class="header">GUILDS</li>
+
+                        {% if guild != None %}
+                            <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', id=guild.guild, refresh=1) }}"><i class="fas fa-sync-alt"></i> Sync guild data</a></li>
+                        {% else %}
+                            <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', refresh=1) }}"><i class="fas fa-sync-alt"></i> Sync member data</a></li>
+                        {% endif %}
                         <li style="margin-left: 2rem; margin-bottom: 1rem;"><a href="{{ url_for('dashboard', id=0) }}">@{{ member.name }}</a></li>
                         {% for guild in guilds %}
                             <li style="margin-left: 2rem;"><a href="{{ url_for('dashboard', id=guild.guild) }}">{{ guild.name }}</a></li>

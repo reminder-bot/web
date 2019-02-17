@@ -314,7 +314,7 @@ def dashboard():
                             return redirect( url_for('dashboard') )
 
                         else:
-                            if guild.cache_time < time.time():
+                            if guild.cache_time < time.time() or request.args.get('refresh') is not None:
                                 channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild.guild), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if isinstance(x, dict) and x['type'] == 0]
 
                                 ChannelData.query.filter((ChannelData.guild == guild_id) & ChannelData.channel.notin_([x['id'] for x in channels])).delete(synchronize_session='fetch')
@@ -363,7 +363,7 @@ def dashboard():
                                         ch = RoleData(role=role['id'], name=role['name'], guild=guild_id)
                                         db.session.add(ch)
 
-                                guild.cache_time = time.time() + 86400 # 1 day cache length
+                                guild.cache_time = time.time() + 10800 # 3 hour cache length
 
                             channels = [x.channel for x in guild.channels]
                             db.session.commit() # commit 
@@ -385,19 +385,29 @@ def dashboard():
                             reminder.channel_name = channel.name
                             break
 
+            if request.args.get('refresh') is None:
+
+                return render_template('dashboard.html',
+                    out=False,
+                    guilds=member.guilds,
+                    reminders=reminders,
+                    guild=guild,
+                    server=server,
+                    member=member,
+                    time=time.time())
+
+            else:
+                return redirect( url_for('dashboard', id=guild.guild) )
+
+        if request.args.get('refresh') is None:
+            
             return render_template('dashboard.html',
-                out=False,
+                out=True,
                 guilds=member.guilds,
-                reminders=reminders,
-                guild=guild,
-                server=server,
+                guild=None,
+                server=None,
                 member=member,
                 time=time.time())
 
-        return render_template('dashboard.html',
-            out=True,
-            guilds=member.guilds,
-            guild=None,
-            server=None,
-            member=member,
-            time=time.time())
+        else:
+            return redirect( url_for('dashboard') )
