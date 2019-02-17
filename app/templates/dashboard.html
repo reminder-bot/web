@@ -69,15 +69,26 @@ input[type="number"] {
                         <li class="header">GUILDS</li>
 
                         {% if guild != None %}
-                            <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', id=guild.guild, refresh=1) }}"><i class="fas fa-sync-alt"></i> Sync guild data</a></li>
+                            <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', id=guild.guild, refresh=1) }}"><i class="fas fa-sync-alt"></i> <i class="fab fa-discord"></i> Sync guild data</a></li>
                         {% else %}
-                            <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', refresh=1) }}"><i class="fas fa-sync-alt"></i> Sync member data</a></li>
+                            <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', refresh=1) }}"><i class="fas fa-sync-alt"></i> <i class="fab fa-discord"></i> Sync member data</a></li>
                         {% endif %}
                         <li style="margin-left: 2rem; margin-bottom: 1rem;"><a href="{{ url_for('dashboard', id=0) }}">@{{ member.name }}</a></li>
                         {% for guild in guilds %}
                             <li style="margin-left: 2rem;"><a href="{{ url_for('dashboard', id=guild.guild) }}">{{ guild.name }}</a></li>
                         {% endfor %}
                     </ul>
+
+                    <div class="box box-solid box-primary" style="position: absolute; bottom: 0;">
+                        <div class="box-header">
+                            <strong>Have you upvoted us?</strong>
+                        </div>
+                        <div class="box-body">
+                            If not, we'd appreciate it. Upvoting helps grow the Reminder Bot userbase! <strong><a href="https://discordbots.org/bot/349920059549941761">Click here!</a></strong>
+                            <hr>
+                            You can upvote once every 24 hours.
+                        </div>
+                    </div>
                 </section>
             </aside>
 
@@ -94,30 +105,30 @@ input[type="number"] {
                 {% endwith %}
 
                 {% if not out %}
-                <section class="content-header">
-                    <h1>
-                        Dashboard
-                        <small>Reminders</small>
-                    </h1>
-                </section>
+                    <section class="content-header">
+                        <h1>
+                            Dashboard
+                            <small>Reminders</small>
+                        </h1>
+                    </section>
 
-                <section class="content">
+                    <section class="content">
 
-                    <div class="container" style="width: 100%">
-                        <div class="row" style="width: 100%">
-                            {% for reminder in reminders %}
+                        <div class="container" style="width: 100%">
+                            <div class="row" style="width: 100%">
+                                {% for reminder in reminders %}
+
+                                    {% include "card.html" %}
+
+                                {% endfor %}
+
+                                {% set reminder = False %}
 
                                 {% include "card.html" %}
-
-                            {% endfor %}
-
-                            {% set reminder = False %}
-
-                            {% include "card.html" %}
+                            </div>
                         </div>
-                    </div>
 
-                </section>
+                    </section>
 
                 {% else %}
                     <section class="content-header">
