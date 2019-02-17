@@ -109,14 +109,28 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 {% for interval in reminder.intervals %}
-                                    <input type="number" class="form-control pull-left" name="interval_{{ interval.position }}" value="{{ interval.period }}" style="width: 75%"></input>
+                                    <input type="number" class="form-control pull-left" id="interval_{{ interval.position }}{{ reminder.hashpack }}" name="interval_{{ interval.position }}" value="{{ interval.period }}" style="width: 75%"></input>
 
-                                    <select name="multiplier_{{ interval.position }}" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
-                                        <option value="1" selected>seconds</option>
-                                        <option value="60">minutes</option>
-                                        <option value="3600">hours</option>
-                                        <option value="86400">days</option>
+                                    <select id="multiplier_{{ interval.position }}{{ reminder.hashpack }}" name="multiplier_{{ interval.position }}" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
+                                        <option value="1" onclick="change_multiplier{{ interval.position }}{{ reminder.hashpack }}()" selected>seconds</option>
+                                        <option value="60" onclick="change_multiplier{{ interval.position }}{{ reminder.hashpack }}()">minutes</option>
+                                        <option value="3600" onclick="change_multiplier{{ interval.position }}{{ reminder.hashpack }}()">hours</option>
+                                        <option value="86400" onclick="change_multiplier{{ interval.position }}{{ reminder.hashpack }}()">days</option>
                                     </select>
+
+                                    <script>
+
+var before{{ interval.position }}{{ reminder.hashpack }} = 1;
+
+function change_multiplier{{ interval.position }}{{ reminder.hashpack }}() {
+    var e = document.getElementById('multiplier_{{ interval.position }}{{ reminder.hashpack }}').value;
+
+    document.getElementById('interval_{{ interval.position }}{{ reminder.hashpack }}').value *= before{{ interval.position }}{{ reminder.hashpack }} / e;
+
+    before{{ interval.position }}{{ reminder.hashpack }} = e;
+}
+
+                                    </script>
                                 {% endfor %}
                                 <input type="number" class="form-control pull-left" name="interval_new" value="" style="width: 75%;"></input>
 
@@ -174,7 +188,7 @@ function toggle_colorpicker{{ reminder.hashpack }}()
     }
 }
 
-toggle_colorpicker();
+toggle_colorpicker{{ reminder.hashpack }}();
 
                         </script>
 

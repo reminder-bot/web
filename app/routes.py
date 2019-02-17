@@ -103,6 +103,12 @@ def change_reminder():
         new_time = int(request.form.get('time_new'))
     except:
         flash('Error setting reminder (form data malformed)')
+        
+        if request.args.get('redirect'):
+            return redirect(url_for('dashboard', id=request.args.get('redirect')))
+        
+        else:
+            return redirect(url_for('dashboard'))
 
     new_interval = None
     multiplier = None
