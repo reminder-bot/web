@@ -61,8 +61,21 @@
                         <img src="{{ logo }}" class="rounded-circle" style="width: 18vw; height: 18vw; margin: 2rem;"></img>
                     </div>
 
-                    <h2 class="display-3 text-dark text-center">Have you tried out our <a href="{{ url_for('dashboard') }}">dashboard</a> yet?</h2>
+                    <h2 class="font-weight-light text-secondary">Notices</h2><a href="javascript:document.getElementById('jump').scrollIntoView()">jump</a>
+                    <hr>
+                    <div class="alert alert-success" role="alert">
+                        <h4 class="alert-heading">Vote for Reminder Bot!</h4>
+                        <p>Head to <a href="https://discordbots.org/bot/349920059549941761">discordbots</a> and vote for Reminder Bot! Votes help expand the Reminder Bot userbase and improve the bot.</p>
+                        <hr>
+                        <p>You can vote <strong>every 24 hours</strong></p>
+                    </div>
 
+                    <div class="alert alert-primary" role="alert">
+                        <h4 class="alert-heading">Dashboard</h4>
+                        <p>Have you tried out the <a href="{{ url_for('dashboard') }}">online dashboard?</a></p>
+                    </div>
+
+                    <div id="jump"></div>
                     {% for category, items in help %}
                         <hr>
                         <h2 class="font-weight-light text-secondary" style="margin-top: 2rem;">{{ category }}</h2>
