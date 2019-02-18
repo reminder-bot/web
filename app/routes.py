@@ -6,7 +6,7 @@ import io
 import requests
 import json
 import time
-import random
+import secrets
 
 
 @app.errorhandler(500)
@@ -65,7 +65,7 @@ def get_webhook(channel: int):
             wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(wh['id'], wh['token'])
         else:
             wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
-            
+
         return wh
 
     else:
@@ -81,7 +81,7 @@ def create_hashpack(i1, i2): # misnomer- not actually a hash in any way, was ori
     bigint = i1 + i2
     full = hex(bigint)[2:]
     while len(full) < 64:
-        full += random.choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_')
+        full += secrets.choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_')
 
     return full
 
