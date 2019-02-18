@@ -56,7 +56,7 @@ def oauth():
 
 
 def get_webhook(channel: int):
-    webhooks = requests.get('https://discordapp.com/api/v6/channels/{}/webhooks'.format(channel), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
+    webhooks = api_get('channels/{}/webhooks'.format(channel)).json()
     if isinstance(webhooks, list):
         existing = [x for x in webhooks if x['user']['id'] == app.config['DISCORD_OAUTH_CLIENT_ID']]
 
@@ -65,6 +65,7 @@ def get_webhook(channel: int):
             wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(wh['id'], wh['token'])
         else:
             wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
+            
         return wh
 
     else:
@@ -315,7 +316,7 @@ def dashboard():
 
                         else:
                             if guild.cache_time < time.time() or request.args.get('refresh') is not None:
-                                channels = [x for x in requests.get('https://discordapp.com/api/v6/guilds/{}/channels'.format(guild.guild), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json() if isinstance(x, dict) and x['type'] == 0]
+                                channels = [x for x in api_get('guilds/{}/channels'.format(guild.guild)).json() if isinstance(x, dict) and x['type'] == 0]
 
                                 ChannelData.query.filter((ChannelData.guild == guild_id) & ChannelData.channel.notin_([x['id'] for x in channels])).delete(synchronize_session='fetch')
 
