@@ -49,8 +49,6 @@ def delete():
 @app.route('/delete_interval', strict_slashes=False)
 def delete_interval():
 
-    print(request.args)
-
     r = Reminder.query.filter(Reminder.hashpack == request.args.get('reminder')).first()
     interval = Interval.query.filter((Interval.reminder == r.id) & (Interval.id == request.args.get('interval')))
     interval.delete(synchronize_session='fetch')
