@@ -109,7 +109,7 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 {% for interval in reminder.intervals %}
-                                    <input type="number" class="form-control pull-left" id="interval_{{ interval.position }}{{ reminder.hashpack }}" name="interval_{{ interval.position }}" value="{{ interval.period }}" style="width: 75%"></input>
+                                    <input type="number" class="form-control pull-left" id="interval_{{ interval.position }}{{ reminder.hashpack }}" name="interval_{{ interval.position }}" value="{{ interval.period }}" style="width: 65%"></input>
 
                                     <select id="multiplier_{{ interval.position }}{{ reminder.hashpack }}" name="multiplier_{{ interval.position }}" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
                                         <option value="1" onclick="change_multiplier{{ interval.position }}{{ reminder.hashpack }}()" selected>seconds</option>
@@ -117,6 +117,8 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                                         <option value="3600" onclick="change_multiplier{{ interval.position }}{{ reminder.hashpack }}()">hours</option>
                                         <option value="86400" onclick="change_multiplier{{ interval.position }}{{ reminder.hashpack }}()">days</option>
                                     </select>
+
+                                    <button type="button" class="btn btn-danger" onclick="send_delete_i('{{ reminder.hashpack }}', '{{ interval.id }}')"><i class="fas fa-trash"></i></button>
 
                                     <script>
 

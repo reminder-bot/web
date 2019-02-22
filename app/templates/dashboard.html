@@ -270,6 +270,18 @@ function send_delete(index)
     xhttp.send();
 }
 
+function send_delete_i(reminder, interval)
+{
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            location.reload(true);
+        }
+    };
+    xhttp.open("GET", "{{ url_for('delete_interval') }}" + "?reminder=" + reminder + "&interval=" + interval, true);
+    xhttp.send();
+}
+
         </script>
     </body>
 </html>

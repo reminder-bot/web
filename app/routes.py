@@ -46,6 +46,19 @@ def delete():
 
     return '', 200
 
+@app.route('/delete_interval', strict_slashes=False)
+def delete_interval():
+
+    print(request.args)
+
+    r = Reminder.query.filter(Reminder.hashpack == request.args.get('reminder')).first()
+    interval = Interval.query.filter((Interval.reminder == r.id) & (Interval.id == request.args.get('interval')))
+    interval.delete(synchronize_session='fetch')
+
+    db.session.commit()
+
+    return '', 200
+
 
 @app.route('/oauth/')
 def oauth():
@@ -181,7 +194,11 @@ def change_reminder():
                         rem.avatar = avatar
 
                     if new_interval is not None:
-                        interval = Interval(reminder=rem.id, period=new_interval * multiplier, position=rem.intervals.order_by(Interval.position.desc()).first().position + 1)
+                        prev = rem.intervals.order_by(Interval.position.desc()).first()
+
+                        new_pos = 0 if prev is None else prev.position + 1
+
+                        interval = Interval(reminder=rem.id, period=new_interval * multiplier, position=new_pos)
                         db.session.add(interval)
 
                     for interval in rem.intervals:
