@@ -29,33 +29,33 @@ def markdown_parse(contents):
 
         for x in range(line.count('**')):
             if x % 2 == 0:
-                line.replace('**', '<strong>', 1)
+                line = line.replace('**', '<strong>', 1)
             else:
-                line.replace('**', '</strong>', 1)
+                line = line.replace('**', '</strong>', 1)
 
         for x in range(line.count('__')):
             if x % 2 == 0:
-                line.replace('__', '<strong>', 1)
+                line = line.replace('__', '<strong>', 1)
             else:
-                line.replace('__', '</strong>', 1)
+                line = line.replace('__', '</strong>', 1)
 
         for x in range(line.count('*')):
             if x % 2 == 0:
-                line.replace('*', '<em>', 1)
+                line = line.replace('*', '<em>', 1)
             else:
-                line.replace('*', '</em>', 1)
+                line = line.replace('*', '</em>', 1)
 
         for x in range(line.count('_')):
             if x % 2 == 0:
-                line.replace('_', '<em>', 1)
+                line = line.replace('_', '<em>', 1)
             else:
-                line.replace('_', '</em>', 1)
+                line = line.replace('_', '</em>', 1)
 
         for x in range(line.count('`')):
             if x % 2 == 0:
-                line.replace('`', '<code>', 1)
+                line = line.replace('`', '<code>', 1)
             else:
-                line.replace('`', '</code>', 1)
+                line = line.replace('`', '</code>', 1)
 
         outlines.append(line)
 
