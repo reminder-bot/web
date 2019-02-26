@@ -1,49 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-light fixed-top">
-
-            <a class="navbar-brand" href="{{ url_for( 'help' ) }}">
-                JellyWX
-            </a>
-
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for( 'help' ) }}">Help</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Language
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            {% for lang in languages %}
-                                <a class="dropdown-item" href="{{ url_for('help', lang=lang) }}">{{ lang }}</a>
-                            {% endfor %}
-                        </div>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://discord.gg/WQVaYmT" target="_blank">Discord</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://github.com/jellywx" target="_blank">GitHub</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://discordapp.com/oauth2/authorize?client_id=349920059549941761&scope=bot&permissions=8" target="_blank">Invite the Bot</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item push-right">
-                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
-                    </li>
-                </ul>
-            </div>
-
-        </nav>
 
         <div class="container-fluid">
 

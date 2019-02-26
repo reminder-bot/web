@@ -9,6 +9,59 @@ import time
 import secrets
 
 
+def markdown_parse(contents):
+    outlines = []
+    for line in contents:
+        if len(line.strip()) == 0:
+            outlines.append('<br>')
+
+        count = 0
+        for char in line:
+            if char == '#':
+                count += 1
+            else:
+                break
+
+        line = line.strip('#')
+
+        if count > 0:
+            line = '<h{0}>{1}</h{0}>'.format(count, line)
+
+        for x in range(line.count('**')):
+            if x % 2 == 0:
+                line.replace('**', '<strong>', 1)
+            else:
+                line.replace('**', '</strong>', 1)
+
+        for x in range(line.count('__')):
+            if x % 2 == 0:
+                line.replace('__', '<strong>', 1)
+            else:
+                line.replace('__', '</strong>', 1)
+
+        for x in range(line.count('*')):
+            if x % 2 == 0:
+                line.replace('*', '<em>', 1)
+            else:
+                line.replace('*', '</em>', 1)
+
+        for x in range(line.count('_')):
+            if x % 2 == 0:
+                line.replace('_', '<em>', 1)
+            else:
+                line.replace('_', '</em>', 1)
+
+        for x in range(line.count('`')):
+            if x % 2 == 0:
+                line.replace('`', '<code>', 1)
+            else:
+                line.replace('`', '</code>', 1)
+
+        outlines.append(line)
+
+    return '\n'.join(outlines)
+
+
 @app.errorhandler(500)
 def internal_error(error):
     session.clear()
@@ -18,7 +71,6 @@ def internal_error(error):
 @app.route('/')
 def index():
     return redirect( url_for('help') )
-
 
 @app.route('/help/')
 def help():
@@ -35,6 +87,14 @@ def help():
 
     return render_template('help.html', help=s['help_raw'], languages=all_langs, title='Help', logo='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg')
 
+@app.route('/updates/<log>')
+def updates(log):
+    
+    f = open('app/updates/{}'.format(log), 'r')
+    fr = f.readlines()
+    f.close()
+
+    return render_template('update.html', content=markdown_parse(fr), title='Update', logo='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg')
 
 @app.route('/delete', strict_slashes=False)
 def delete():
