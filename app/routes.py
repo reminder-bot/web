@@ -90,11 +90,14 @@ def help():
 @app.route('/updates/<log>')
 def updates(log):
     
-    f = open('app/updates/{}'.format(log), 'r')
-    fr = f.readlines()
-    f.close()
+    try:
+        with open('app/updates/{}'.format(log), 'r') as f:
+            fr = f.readlines()
 
-    return render_template('update.html', content=markdown_parse(fr), title='Update', logo='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg')
+        return render_template('update.html', content=markdown_parse(fr), title='Update', logo='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg')
+
+    except FileNotFoundError:
+        return redirect('https://jellywx.com')
 
 @app.route('/delete', strict_slashes=False)
 def delete():
