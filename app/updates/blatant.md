@@ -19,10 +19,16 @@ lang and timezone are now stored for both servers (as fallback) and users (as ov
 
 lang, timezone, remind, interval, natural all enabled in DM
 
+reminders all have UIDs of 64 characters for usage in the web
+
+switched out random module for secrets module
+
 
 **Postman Changes**
 
 combined sql queries
+
+changed the interval switching to replace within the database rather than just `mod`-ing it within the postman
 
 
 **Database Changes**
@@ -32,6 +38,8 @@ new table for timers
 changed time from bigint to int
 
 changed position from tinyint to int
+
+reminders all have UIDs
 
 
 **Web Changes**
@@ -61,3 +69,7 @@ added a card on the dashboard asking for upvotes
 added an updates route containing logs of all the updates
 
 added a markdown parser
+
+switched out random module for secrets module
+
+moved API requesting into a separate function
