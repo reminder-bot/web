@@ -256,6 +256,13 @@ function manage_characters(e, i)
     document.getElementById("input-message{{ reminder.hashpack }}").addEventListener("input", m{{ reminder.hashpack }});
 
 {% endfor %}
+
+function m(e) {
+    manage_characters(e, "");
+}
+
+document.getElementById("input-message").addEventListener("input", m);
+
 {% endif %}
 
 function send_delete(index)
