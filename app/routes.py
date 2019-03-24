@@ -102,7 +102,7 @@ def updates(log):
 @app.route('/delete', strict_slashes=False)
 def delete():
 
-    reminder = Reminder.query.filter(Reminder.hashpack == request.args.get('index'))
+    reminder = Reminder.query.filter(Reminder.uid == request.args.get('index'))
     reminder.delete(synchronize_session='fetch')
 
     db.session.commit()
@@ -112,7 +112,7 @@ def delete():
 @app.route('/delete_interval', strict_slashes=False)
 def delete_interval():
 
-    r = Reminder.query.filter(Reminder.hashpack == request.args.get('reminder')).first()
+    r = Reminder.query.filter(Reminder.uid == request.args.get('reminder')).first()
     interval = Interval.query.filter((Interval.reminder == r.id) & (Interval.id == request.args.get('interval')))
     interval.delete(synchronize_session='fetch')
 
@@ -146,7 +146,7 @@ def get_webhook(channel: int):
         return None
 
 
-def create_hashpack(i1, i2): # misnomer- not actually a hash in any way, was originally going to be a hash but changed my mind
+def create_uid(i1, i2): # misnomer- not actually a hash in any way, was originally going to be a hash but changed my mind
     m = i2
     while m > 0:
         i1 *= 10
@@ -234,7 +234,7 @@ def change_reminder():
             index = request.args.get('index')
 
             if index is not None:
-                rem = Reminder.query.filter(Reminder.hashpack == index).first()
+                rem = Reminder.query.filter(Reminder.uid == index).first()
 
                 if rem is None:
                     flash('Error changing reminder: Reminder not found')
@@ -278,9 +278,9 @@ def change_reminder():
                 else:
                     webhook = None
 
-                full = create_hashpack(int(new_channel), int(new_channel))
+                full = create_uid(int(new_channel), int(new_channel))
 
-                reminder = Reminder(message=new_msg, hashpack=full, time=int(new_time), channel=int(new_channel), position=0 if new_interval is not None else None, embed=embed, method='dashboard', webhook=webhook, username=username, avatar=avatar)
+                reminder = Reminder(message=new_msg, uid=full, time=int(new_time), channel=int(new_channel), position=0 if new_interval is not None else None, embed=embed, method='dashboard', webhook=webhook, username=username, avatar=avatar)
                 db.session.add(reminder)
 
                 if new_interval is not None:
