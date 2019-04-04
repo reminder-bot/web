@@ -1,6 +1,6 @@
 # Blatant
 
-## Released TBD
+## Released 2019-Mar-08
 
 ### Full outline below:
 

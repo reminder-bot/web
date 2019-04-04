@@ -114,7 +114,13 @@ def delete_interval():
 
     r = Reminder.query.filter(Reminder.uid == request.args.get('reminder')).first()
     interval = Interval.query.filter((Interval.reminder == r.id) & (Interval.id == request.args.get('interval')))
+
+    all_switching = Interval.query.filter((Interval.reminder == r.id) & (Interval.position > interval.position))
+
     interval.delete(synchronize_session='fetch')
+
+    for i in all_switching:
+        i.position -= 1
 
     db.session.commit()
 
