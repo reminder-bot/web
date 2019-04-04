@@ -249,11 +249,11 @@ function manage_characters(e, i)
 
 {% for reminder in reminders %}
     
-    function m{{ reminder.hashpack }}(e) {
-        manage_characters(e, "{{ reminder.hashpack }}");
+    function m{{ reminder.uid }}(e) {
+        manage_characters(e, "{{ reminder.uid }}");
     }
 
-    document.getElementById("input-message{{ reminder.hashpack }}").addEventListener("input", m{{ reminder.hashpack }});
+    document.getElementById("input-message{{ reminder.uid }}").addEventListener("input", m{{ reminder.uid }});
 
 {% endfor %}
 

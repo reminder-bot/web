@@ -72,6 +72,7 @@ def internal_error(error):
 def index():
     return redirect( url_for('help') )
 
+
 @app.route('/help/')
 def help():
     all_langs = sorted([s[-5:-3] for s in os.listdir(app.config['BASE_URI'] + 'languages') if s.startswith('strings_')])
@@ -87,6 +88,7 @@ def help():
 
     return render_template('help.html', help=s['help_raw'], languages=all_langs, title='Help', logo='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg')
 
+
 @app.route('/updates/<log>')
 def updates(log):
     
@@ -99,6 +101,7 @@ def updates(log):
     except FileNotFoundError:
         return redirect('https://jellywx.com')
 
+
 @app.route('/delete', strict_slashes=False)
 def delete():
 
@@ -109,18 +112,20 @@ def delete():
 
     return '', 200
 
+
 @app.route('/delete_interval', strict_slashes=False)
 def delete_interval():
 
     r = Reminder.query.filter(Reminder.uid == request.args.get('reminder')).first()
     interval = Interval.query.filter((Interval.reminder == r.id) & (Interval.id == request.args.get('interval')))
 
-    all_switching = Interval.query.filter((Interval.reminder == r.id) & (Interval.position > interval.position))
+    if interval.first() is not None:
+        all_switching = Interval.query.filter((Interval.reminder == r.id) & (Interval.position > interval.first().position))
+
+        for i in all_switching:
+            i.position -= 1
 
     interval.delete(synchronize_session='fetch')
-
-    for i in all_switching:
-        i.position -= 1
 
     db.session.commit()
 

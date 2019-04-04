@@ -3,7 +3,7 @@
 -webkit-box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);
 -moz-box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);
 box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
-        <form method="post" action="{{ url_for('change_reminder', redirect=server.server or 0, index=reminder.hashpack if reminder else None) }}" id="form{{ reminder.hashpack }}">
+        <form method="post" action="{{ url_for('change_reminder', redirect=server.server or 0, index=reminder.uid if reminder else None) }}" id="form{{ reminder.uid }}">
             <div class="card-header">
                 <h4><strong>{% if not reminder %}Add {% endif %}Reminder</strong></h4>
             </div>
@@ -19,10 +19,10 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                             <i class="fa fa-envelope"></i>
                         </div>
 
-                        <textarea type="text" name="message_new" class="form-control pull-right" maxlength="2000" id="input-message{{ reminder.hashpack }}" required>{{ reminder.message if reminder else "" }}</textarea>
+                        <textarea type="text" name="message_new" class="form-control pull-right" maxlength="2000" id="input-message{{ reminder.uid }}" required>{{ reminder.message if reminder else "" }}</textarea>
 
                     </div>
-                    <div class="input-group" id="mention-input{{ reminder.hashpack }}" style="visibility: hidden;">
+                    <div class="input-group" id="mention-input{{ reminder.uid }}" style="visibility: hidden;">
                         <div class="input-group-addon">
                             <i class="fas fa-at"></i>
                         </div>
@@ -31,7 +31,7 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                                 Mention... (hint: use a double @ to get roles)
                                 <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdown-mention" id="dropdown-mention{{ reminder.hashpack if reminder else "" }}" style="max-height: 40vh; overflow-y: scroll;">
+                            <ul class="dropdown-menu" aria-labelledby="dropdown-mention" id="dropdown-mention{{ reminder.uid if reminder else "" }}" style="max-height: 40vh; overflow-y: scroll;">
                             </ul>
                         </div>
                     </div>
@@ -72,7 +72,7 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                     <input type="text" name="channel_new" value="{{ member.dm_channel }}" id="input-channel" hidden required>
                 {% endif %}
 
-                <input name="time_new" value="0" id="time_new{{ reminder.hashpack if reminder else "" }}" hidden></input>
+                <input name="time_new" value="0" id="time_new{{ reminder.uid if reminder else "" }}" hidden></input>
 
                 <!-- DATE -->
                 <div class="form-group">
@@ -81,7 +81,7 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                         <div class="input-group-addon">
                             <i class="fa fa-calendar"></i>
                         </div>
-                        <input type="text" class="form-control pull-right" id="datepicker{{ reminder.hashpack if reminder else "" }}" name="date"></input>
+                        <input type="text" class="form-control pull-right" id="datepicker{{ reminder.uid if reminder else "" }}" name="date"></input>
                     </div>
                     <!-- /.input group -->
                 </div>
@@ -93,7 +93,7 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                             <div class="input-group-addon">
                                 <i class="fas fa-clock"></i>
                             </div>
-                            <input type="text" class="form-control timepicker" id="timepicker{{ reminder.hashpack if reminder else "" }}" name="time"></input>
+                            <input type="text" class="form-control timepicker" id="timepicker{{ reminder.uid if reminder else "" }}" name="time"></input>
                         </div>
                         <!-- /.input group -->
                     </div>
@@ -109,27 +109,27 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 {% for interval in reminder.intervals %}
-                                    <input type="number" class="form-control pull-left" id="interval_{{ interval.position }}{{ reminder.hashpack }}" name="interval_{{ interval.position }}" value="{{ interval.period }}" style="width: 65%"></input>
+                                    <input type="number" class="form-control pull-left" id="interval_{{ interval.position }}{{ reminder.uid }}" name="interval_{{ interval.position }}" value="{{ interval.period }}" style="width: 65%"></input>
 
-                                    <select id="multiplier_{{ interval.position }}{{ reminder.hashpack }}" name="multiplier_{{ interval.position }}" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
-                                        <option value="1" onclick="change_multiplier{{ interval.position }}{{ reminder.hashpack }}()" selected>seconds</option>
-                                        <option value="60" onclick="change_multiplier{{ interval.position }}{{ reminder.hashpack }}()">minutes</option>
-                                        <option value="3600" onclick="change_multiplier{{ interval.position }}{{ reminder.hashpack }}()">hours</option>
-                                        <option value="86400" onclick="change_multiplier{{ interval.position }}{{ reminder.hashpack }}()">days</option>
+                                    <select id="multiplier_{{ interval.position }}{{ reminder.uid }}" name="multiplier_{{ interval.position }}" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
+                                        <option value="1" onclick="change_multiplier{{ interval.position }}{{ reminder.uid }}()" selected>seconds</option>
+                                        <option value="60" onclick="change_multiplier{{ interval.position }}{{ reminder.uid }}()">minutes</option>
+                                        <option value="3600" onclick="change_multiplier{{ interval.position }}{{ reminder.uid }}()">hours</option>
+                                        <option value="86400" onclick="change_multiplier{{ interval.position }}{{ reminder.uid }}()">days</option>
                                     </select>
 
-                                    <button type="button" class="btn btn-danger" onclick="send_delete_i('{{ reminder.hashpack }}', '{{ interval.id }}')"><i class="fas fa-trash"></i></button>
+                                    <button type="button" class="btn btn-danger" onclick="send_delete_i('{{ reminder.uid }}', '{{ interval.id }}')"><i class="fas fa-trash"></i></button>
 
                                     <script>
 
-var before{{ interval.position }}{{ reminder.hashpack }} = 1;
+var before{{ interval.position }}{{ reminder.uid }} = 1;
 
-function change_multiplier{{ interval.position }}{{ reminder.hashpack }}() {
-    var e = document.getElementById('multiplier_{{ interval.position }}{{ reminder.hashpack }}').value;
+function change_multiplier{{ interval.position }}{{ reminder.uid }}() {
+    var e = document.getElementById('multiplier_{{ interval.position }}{{ reminder.uid }}').value;
 
-    document.getElementById('interval_{{ interval.position }}{{ reminder.hashpack }}').value *= before{{ interval.position }}{{ reminder.hashpack }} / e;
+    document.getElementById('interval_{{ interval.position }}{{ reminder.uid }}').value *= before{{ interval.position }}{{ reminder.uid }} / e;
 
-    before{{ interval.position }}{{ reminder.hashpack }} = e;
+    before{{ interval.position }}{{ reminder.uid }} = e;
 }
 
                                     </script>
@@ -152,18 +152,18 @@ function change_multiplier{{ interval.position }}{{ reminder.hashpack }}() {
                         <div class="form-group">
                             <label>Send as Embed?</label>
                             <div class="input-group">
-                                <input type="checkbox" id="checkb{{ reminder.hashpack if reminder else "" }}" name="embed" onclick="toggle_colorpicker{{ reminder.hashpack }}()" {{ 'checked' if reminder.embed != None }}></input>
+                                <input type="checkbox" id="checkb{{ reminder.uid if reminder else "" }}" name="embed" onclick="toggle_colorpicker{{ reminder.uid }}()" {{ 'checked' if reminder.embed != None }}></input>
                             </div>
                         </div>
 
-                        <div class="colorpicker-component" id="colorpicker{{ reminder.hashpack if reminder else "" }}">
+                        <div class="colorpicker-component" id="colorpicker{{ reminder.uid if reminder else "" }}">
                             <div class="form-group">
                                 <label>Embed Color:</label>
                                 <div class="input-group">
                                     <div class="input-group-addon">
                                         <i class="fas fa-palette"></i>
                                     </div>
-                                    <div id="cp{{ reminder.hashpack }}" class="input-group">
+                                    <div id="cp{{ reminder.uid }}" class="input-group">
                                         <input type="text" value="#{{ reminder.embed }}" class="form-control" name="color"></input>
                                         <span class="input-group-addon"><i></i></span>
                                     </div>
@@ -174,23 +174,23 @@ function change_multiplier{{ interval.position }}{{ reminder.hashpack }}() {
                         <script>
 
 $(function() {
-    $('#cp{{ reminder.hashpack }}').colorpicker({"format": "hex"});
+    $('#cp{{ reminder.uid }}').colorpicker({"format": "hex"});
 });
 
-function toggle_colorpicker{{ reminder.hashpack }}()
+function toggle_colorpicker{{ reminder.uid }}()
 {
-    check = document.getElementById("checkb{{ reminder.hashpack }}");
+    check = document.getElementById("checkb{{ reminder.uid }}");
     if (check.checked)
     {
-        document.getElementById("colorpicker{{ reminder.hashpack }}").style.opacity = 1;
+        document.getElementById("colorpicker{{ reminder.uid }}").style.opacity = 1;
     }
     else
     {
-        document.getElementById("colorpicker{{ reminder.hashpack if reminder else "" }}").style.opacity = 0;
+        document.getElementById("colorpicker{{ reminder.uid if reminder else "" }}").style.opacity = 0;
     }
 }
 
-toggle_colorpicker{{ reminder.hashpack }}();
+toggle_colorpicker{{ reminder.uid }}();
 
                         </script>
 
@@ -210,38 +210,38 @@ toggle_colorpicker{{ reminder.hashpack }}();
                 
                 <script>
 
-document.getElementById("form{{ reminder.hashpack }}").reset();
+document.getElementById("form{{ reminder.uid }}").reset();
 
 function update_time()
 {
-    t_time = document.getElementById("timepicker{{ reminder.hashpack if reminder else "" }}");
-    d_time = document.getElementById("datepicker{{ reminder.hashpack if reminder else "" }}");
+    t_time = document.getElementById("timepicker{{ reminder.uid if reminder else "" }}");
+    d_time = document.getElementById("datepicker{{ reminder.uid if reminder else "" }}");
 
     m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A');
 
-    document.getElementById("time_new{{ reminder.hashpack if reminder else "" }}").value = m.unix();
+    document.getElementById("time_new{{ reminder.uid if reminder else "" }}").value = m.unix();
 }
 
 current = moment.unix({{ reminder.time if reminder else time }});
 
 //Date picker
-$('#datepicker{{ reminder.hashpack if reminder else "" }}').datepicker({
+$('#datepicker{{ reminder.uid if reminder else "" }}').datepicker({
     format: 'yyyy/mm/dd',
     autoclose: true,
     startDate: 'current',
 });
 
-$('#datepicker{{ reminder.hashpack if reminder else "" }}').datepicker('update', current.toDate());
+$('#datepicker{{ reminder.uid if reminder else "" }}').datepicker('update', current.toDate());
 //Timepicker
-$('#timepicker{{ reminder.hashpack if reminder else "" }}').timepicker({
+$('#timepicker{{ reminder.uid if reminder else "" }}').timepicker({
     minuteStep: 1,
     showInputs: false,
     showSeconds: true,
     defaultTime: current.format('hh:mm A'),
 });
 
-$("#datepicker{{ reminder.hashpack if reminder else "" }}").change(update_time);
-$("#timepicker{{ reminder.hashpack if reminder else "" }}").change(update_time);
+$("#datepicker{{ reminder.uid if reminder else "" }}").change(update_time);
+$("#timepicker{{ reminder.uid if reminder else "" }}").change(update_time);
 
 update_time();
 
@@ -250,7 +250,7 @@ update_time();
                 <div class="card-footer">
                     {% if reminder %}
                         <button type="submit" class="btn btn-success">Save Changes</button>
-                        <button type="button" onclick="send_delete('{{ reminder.hashpack }}')" class="btn btn-danger">Delete</button>
+                        <button type="button" onclick="send_delete('{{ reminder.uid }}')" class="btn btn-danger">Delete</button>
                     {% else %}
                         <button type="submit" class="btn btn-success">Create New</button>
                     {% endif %}
