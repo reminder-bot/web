@@ -13,7 +13,7 @@ refactored `remind` and `natural`
 
 changed a dictionary to a list
 
-moved get_strings method to a method of the language ORM object
+moved get strings method to a method of the language ORM object
 
 fixed up caching to hopefully be less resource consuming
 
@@ -31,6 +31,19 @@ languages now loaded entirely from DB (no file check required)
 **Database Changes**
 
 renamed hashpack column to UID
+
+added an 'enabled' column to reminders
+
+new tables: channel nudge and languages
+
+
+**Postman Changes**
+
+cleaned up some queries
+
+removed thread joining
+
+shortened timeout to 5 seconds (from 30)
 
 
 **Web Changes**
