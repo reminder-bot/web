@@ -41,7 +41,6 @@ class Server(db.Model):
     id = db.Column( db.Integer, primary_key=True )
     server = db.Column( db.BigInteger, unique=True )
     prefix = db.Column( db.String(5), default="$", nullable=False )
-    language = db.Column( db.String(2), default="EN", nullable=False )
     timezone = db.Column( db.String(30), default="UTC", nullable=False )
 
 
