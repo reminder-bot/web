@@ -101,6 +101,12 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                 </div>
 
                 {% if member.patreon > 0 %}
+                    <div class="form-group">
+                        <label>Enabled?</label>
+                        <div class="input-group">
+                            <input type="checkbox" name="enabled" {{ 'checked' if reminder.enabled }}></input>
+                        </div>
+                    </div>
                     <div class="bootstrap-timepicker">
                         <div class="form-group">
                             <label>Intervals:</label>
