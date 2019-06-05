@@ -187,6 +187,7 @@ def change_reminder():
         new_msg = request.form.get('message_new')
         new_channel = int(request.form.get('channel_new'))
         new_time = int(request.form.get('time_new'))
+
     except:
         flash('Error setting reminder (form data malformed)')
         
@@ -201,6 +202,7 @@ def change_reminder():
     embed = None
     avatar = None
     username = None
+    enabled = bool(request.form.get('enabled'))
 
     username = request.form.get('username')
     if username is not None:
@@ -251,6 +253,7 @@ def change_reminder():
                     flash('Error changing reminder: Reminder not found')
 
                 else:
+                    rem.enabled = enabled
                     rem.message = new_msg
                     rem.time = int( new_time )
                     if int( new_channel ) != rem.channel:
@@ -291,7 +294,19 @@ def change_reminder():
 
                 full = create_uid(int(new_channel), int(new_channel))
 
-                reminder = Reminder(message=new_msg, uid=full, time=int(new_time), channel=int(new_channel), position=0 if new_interval is not None else None, embed=embed, method='dashboard', webhook=webhook, username=username, avatar=avatar)
+                reminder = Reminder(
+                    message=new_msg,
+                    uid=full,
+                    time=int(new_time),
+                    channel=int(new_channel),
+                    position=0 if new_interval is not None else None,
+                    embed=embed,
+                    method='dashboard',
+                    webhook=webhook,
+                    username=username,
+                    avatar=avatar,
+                    enabled=enabled)
+
                 db.session.add(reminder)
 
                 if new_interval is not None:

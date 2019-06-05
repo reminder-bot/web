@@ -101,12 +101,14 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                 </div>
 
                 {% if member.patreon > 0 %}
-                    <div class="form-group">
-                        <label>Enabled?</label>
-                        <div class="input-group">
-                            <input type="checkbox" name="enabled" {{ 'checked' if reminder.enabled }}></input>
+                    {% if reminder %}
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="enabled" {{ 'checked' if reminder.enabled }}></input>Enabled?</label>
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
+
                     <div class="bootstrap-timepicker">
                         <div class="form-group">
                             <label>Intervals:</label>
@@ -156,9 +158,13 @@ function change_multiplier{{ interval.position }}{{ reminder.uid }}() {
 
                     {% if server != None %}
                         <div class="form-group">
-                            <label>Send as Embed?</label>
-                            <div class="input-group">
-                                <input type="checkbox" id="checkb{{ reminder.uid if reminder else "" }}" name="embed" onclick="toggle_colorpicker{{ reminder.uid }}()" {{ 'checked' if reminder.embed != None }}></input>
+                            <div class="checkbox">
+                                <label><input 
+                                    type="checkbox" 
+                                    id="checkb{{ reminder.uid if reminder else "" }}"
+                                    name="embed" 
+                                    onclick="toggle_colorpicker{{ reminder.uid }}()" 
+                                    {{ 'checked' if reminder.embed != None }}></input> Send as Embed?</label>
                             </div>
                         </div>
 
