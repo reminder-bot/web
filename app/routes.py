@@ -203,8 +203,6 @@ def change_reminder():
     avatar = None
     username = None
 
-    print(request.form)
-
     enabled = 'on' in request.form.getlist('enabled') or request.form.get('enabled') is None
 
     username = request.form.get('username')
