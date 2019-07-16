@@ -239,7 +239,7 @@ def change_reminder():
         if not 0 < len(new_msg) < 2000:
             flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
 
-        elif new_interval is not None and not 8 < new_interval < 1576800000:
+        elif new_interval is not None and not 8 < new_interval * multiplier < 1576800000:
             flash('Error setting reminder (interval timer is out of bounds)')
 
         else:
