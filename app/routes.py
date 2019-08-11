@@ -239,7 +239,7 @@ def change_reminder():
         if not 0 < len(new_msg) < 2000:
             flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
 
-        elif new_interval is not None and not 8 < new_interval * multiplier < 1576800000:
+        elif new_interval is not None and not 800 < new_interval * multiplier < 1576800000:
             flash('Error setting reminder (interval timer is out of bounds)')
 
         else:
@@ -283,7 +283,7 @@ def change_reminder():
                         if field is not None and all(x in '0123456789.' for x in field) and mul_field is not None and all(x in '0123456789' for x in mul_field):
                             val = float(field)
 
-                            if 8 < val < 1576800000:
+                            if 800 < val < 1576800000:
                                 interval.period = val * int(mul_field)
 
             else:
