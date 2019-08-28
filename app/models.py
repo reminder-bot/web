@@ -62,10 +62,7 @@ class User(db.Model):
     user = db.Column( db.BigInteger, unique=True )
 
     patreon = db.Column( db.Integer )
-    name = db.Column( db.Text )
     dm_channel = db.Column( db.BigInteger )
-
-    cache_time = db.Column( db.Integer )
 
 
 class PartialMember(db.Model):
@@ -99,8 +96,6 @@ class GuildData(db.Model):
         secondaryjoin=(guild_partials.c.user == PartialMember.user),
         backref=db.backref('guild', lazy='dynamic'), lazy='dynamic'
     )
-
-    cache_time = db.Column( db.Integer )
 
 
 class RoleData(db.Model):

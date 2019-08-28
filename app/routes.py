@@ -174,6 +174,9 @@ def create_uid(i1, i2): # misnomer- not actually a hash in any way, was original
 def api_get(endpoint):
     return requests.get('https://discordapp.com/api/v6/{}'.format(endpoint), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
 
+def api_post(endpoint, data):
+    return requests.get('https://discordapp.com/api/v6/{}'.format(endpoint), json=data, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
+
 
 @app.route('/creminder', methods=['POST'])
 def change_reminder():
@@ -328,6 +331,68 @@ def change_reminder():
         return redirect(url_for('dashboard'))
 
 
+@app.route('/cache/')
+def cache():
+
+    def create_cached_user(data: dict) -> User:
+        user = User(user=data['id'])
+        dmchannel = api_post('users/@me/channels', {'recipient_id': data['id']}).json()
+        user.dm_channel = dmchannel['id']
+
+        db.session.add(user)
+
+        return user
+
+    def check_user_patreon(user: User) -> int:
+        reminder_guild_member = api_get('guilds/{}/members/{}'.format(app.config['PATREON_SERVER'], user.user))
+        if reminder_guild_member.status_code == 200:
+            roles = list(set([int(x) for x in reminder_guild_member.json()['roles']]) & set(app.config['PATREON_ROLES']))
+            return len(roles)
+
+        else:
+            return 0
+
+    def get_user_guilds(user: User) -> list:
+
+        def form_cached_guild(data: dict) -> GuildData:
+            guild_query = GuildData.query.filter(Guild.guild == data['id'])
+            if guild_query.first() is None:
+                guild = GuildData(guild=data['id'])
+            else:
+                guild = guild_query.first()
+
+            guild.name = data['name']
+
+            return guild
+
+        guilds: list = discord.get('api/users/@me/guilds').json()
+        cached_guilds: list = []
+
+        for guild in guilds:
+            if guild['permissions'] & 0x00002028 or guild['owner']:
+                cached_guild: GuildData = form_cached_guild(guild)
+
+                cached_guilds.append(cached_guild)
+
+    user: dict = discord.get('api/users/@me').json()
+
+    session['user_id'] = user['id']
+
+    user_query = User.query.filter(User.user == user['id'])
+    if user_query.first() is None:
+        cached_user: User = create_cached_user(user['id'])
+    else:
+        cached_user: User = user_query.first()
+
+    cached_user.patreon = check_user_patreon(cached_user)
+
+    db.session.commit()
+
+    cached_user.guilds = get_user_guilds(cached_user)
+
+    return redirect( url_for('dashboard') )
+
+
 @app.route('/dashboard/', methods=['GET', 'POST'])
 def dashboard():
     if not discord.authorized:
@@ -339,66 +404,10 @@ def dashboard():
         except:
             return redirect( url_for('oauth') )
 
-        user_id = user['id'] # get user id from oauth
+        else:
+            user_id = user['id'] # get user id from oauth
 
         m_query = User.query.filter(User.user == user_id)
-
-        if m_query.filter(User.cache_time < time.time()).count() > 0 and request.args.get('refresh') is None: # member located in cache, is in date and no refresh requested
-            member = m_query.first()
-
-        else: # need to recache
-            member = m_query.first()
-
-            if member is None:
-                member = User(user=user_id)
-                db.session.add(member)
-
-            member.name = user['username']
-
-            reminder_guild_member = api_get('guilds/{}/members/{}'.format(app.config['PATREON_SERVER'], user_id))
-            if reminder_guild_member.status_code == 200:
-
-                roles = list(set([int(x) for x in reminder_guild_member.json()['roles']]) & set(app.config['PATREON_ROLES']))
-                member.patreon = len(roles)
-                member.cache_time = time.time() + 345600 # 4 day cache period if the user is patreon
-
-            else:
-                member.patreon = 0
-                member.cache_time = time.time() + 7200 # 2 hour cache period is the user is not patreon ( means it'll get updated if they become patreon )
-
-            channel = requests.post('https://discordapp.com/api/v6/users/@me/channels', json={'recipient_id': user['id']}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
-            member.dm_channel = channel['id']
-
-            member.guilds = [] # clear out the guilds via the orm to prep to readd them
-
-            guilds = discord.get('api/users/@me/guilds').json()
-
-            for guild in guilds:
-
-                idx = guild['id']
-
-                s = Server.query.filter_by(server=idx).first()
-
-                if s is None:
-                    continue
-
-                elif (guild['permissions'] & 0x00002000) or (guild['permissions'] & 0x00000020) or (guild['permissions'] & 0x00000008):
-                    g_query = GuildData.query.filter(GuildData.guild == idx)
-
-                    if g_query.filter(GuildData.cache_time < time.time()).count() > 0:
-                        member.guilds.append(g_query.first())
-
-                    else:
-                        g = g_query.first()
-
-                        if g is None:
-                            g = GuildData(guild=idx, name=guild['name'], cache_time=0) # empty cache so set cache time to something low
-                            db.session.add(g)
-                            
-                        member.guilds.append(g)
-
-            db.session.commit()
-        # end of usercache procedure
 
         if request.args.get('id') is not None:
             try:
@@ -421,7 +430,11 @@ def dashboard():
 
                         else:
                             if guild.cache_time < time.time() or request.args.get('refresh') is not None:
-                                channels = [x for x in api_get('guilds/{}/channels'.format(guild.guild)).json() if isinstance(x, dict) and x['type'] == 0]
+                                try:
+                                    channels = [x for x in api_get('guilds/{}/channels'.format(guild.guild)).json() if isinstance(x, dict) and x['type'] == 0]
+                                except:
+                                    flash('Bot no longer in specified guild')
+                                    return redirect( url_for('dashboard') )
 
                                 ChannelData.query.filter((ChannelData.guild == guild_id) & ChannelData.channel.notin_([x['id'] for x in channels])).delete(synchronize_session='fetch')
 

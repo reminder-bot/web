@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config.from_object(Config)
-discord_blueprint = make_discord_blueprint(scope=['identify', 'guilds'], redirect_url='dashboard')
+discord_blueprint = make_discord_blueprint(scope=['identify', 'guilds'], redirect_url='cache')
 app.register_blueprint(discord_blueprint, url_prefix='/login')
 db = SQLAlchemy(app)
 
