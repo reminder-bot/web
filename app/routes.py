@@ -11,6 +11,27 @@ import secrets
 MAX_TIME = 1576800000
 MIN_INTERVAL = 800
 
+class Color():
+    def __init__(self, color: int = None, failed: bool = False):
+        self.color = color
+        self.failed = failed
+
+    @staticmethod
+    def decode(color: str) -> Color:
+        try:
+            color_hex = int(color, 16)
+
+        except:
+            return Color(failed=True)
+
+        else:
+            if 0 < color_hex < 16**6:
+                return Color(failed=True)
+
+            else:
+                return Color(color=color_hex)
+
+
 def markdown_parse(contents):
     outlines = []
     for line in contents:
@@ -202,135 +223,133 @@ def change_reminder():
         else:
             return redirect( url_for('dashboard') )
 
-    new_interval = None
-    multiplier = None
-    embed = None
-    avatar = None
-    username = None
+    else:
+        new_interval = None
+        multiplier = None
+        embed = None
+        avatar = None
+        username = None
 
-    enabled = 'on' in request.form.getlist('enabled') or request.form.get('enabled') is None
+        enabled = 'on' in request.form.getlist('enabled') or request.form.get('enabled') is None
 
-    username = request.form.get('username')
-    if username is not None:
-        if not (0 < len(username) <= 32):
-            username = None
+        username = request.form.get('username')
+        if username is not None:
+            if not (0 < len(username) <= 32):
+                username = None
 
-    if member.patreon > 0:
-        try:
-            new_interval = int(request.form.get('interval_new'))
-            multiplier = int(request.form.get('multiplier_new'))
-        except ValueError:
-            new_interval = None
-
-        if request.form.get('embed') == 'on':
+        if member.patreon > 0:
             try:
-                embed = int(request.form.get('color')[1:], 16)
-            except:
-                embed = None
-            else:
-                if 0 > embed or embed > 16777215:
-                    embed = None
+                new_interval = int(request.form.get('interval_new'))
+                multiplier = int(request.form.get('multiplier_new'))
+            except ValueError:
+                new_interval = None
 
-        if member.patreon > 1:
+            if request.form.get('embed') == 'on':
+                embed_color = Color.decode(request.form.get('color')[1:])
+                embed = embed_color.color
+
+                if embed_color.failed:
+                    print('Failed to decode color of "{}". Discarding'.format(request.form.get('color')))
+
             avatar = request.form.get('avatar')
             if not avatar or not avatar.startswith('http') or not '.' in avatar:
                 avatar = None
 
-    if not (0 < int(new_time) < time.time() + MAX_TIME):
-        flash('Error setting reminder (time is too long)')
+        if not (0 < int(new_time) < time.time() + MAX_TIME):
+            flash('Error setting reminder (time is too long)')
 
-    elif new_msg and (new_channel == member.dm_channel or new_channel in [x.channel for x in guild.channels]):
+        elif new_msg and (new_channel == member.dm_channel or new_channel in [x.channel for x in guild.channels]):
 
-        if not 0 < len(new_msg) < 2000:
-            flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
+            if not 0 < len(new_msg) < 2000:
+                flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
 
-        elif new_interval is not None and not MIN_INTERVAL < new_interval * multiplier < MAX_TIME:
-            flash('Error setting reminder (interval timer is out of bounds)')
-
-        else:
-            wh = None
-
-            index = request.args.get('index')
-
-            if index is not None:
-                rem = Reminder.query.filter(Reminder.uid == index).first()
-
-                if rem is None:
-                    flash('Error changing reminder: Reminder not found')
-
-                else:
-                    rem.enabled = enabled
-                    rem.message = new_msg
-                    rem.time = int( new_time )
-                    if int( new_channel ) != rem.channel:
-                        rem.channel = int( new_channel )
-                        rem.webhook = get_webhook(new_channel)
-                    rem.embed = embed
-                    rem.method = 'dashboard'
-
-                    if username is not None:
-                        rem.username = username
-
-                    if avatar is not None:
-                        rem.avatar = avatar
-
-                    if new_interval is not None:
-                        prev = rem.intervals.order_by(Interval.position.desc()).first()
-
-                        new_pos = 0 if prev is None else prev.position + 1
-
-                        interval = Interval(reminder=rem.id, period=new_interval * multiplier, position=new_pos)
-                        db.session.add(interval)
-
-                    for interval in rem.intervals:
-                        field = request.form.get('interval_{}'.format(interval.position))
-                        mul_field = request.form.get('multiplier_{}'.format(interval.position))
-                        if field is not None and all(x in '0123456789.' for x in field) and mul_field is not None and all(x in '0123456789' for x in mul_field):
-                            val = float(field)
-
-                            if MIN_INTERVAL < val < MAX_TIME:
-                                interval.period = val * int(mul_field)
+            elif new_interval is not None and not MIN_INTERVAL < new_interval * multiplier < MAX_TIME:
+                flash('Error setting reminder (interval timer is out of bounds)')
 
             else:
-                if request.args.get('id') != '0':
-                    webhook = get_webhook(new_channel)
+                wh = None
+
+                index = request.args.get('index')
+
+                if index is not None:
+                    rem = Reminder.query.filter(Reminder.uid == index).first()
+
+                    if rem is None:
+                        flash('Error changing reminder: Reminder not found')
+
+                    else:
+                        rem.enabled = enabled
+                        rem.message = new_msg
+                        rem.time = int( new_time )
+                        if int( new_channel ) != rem.channel:
+                            rem.channel = int( new_channel )
+                            rem.webhook = get_webhook(new_channel)
+                        rem.embed = embed
+                        rem.method = 'dashboard'
+
+                        if username is not None:
+                            rem.username = username
+
+                        if avatar is not None:
+                            rem.avatar = avatar
+
+                        if new_interval is not None:
+                            prev = rem.intervals.order_by(Interval.position.desc()).first()
+
+                            new_pos = 0 if prev is None else prev.position + 1
+
+                            interval = Interval(reminder=rem.id, period=new_interval * multiplier, position=new_pos)
+                            db.session.add(interval)
+
+                        for interval in rem.intervals:
+                            field = request.form.get('interval_{}'.format(interval.position))
+                            mul_field = request.form.get('multiplier_{}'.format(interval.position))
+                            if field is not None and all(x in '0123456789.' for x in field) and mul_field is not None and all(x in '0123456789' for x in mul_field):
+                                val = float(field)
+
+                                if MIN_INTERVAL < val < MAX_TIME:
+                                    interval.period = val * int(mul_field)
 
                 else:
-                    webhook = None
+                    if request.args.get('id') != '0':
+                        webhook = get_webhook(new_channel)
 
-                full = create_uid(int(new_channel), int(new_channel))
+                    else:
+                        webhook = None
 
-                reminder = Reminder(
-                    message=new_msg,
-                    uid=full,
-                    time=int(new_time),
-                    channel=int(new_channel),
-                    position=0 if new_interval is not None else None,
-                    embed=embed,
-                    method='dashboard',
-                    webhook=webhook,
-                    username=username,
-                    avatar=avatar,
-                    enabled=enabled)
+                    full = create_uid(int(new_channel), int(new_channel))
 
-                db.session.add(reminder)
+                    reminder = Reminder(
+                        message=new_msg,
+                        uid=full,
+                        time=int(new_time),
+                        channel=int(new_channel),
+                        position=0 if new_interval is not None else None,
+                        embed=embed,
+                        method='dashboard',
+                        webhook=webhook,
+                        username=username,
+                        avatar=avatar,
+                        enabled=enabled)
 
-                if new_interval is not None:
-                    db.session.commit()
+                    db.session.add(reminder)
 
-                    interval = Interval(reminder=reminder.id, period=new_interval * multiplier, position=0)
-                    db.session.add(interval)
+                    if new_interval is not None:
+                        db.session.commit()
 
-            db.session.commit()
+                        interval = Interval(reminder=reminder.id, period=new_interval * multiplier, position=0)
+                        db.session.add(interval)
 
-    elif new_channel not in [x.channel for x in guild.channels]:
-        flash('Error setting reminder (channel not found)')
+                db.session.commit()
 
-    if request.args.get('redirect'):
-        return redirect(url_for('dashboard', id=request.args.get('redirect')))
-    
-    else:
-        return redirect(url_for('dashboard'))
+        elif new_channel not in [x.channel for x in guild.channels]:
+            flash('Error setting reminder (channel not found)')
+
+        if request.args.get('redirect'):
+            return redirect(url_for('dashboard', id=request.args.get('redirect')))
+        
+        else:
+            return redirect(url_for('dashboard'))
 
 
 @app.route('/cache/')
