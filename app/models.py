@@ -63,6 +63,7 @@ class User(db.Model):
 
     patreon = db.Column( db.Integer )
     dm_channel = db.Column( db.BigInteger )
+    name = db.Column( db.String(64) )
 
 
 class PartialMember(db.Model):
@@ -70,7 +71,7 @@ class PartialMember(db.Model):
 
     id = db.Column( db.Integer, primary_key=True )
     user = db.Column( db.BigInteger, unique=True )
-    name = db.Column( db.Text )
+    name = db.Column( db.String(64) )
 
 
 class GuildData(db.Model):
