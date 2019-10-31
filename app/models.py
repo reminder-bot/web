@@ -1,10 +1,11 @@
 from app import db
+import secrets
 
 class Reminder(db.Model):
     __tablename__ = 'reminders'
 
     id = db.Column( db.Integer, primary_key=True, unique=True )
-    uid = db.Column( db.String(64), unique=True )
+    uid = db.Column( db.String(64), unique=True, default=lambda: Reminder.create_uid() )
 
     message = db.Column( db.String(2000) )
     channel = db.Column( db.BigInteger )
@@ -22,6 +23,14 @@ class Reminder(db.Model):
     intervals = db.relationship('Interval', backref='r', lazy='dynamic')
 
     channel_name = 'unknown'
+
+    @staticmethod
+    def create_uid():
+        full = ""
+        while len(full) < 64:
+            full += secrets.choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_')
+
+        return full
 
 
 class Interval(db.Model):

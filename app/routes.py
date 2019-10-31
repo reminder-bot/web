@@ -1,23 +1,23 @@
 from flask import redirect, render_template, request, url_for, session, abort, flash
 from app import app, discord, db
 from app.models import Server, Reminder, Interval, User, PartialMember, GuildData, ChannelData, RoleData
+from app.markdown import markdown_parse
 import os
 import io
 import requests
 import json
 import time
-import secrets
 
 MAX_TIME = 1576800000
 MIN_INTERVAL = 800
 
 class Color():
     def __init__(self, color: int = None, failed: bool = False):
-        self.color = color
-        self.failed = failed
+        self.color: int = color
+        self.failed: bool = failed
 
     @staticmethod
-    def decode(color: str) -> Color:
+    def decode(color: str) -> 'Color':
         try:
             color_hex = int(color, 16)
 
@@ -30,59 +30,6 @@ class Color():
 
             else:
                 return Color(color=color_hex)
-
-
-def markdown_parse(contents):
-    outlines = []
-    for line in contents:
-        if len(line.strip()) == 0:
-            outlines.append('<br>')
-
-        count = 0
-        for char in line:
-            if char == '#':
-                count += 1
-            else:
-                break
-
-        line = line.strip('#')
-
-        if count > 0:
-            line = '<h{0}>{1}</h{0}>'.format(count, line)
-
-        for x in range(line.count('**')):
-            if x % 2 == 0:
-                line = line.replace('**', '<strong>', 1)
-            else:
-                line = line.replace('**', '</strong>', 1)
-
-        for x in range(line.count('__')):
-            if x % 2 == 0:
-                line = line.replace('__', '<strong>', 1)
-            else:
-                line = line.replace('__', '</strong>', 1)
-
-        for x in range(line.count('*')):
-            if x % 2 == 0:
-                line = line.replace('*', '<em>', 1)
-            else:
-                line = line.replace('*', '</em>', 1)
-
-        for x in range(line.count('_')):
-            if x % 2 == 0:
-                line = line.replace('_', '<em>', 1)
-            else:
-                line = line.replace('_', '</em>', 1)
-
-        for x in range(line.count('`')):
-            if x % 2 == 0:
-                line = line.replace('`', '<code>', 1)
-            else:
-                line = line.replace('`', '</code>', 1)
-
-        outlines.append(line)
-
-    return '\n'.join(outlines)
 
 
 @app.errorhandler(500)
@@ -164,13 +111,16 @@ def oauth():
 
 
 def get_webhook(channel: int):
+    # get existing webooks
     webhooks = api_get('channels/{}/webhooks'.format(channel)).json()
+
     if isinstance(webhooks, list):
         existing = [x for x in webhooks if x['user']['id'] == app.config['DISCORD_OAUTH_CLIENT_ID']]
 
         if len(existing) == 0:
-            wh = requests.post('https://discordapp.com/api/v6/channels/{}/webhooks'.format(channel), json={'name': 'Reminders'}, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])}).json()
-            wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(wh['id'], wh['token'])
+            # get new webhook
+            req = api_post('channels/{}/webhooks'.format(channel), {'name': 'Reminders'}).json()
+            wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(req['id'], req['token'])
         else:
             wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
 
@@ -178,20 +128,6 @@ def get_webhook(channel: int):
 
     else:
         return None
-
-
-def create_uid(i1, i2):
-    m = i2
-    while m > 0:
-        i1 *= 10
-        m //= 10
-    
-    bigint = i1 + i2
-    full = hex(bigint)[2:]
-    while len(full) < 64:
-        full += secrets.choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_')
-
-    return full
 
 
 def api_get(endpoint):
@@ -352,7 +288,7 @@ def change_reminder():
             return redirect(url_for('dashboard'))
 
 
-@app.route('/cache/')
+@app.route('/cache/', methods=['GET'])
 def cache():
 
     def create_cached_user(data: dict) -> User:
@@ -411,7 +347,7 @@ def cache():
     return redirect( url_for('dashboard') )
 
 
-@app.route('/dashboard/', methods=['GET', 'POST'])
+@app.route('/dashboard/', methods=['GET'])
 def dashboard():
 
     def permitted_access(guild: GuildData):
