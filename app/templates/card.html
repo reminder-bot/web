@@ -242,7 +242,6 @@ current = moment.unix({{ reminder.time if reminder else time }});
 $('#datepicker{{ reminder.uid if reminder else "" }}').datepicker({
     format: 'yyyy/mm/dd',
     autoclose: true,
-    startDate: 'current',
 });
 
 $('#datepicker{{ reminder.uid if reminder else "" }}').datepicker('update', current.toDate());

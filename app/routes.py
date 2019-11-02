@@ -253,11 +253,8 @@ def change_reminder():
                     else:
                         webhook = None
 
-                    full = create_uid(int(new_channel), int(new_channel))
-
                     reminder = Reminder(
                         message=new_msg,
-                        uid=full,
                         time=int(new_time),
                         channel=int(new_channel),
                         position=0 if new_interval is not None else None,
