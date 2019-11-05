@@ -131,10 +131,10 @@ def get_webhook(channel: int):
 
 
 def api_get(endpoint):
-    return requests.get('https://discordapp.com/api/v6/{}'.format(endpoint), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
+    return requests.get('https://discordapp.com/api/{}'.format(endpoint), headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
 
 def api_post(endpoint, data):
-    return requests.get('https://discordapp.com/api/v6/{}'.format(endpoint), json=data, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
+    return requests.post('https://discordapp.com/api/{}'.format(endpoint), json=data, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
 
 
 @app.route('/creminder', methods=['POST'])
@@ -291,6 +291,7 @@ def cache():
     def create_cached_user(data: dict) -> User:
         user = User(user=data['id'], name=data['username'])
         dmchannel = api_post('users/@me/channels', {'recipient_id': data['id']}).json()
+
         user.dm_channel = dmchannel['id']
 
         db.session.add(user)
@@ -333,7 +334,7 @@ def cache():
     session['user_id'] = user['id']
 
     user_query = User.query.filter(User.user == user['id'])
-    cached_user: User = user_query.first() or create_cached_user(user['id'])
+    cached_user: User = user_query.first() or create_cached_user(user)
 
     cached_user.patreon = check_user_patreon(cached_user)
 
