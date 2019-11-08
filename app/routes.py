@@ -322,6 +322,7 @@ def cache():
         cached_guilds: list = []
 
         for guild in guilds:
+
             if guild['permissions'] & 0x00002028 or guild['owner']:
                 cached_guild: GuildData = form_cached_guild(guild)
 
@@ -338,9 +339,9 @@ def cache():
 
     cached_user.patreon = check_user_patreon(cached_user)
 
-    db.session.commit()
-
     cached_user.guilds = get_user_guilds(cached_user)
+
+    db.session.commit()
 
     return redirect( url_for('dashboard') )
 
@@ -499,4 +500,4 @@ def dashboard():
                     time=time.time())
 
             else:
-                return redirect( url_for('dashboard') )
+                return redirect( url_for('cache') )
