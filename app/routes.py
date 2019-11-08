@@ -468,6 +468,16 @@ def dashboard():
 
                 if guild_id == 0:
                     channels = [member.dm_channel]
+                    reminders = Reminder.query.filter(Reminder.channel == channels[0]).order_by(Reminder.time).all() # fetch reminders
+
+                    return render_template('dashboard.html',
+                        out=False,
+                        guilds=member.guilds,
+                        reminders=reminders,
+                        guild=None,
+                        server=None,
+                        member=member,
+                        time=time.time())
 
                 else:
                     for guild in member.guilds:
