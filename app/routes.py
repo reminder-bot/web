@@ -1,6 +1,6 @@
 from flask import redirect, render_template, request, url_for, session, abort, flash
 from app import app, discord, db
-from app.models import Server, Reminder, Interval, User, PartialMember, GuildData, ChannelData, RoleData
+from app.models import Guild, Reminder, Interval, User, PartialMember, GuildData, ChannelData, RoleData
 from app.markdown import markdown_parse
 import os
 import io
@@ -353,7 +353,7 @@ def dashboard():
         if request.args.get('refresh') is not None:
             print('Refreshing guild data for {}'.format(guild_id))
 
-            server_data = Server.query.filter( Server.server == guild.guild ).first()
+            server_data = Guild.query.get(guild.guild)
 
             if server_data is None:
                 flash('Guild not found')
@@ -416,7 +416,7 @@ def dashboard():
                     db.session.commit()
 
         guild = GuildData.query.filter(GuildData.guild == guild_id).first()
-        server = Server.query.filter(Server.server == guild_id).first()
+        server = Guild.query.get(guild_id)
         reminders = Reminder.query.filter(Reminder.channel.in_([x.channel for x in guild.channels])).order_by(Reminder.time).all() # fetch reminders
 
         if guild is not None:

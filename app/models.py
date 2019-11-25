@@ -26,7 +26,7 @@ class Reminder(db.Model):
 
     @staticmethod
     def create_uid():
-        full = ""
+        full: str = ''
         while len(full) < 64:
             full += secrets.choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_')
 
@@ -44,11 +44,10 @@ class Interval(db.Model):
     position = db.Column(db.Integer)
 
 
-class Server(db.Model):
-    __tablename__ = 'servers'
+class Guild(db.Model):
+    __tablename__ = 'guilds'
 
-    id = db.Column( db.Integer, primary_key=True )
-    server = db.Column( db.BigInteger, unique=True )
+    guild = db.Column( db.BigInteger, primary_key=True, autoincrement=False )
     prefix = db.Column( db.String(5), default="$", nullable=False )
     timezone = db.Column( db.String(30), default="UTC", nullable=False )
 
