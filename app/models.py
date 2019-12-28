@@ -69,7 +69,7 @@ class User(db.Model):
     id = db.Column( db.Integer, primary_key=True )
     user = db.Column( db.BigInteger, unique=True )
 
-    patreon = db.Column( db.Integer )
+    patreon = db.Column( db.Boolean, nullable=False, default=False )
     dm_channel = db.Column( db.BigInteger )
     name = db.Column( db.String(64) )
 

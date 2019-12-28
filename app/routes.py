@@ -173,7 +173,7 @@ def change_reminder():
             if not (0 < len(username) <= 32):
                 username = None
 
-        if member.patreon > 0:
+        if member.patreon:
             try:
                 new_interval = int(request.form.get('interval_new'))
                 multiplier = int(request.form.get('multiplier_new'))
@@ -300,9 +300,10 @@ def cache():
 
     def check_user_patreon(user: User) -> int:
         reminder_guild_member = api_get('guilds/{}/members/{}'.format(app.config['PATREON_SERVER'], user.user))
+        
         if reminder_guild_member.status_code == 200:
-            roles = list(set([int(x) for x in reminder_guild_member.json()['roles']]) & set(app.config['PATREON_ROLES']))
-            return len(roles)
+            roles = [int(x) for x in reminder_guild_member.json()['roles']]
+            return app.config['PATREON_ROLE'] in roles
 
         else:
             return 0
@@ -337,7 +338,7 @@ def cache():
     user_query = User.query.filter(User.user == user['id'])
     cached_user: User = user_query.first() or create_cached_user(user)
 
-    cached_user.patreon = check_user_patreon(cached_user)
+    cached_user.patreon = check_user_patreon(cached_user) > 0
 
     cached_user.guilds = get_user_guilds(cached_user)
 

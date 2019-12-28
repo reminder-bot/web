@@ -100,7 +100,7 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);"{% endif %}>
                     <!-- /.form group -->
                 </div>
 
-                {% if member.patreon > 0 %}
+                {% if member.patreon %}
                     {% if reminder %}
                         <input type="hidden" value="0" name="enabled"></input>
 
@@ -208,17 +208,15 @@ toggle_colorpicker{{ reminder.uid }}();
 
                         </script>
 
-                        {% if member.patreon > 1 %}
-                            <div class="form-group">
-                                <label>Avatar:</label>
-                                <div class="input-group">
-                                    <div class="input-group-addon">
-                                        <i class="fas fa-camera"></i>
-                                    </div>
-                                    <input type="text" class="form-control pull-right" name="avatar" value="{{ reminder.avatar }}"></input>
+                        <div class="form-group">
+                            <label>Avatar:</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fas fa-camera"></i>
                                 </div>
+                                <input type="text" class="form-control pull-right" name="avatar" value="{{ reminder.avatar }}"></input>
                             </div>
-                        {% endif %}
+                        </div>
                     {% endif %}
                 {% endif %}
                 
