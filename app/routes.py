@@ -217,9 +217,11 @@ def change_reminder():
                         rem.enabled = enabled
                         rem.message = new_msg
                         rem.time = int( new_time )
+
                         if int( new_channel ) != rem.channel:
                             rem.channel = int( new_channel )
                             rem.webhook = get_webhook(new_channel)
+                        
                         rem.embed = embed
                         rem.method = 'dashboard'
 
