@@ -1,8 +1,11 @@
-<div class="col-md-12 col-lg-4">
+<div class="col-md-12 col-lg-4" style="
+-webkit-box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);
+-moz-box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);
+box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);">
     <div class="card box box-body">
-        <form method="post" action="{{ url_for('change_reminder', redirect=server.guild or 0, index=reminder.uid) }}" id="form{{ reminder.uid }}">
+        <form method="post" action="{{ url_for('change_reminder', redirect=server.guild or 0, index=None) }}" id="form{{ reminder.uid }}">
             <div class="card-header">
-                <h4><strong>Reminder</strong></h4>
+                <h4><strong>Add Reminder</strong></h4>
             </div>
             <div class="card-body">
                 <div id="modal">
@@ -16,10 +19,10 @@
                             <i class="fa fa-envelope"></i>
                         </div>
 
-                        <textarea type="text" name="message_new" class="form-control pull-right" maxlength="2000" id="input-message{{ reminder.uid }}" required>{{ reminder.message if reminder else "" }}</textarea>
+                        <textarea type="text" name="message_new" class="form-control pull-right" maxlength="2000" id="input-message" required></textarea>
 
                     </div>
-                    <div class="input-group" id="mention-input{{ reminder.uid }}" style="visibility: hidden;">
+                    <div class="input-group" id="mention-input" style="visibility: hidden;">
                         <div class="input-group-addon">
                             <i class="fas fa-at"></i>
                         </div>
@@ -28,7 +31,7 @@
                                 Mention... (hint: use a double @ to get roles)
                                 <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdown-mention" id="dropdown-mention{{ reminder.uid }}" style="max-height: 40vh; overflow-y: scroll;">
+                            <ul class="dropdown-menu" aria-labelledby="dropdown-mention" id="dropdown-mention" style="max-height: 40vh; overflow-y: scroll;">
                             </ul>
                         </div>
                     </div>
@@ -45,7 +48,6 @@
                             </div>
                             <div class="dropdown">
                                 <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;">
-                                    <option value="{{ reminder.channel }}" selected>{{ reminder.channel_name }} (current)</option>
                                     {% for channel in guild.channels %}
                                         <option value="{{ channel.channel }}">{{ channel.name }}</option>
                                     {% endfor %}
@@ -61,7 +63,7 @@
                             <div class="input-group-addon">
                                 <i class="fas fa-file-signature"></i>
                             </div>
-                            <input type="text" class="form-control pull-right" name="username" maxlength="32" value="{{ reminder.username }}"></input>
+                            <input type="text" class="form-control pull-right" name="username" maxlength="32" value=""></input>
                         </div>
                     </div>
 
@@ -69,7 +71,7 @@
                     <input type="text" name="channel_new" value="{{ member.dm_channel }}" id="input-channel" hidden required>
                 {% endif %}
 
-                <input name="time_new" value="0" id="time_new{{ reminder.uid }}" hidden></input>
+                <input name="time_new" value="0" id="time_new" hidden></input>
 
                 <!-- DATE -->
                 <div class="form-group">
@@ -78,7 +80,7 @@
                         <div class="input-group-addon">
                             <i class="fa fa-calendar"></i>
                         </div>
-                        <input type="text" class="form-control pull-right" id="datepicker{{ reminder.uid }}" name="date"></input>
+                        <input type="text" class="form-control pull-right" id="datepicker" name="date"></input>
                     </div>
                     <!-- /.input group -->
                 </div>
@@ -90,7 +92,7 @@
                             <div class="input-group-addon">
                                 <i class="fas fa-clock"></i>
                             </div>
-                            <input type="text" class="form-control timepicker" id="timepicker{{ reminder.uid }}" name="time"></input>
+                            <input type="text" class="form-control timepicker" id="timepicker" name="time"></input>
                         </div>
                         <!-- /.input group -->
                     </div>
@@ -98,14 +100,6 @@
                 </div>
 
                 {% if member.patreon %}
-                    <input type="hidden" value="0" name="enabled"></input>
-
-                    <div class="form-group">
-                        <div class="checkbox">
-                            <label><input type="checkbox" name="enabled" {{ 'checked' if reminder.enabled }}></input>Enabled?</label>
-                        </div>
-                    </div>
-
                     <div class="bootstrap-timepicker">
                         <div class="form-group">
                             <label>Intervals:</label>
@@ -113,32 +107,7 @@
                                 <div class="input-group-addon">
                                     <i class="fas fa-clock"></i>
                                 </div>
-                                {% for interval in reminder.intervals %}
-                                    <input type="number" class="form-control pull-left" id="interval_{{ interval.position }}{{ reminder.uid }}" name="interval_{{ interval.position }}" value="{{ interval.period }}" style="width: 65%"></input>
-
-                                    <select id="multiplier_{{ interval.position }}{{ reminder.uid }}" name="multiplier_{{ interval.position }}" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
-                                        <option value="1" onclick="change_multiplier{{ interval.position }}{{ reminder.uid }}()" selected>seconds</option>
-                                        <option value="60" onclick="change_multiplier{{ interval.position }}{{ reminder.uid }}()">minutes</option>
-                                        <option value="3600" onclick="change_multiplier{{ interval.position }}{{ reminder.uid }}()">hours</option>
-                                        <option value="86400" onclick="change_multiplier{{ interval.position }}{{ reminder.uid }}()">days</option>
-                                    </select>
-
-                                    <button type="button" class="btn btn-danger" onclick="send_delete_i('{{ reminder.uid }}', '{{ interval.id }}')"><i class="fas fa-trash"></i></button>
-
-                                    <script>
-
-var before{{ interval.position }}{{ reminder.uid }} = 1;
-
-function change_multiplier{{ interval.position }}{{ reminder.uid }}() {
-    var e = document.getElementById('multiplier_{{ interval.position }}{{ reminder.uid }}').value;
-
-    document.getElementById('interval_{{ interval.position }}{{ reminder.uid }}').value *= before{{ interval.position }}{{ reminder.uid }} / e;
-
-    before{{ interval.position }}{{ reminder.uid }} = e;
-}
-
-                                    </script>
-                                {% endfor %}
+                                
                                 <input type="number" class="form-control pull-left" name="interval_new" value="" style="width: 75%;"></input>
 
                                 <select name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
@@ -158,22 +127,21 @@ function change_multiplier{{ interval.position }}{{ reminder.uid }}() {
                             <div class="checkbox">
                                 <label><input 
                                     type="checkbox" 
-                                    id="checkb{{ reminder.uid }}"
+                                    id="checkb"
                                     name="embed" 
-                                    onclick="toggle_colorpicker{{ reminder.uid }}()" 
-                                    {{ 'checked' if reminder.embed != None }}></input> Send as Embed?</label>
+                                    onclick="toggle_colorpicker()" ></input> Send as Embed?</label>
                             </div>
                         </div>
 
-                        <div class="colorpicker-component" id="colorpicker{{ reminder.uid }}">
+                        <div class="colorpicker-component" id="colorpicker">
                             <div class="form-group">
                                 <label>Embed Color:</label>
                                 <div class="input-group">
                                     <div class="input-group-addon">
                                         <i class="fas fa-palette"></i>
                                     </div>
-                                    <div id="cp{{ reminder.uid }}" class="input-group">
-                                        <input type="text" value="#{{ reminder.embed }}" class="form-control" name="color"></input>
+                                    <div id="cp" class="input-group">
+                                        <input type="text" value="#000000" class="form-control" name="color"></input>
                                         <span class="input-group-addon"><i></i></span>
                                     </div>
                                 </div>
@@ -183,23 +151,23 @@ function change_multiplier{{ interval.position }}{{ reminder.uid }}() {
                         <script>
 
 $(function() {
-    $('#cp{{ reminder.uid }}').colorpicker({"format": "hex"});
+    $('#cp').colorpicker({"format": "hex"});
 });
 
-function toggle_colorpicker{{ reminder.uid }}()
+function toggle_colorpicker()
 {
-    check = document.getElementById("checkb{{ reminder.uid }}");
+    check = document.getElementById("checkb");
     if (check.checked)
     {
-        document.getElementById("colorpicker{{ reminder.uid }}").style.opacity = 1;
+        document.getElementById("colorpicker").style.opacity = 1;
     }
     else
     {
-        document.getElementById("colorpicker{{ reminder.uid }}").style.opacity = 0;
+        document.getElementById("colorpicker").style.opacity = 0;
     }
 }
 
-toggle_colorpicker{{ reminder.uid }}();
+toggle_colorpicker();
 
                         </script>
 
@@ -209,7 +177,7 @@ toggle_colorpicker{{ reminder.uid }}();
                                 <div class="input-group-addon">
                                     <i class="fas fa-camera"></i>
                                 </div>
-                                <input type="text" class="form-control pull-right" name="avatar" value="{{ reminder.avatar }}"></input>
+                                <input type="text" class="form-control pull-right" name="avatar" value=""></input>
                             </div>
                         </div>
                     {% endif %}
@@ -219,41 +187,40 @@ toggle_colorpicker{{ reminder.uid }}();
 
 function update_time()
 {
-    t_time = document.getElementById("timepicker{{ reminder.uid }}");
-    d_time = document.getElementById("datepicker{{ reminder.uid }}");
+    t_time = document.getElementById("timepicker");
+    d_time = document.getElementById("datepicker");
 
     m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A');
 
-    document.getElementById("time_new{{ reminder.uid if reminder else "" }}").value = m.unix();
+    document.getElementById("time_new").value = m.unix();
 }
 
-current = moment.unix({{ reminder.time if reminder else time }});
+current = moment.unix({{ time }});
 
 //Date picker
-$('#datepicker{{ reminder.uid }}').datepicker({
+$('#datepicker').datepicker({
     format: 'yyyy/mm/dd',
     autoclose: true,
 });
 
-$('#datepicker{{ reminder.uid }}').datepicker('update', current.toDate());
+$('#datepicker').datepicker('update', current.toDate());
 //Timepicker
-$('#timepicker{{ reminder.uid }}').timepicker({
+$('#timepicker').timepicker({
     minuteStep: 1,
     showInputs: false,
     showSeconds: true,
     defaultTime: current.format('hh:mm A'),
 });
 
-$("#datepicker{{ reminder.uid }}").change(update_time);
-$("#timepicker{{ reminder.uid }}").change(update_time);
+$("#datepicker").change(update_time);
+$("#timepicker").change(update_time);
 
 update_time();
 
                 </script>
 
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-success">Save Changes</button>
-                    <button type="button" onclick="send_delete('{{ reminder.uid }}')" class="btn btn-danger">Delete</button>
+                    <button type="submit" class="btn btn-success">Create New</button>
                 </div>
             </div>
         </form>
