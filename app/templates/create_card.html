@@ -3,7 +3,7 @@
 -moz-box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);
 box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);">
     <div class="card box box-body">
-        <form method="post" action="{{ url_for('change_reminder', redirect=server.guild or 0, index=None) }}" id="form{{ reminder.uid }}">
+        <form method="post" action="{{ url_for('change_reminder', redirect=server.guild or 0, index=None) }}" id="form{{ reminder.uid }}" autocomplete="off">
             <div class="card-header">
                 <h4><strong>Add Reminder</strong></h4>
             </div>

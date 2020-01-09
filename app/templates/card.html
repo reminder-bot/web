@@ -1,6 +1,6 @@
 <div class="col-md-12 col-lg-4">
     <div class="card box box-body">
-        <form method="post" action="{{ url_for('change_reminder', redirect=server.guild or 0, index=reminder.uid) }}" id="form{{ reminder.uid }}">
+        <form method="post" action="{{ url_for('change_reminder', redirect=server.guild or 0, index=reminder.uid) }}" id="form{{ reminder.uid }}" autocomplete="off">
             <div class="card-header">
                 <h4><strong>Reminder</strong></h4>
             </div>
@@ -16,7 +16,7 @@
                             <i class="fa fa-envelope"></i>
                         </div>
 
-                        <textarea type="text" name="message_new" class="form-control pull-right" maxlength="2000" id="input-message{{ reminder.uid }}" required>{{ reminder.message if reminder else "" }}</textarea>
+                        <textarea type="text" name="message_new" class="form-control pull-right" maxlength="2000" id="input-message{{ reminder.uid }}" required>{{ reminder.message }}</textarea>
 
                     </div>
                     <div class="input-group" id="mention-input{{ reminder.uid }}" style="visibility: hidden;">

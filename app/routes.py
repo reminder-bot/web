@@ -136,11 +136,17 @@ def api_get(endpoint):
 def api_post(endpoint, data):
     return requests.post('https://discordapp.com/api/{}'.format(endpoint), json=data, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
 
+@app.route('/nreminder', methods=['POST'])
+def new_reminder():
+    user = discord.get('api/users/@me').json()
+    user_id = int( user['id'] )
+
+    
 
 @app.route('/creminder', methods=['POST'])
 def change_reminder():
     user = discord.get('api/users/@me').json()
-    user_id = int(user['id'])
+    user_id = int( user['id'] )
 
     member = User.query.filter(User.user == user_id).first()
     guild = GuildData.query.filter(GuildData.guild == int(request.args.get('redirect'))).first()
