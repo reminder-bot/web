@@ -153,7 +153,6 @@ def change_reminder():
 
     else:
         new_interval = None
-        multiplier = None
         embed = None
         avatar = None
         username = None
@@ -167,8 +166,7 @@ def change_reminder():
 
         if member.patreon:
             try:
-                new_interval = int(request.form.get('interval_new'))
-                multiplier = int(request.form.get('multiplier_new'))
+                new_interval = int(request.form.get('interval_new')) * int(request.form.get('multiplier_new'))
 
             except ValueError:
                 new_interval = None
@@ -192,7 +190,7 @@ def change_reminder():
             if not 0 < len(new_msg) < 2000:
                 flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
 
-            elif new_interval is not None and not MIN_INTERVAL < new_interval * multiplier < MAX_TIME:
+            elif new_interval is not None and not MIN_INTERVAL < new_interval < MAX_TIME:
                 flash('Error setting reminder (interval timer is out of bounds)')
 
             else:
@@ -212,7 +210,7 @@ def change_reminder():
                     username=username,
                     avatar=avatar,
                     enabled=enabled,
-                    interval=new_interval * multiplier)
+                    interval=new_interval)
 
                 db.session.add(reminder)
 
