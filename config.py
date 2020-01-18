@@ -2,7 +2,6 @@ import os
 import configparser
 from datetime import datetime
 
-
 class Config(object):
     BASE_URI = './'
 

@@ -20,7 +20,7 @@ class Reminder(db.Model):
     method = db.Column( db.Text )
     embed = db.Column( db.Integer, nullable=True )
 
-    intervals = db.relationship('Interval', backref='r', lazy='dynamic')
+    interval = db.Column( db.Integer )
 
     channel_name = 'unknown'
 
@@ -31,17 +31,6 @@ class Reminder(db.Model):
             full += secrets.choice('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_')
 
         return full
-
-
-class Interval(db.Model):
-    __tablename__ = 'intervals'
-
-    id = db.Column( db.Integer, primary_key=True, unique=True)
-
-    reminder = db.Column(db.Integer, db.ForeignKey('reminders.id'))
-
-    period = db.Column(db.Integer)
-    position = db.Column(db.Integer)
 
 
 class Guild(db.Model):

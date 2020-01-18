@@ -87,15 +87,8 @@ def delete():
 def delete_interval():
 
     r = Reminder.query.filter(Reminder.uid == request.args.get('reminder')).first()
-    interval = Interval.query.filter((Interval.reminder == r.id) & (Interval.id == request.args.get('interval')))
 
-    if interval.first() is not None:
-        all_switching = Interval.query.filter((Interval.reminder == r.id) & (Interval.position > interval.first().position))
-
-        for i in all_switching:
-            i.position -= 1
-
-    interval.delete(synchronize_session='fetch')
+    r.interval = None
 
     db.session.commit()
 
@@ -135,13 +128,6 @@ def api_get(endpoint):
 
 def api_post(endpoint, data):
     return requests.post('https://discordapp.com/api/{}'.format(endpoint), json=data, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
-
-@app.route('/nreminder', methods=['POST'])
-def new_reminder():
-    user = discord.get('api/users/@me').json()
-    user_id = int( user['id'] )
-
-    
 
 @app.route('/creminder', methods=['POST'])
 def change_reminder():
@@ -183,6 +169,7 @@ def change_reminder():
             try:
                 new_interval = int(request.form.get('interval_new'))
                 multiplier = int(request.form.get('multiplier_new'))
+
             except ValueError:
                 new_interval = None
 
@@ -200,7 +187,7 @@ def change_reminder():
         if not (0 < int(new_time) < time.time() + MAX_TIME):
             flash('Error setting reminder (time is too long)')
 
-        elif new_msg and (new_channel == member.dm_channel or new_channel in [x.channel for x in guild.channels]):
+        elif new_msg is not None and (new_channel == member.dm_channel or new_channel in [x.channel for x in guild.channels]):
 
             if not 0 < len(new_msg) < 2000:
                 flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
@@ -209,77 +196,26 @@ def change_reminder():
                 flash('Error setting reminder (interval timer is out of bounds)')
 
             else:
-                wh = None
-
-                index = request.args.get('index')
-
-                if index is not None:
-                    rem = Reminder.query.filter(Reminder.uid == index).first()
-
-                    if rem is None:
-                        flash('Error changing reminder: Reminder not found')
-
-                    else:
-                        rem.enabled = enabled
-                        rem.message = new_msg
-                        rem.time = int( new_time )
-
-                        if int( new_channel ) != rem.channel:
-                            rem.channel = int( new_channel )
-                            rem.webhook = get_webhook(new_channel)
-                        
-                        rem.embed = embed
-                        rem.method = 'dashboard'
-
-                        if username is not None:
-                            rem.username = username
-
-                        if avatar is not None:
-                            rem.avatar = avatar
-
-                        if new_interval is not None:
-                            prev = rem.intervals.order_by(Interval.position.desc()).first()
-
-                            new_pos = 0 if prev is None else prev.position + 1
-
-                            interval = Interval(reminder=rem.id, period=new_interval * multiplier, position=new_pos)
-                            db.session.add(interval)
-
-                        for interval in rem.intervals:
-                            field = request.form.get('interval_{}'.format(interval.position))
-                            mul_field = request.form.get('multiplier_{}'.format(interval.position))
-                            if field is not None and all(x in '0123456789.' for x in field) and mul_field is not None and all(x in '0123456789' for x in mul_field):
-                                val = float(field)
-
-                                if MIN_INTERVAL < val < MAX_TIME:
-                                    interval.period = val * int(mul_field)
+                if request.args.get('id') != '0':
+                    webhook = get_webhook(new_channel)
 
                 else:
-                    if request.args.get('id') != '0':
-                        webhook = get_webhook(new_channel)
+                    webhook = None
 
-                    else:
-                        webhook = None
+                reminder = Reminder(
+                    message=new_msg,
+                    time=int(new_time),
+                    channel=int(new_channel),
+                    position=0 if new_interval is not None else None,
+                    embed=embed,
+                    method='dashboard',
+                    webhook=webhook,
+                    username=username,
+                    avatar=avatar,
+                    enabled=enabled,
+                    interval=new_interval * multiplier)
 
-                    reminder = Reminder(
-                        message=new_msg,
-                        time=int(new_time),
-                        channel=int(new_channel),
-                        position=0 if new_interval is not None else None,
-                        embed=embed,
-                        method='dashboard',
-                        webhook=webhook,
-                        username=username,
-                        avatar=avatar,
-                        enabled=enabled)
-
-                    db.session.add(reminder)
-
-                    if new_interval is not None:
-                        db.session.commit()
-
-                        interval = Interval(reminder=reminder.id, period=new_interval * multiplier, position=0)
-                        db.session.add(interval)
+                db.session.add(reminder)
 
                 db.session.commit()
 

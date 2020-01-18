@@ -108,12 +108,12 @@
 
                     <div class="bootstrap-timepicker">
                         <div class="form-group">
-                            <label>Intervals:</label>
+                            <label>Interval:</label>
                             <div class="input-group">
                                 <div class="input-group-addon">
                                     <i class="fas fa-clock"></i>
                                 </div>
-                                {% for interval in reminder.intervals %}
+                                {% if reminder.interval != None %}
                                     <input type="number" class="form-control pull-left" id="interval_{{ interval.position }}{{ reminder.uid }}" name="interval_{{ interval.position }}" value="{{ interval.period }}" style="width: 65%"></input>
 
                                     <select id="multiplier_{{ interval.position }}{{ reminder.uid }}" name="multiplier_{{ interval.position }}" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
@@ -138,15 +138,16 @@ function change_multiplier{{ interval.position }}{{ reminder.uid }}() {
 }
 
                                     </script>
-                                {% endfor %}
-                                <input type="number" class="form-control pull-left" name="interval_new" value="" style="width: 75%;"></input>
+                                {% else %}
+                                    <input type="number" class="form-control pull-left" name="interval_new" value="" style="width: 75%;"></input>
 
-                                <select name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
-                                    <option value="1" selected>seconds</option>
-                                    <option value="60">minutes</option>
-                                    <option value="3600">hours</option>
-                                    <option value="86400">days</option>
-                                </select>
+                                    <select name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
+                                        <option value="1" selected>seconds</option>
+                                        <option value="60">minutes</option>
+                                        <option value="3600">hours</option>
+                                        <option value="86400">days</option>
+                                    </select>
+                                {% endif %}
                             </div>
                             <!-- /.input group -->
                         </div>
