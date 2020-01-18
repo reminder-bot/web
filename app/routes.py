@@ -1,6 +1,6 @@
 from flask import redirect, render_template, request, url_for, session, abort, flash
 from app import app, discord, db
-from app.models import Guild, Reminder, Interval, User, PartialMember, GuildData, ChannelData, RoleData
+from app.models import Guild, Reminder, User, PartialMember, GuildData, ChannelData, RoleData
 from app.markdown import markdown_parse
 import os
 import io
@@ -25,7 +25,7 @@ class Color():
             return Color(failed=True)
 
         else:
-            if 0 < color_hex < 16**6:
+            if 0 < color_hex < 0xFFFFFF:
                 return Color(failed=True)
 
             else:
@@ -206,7 +206,6 @@ def change_reminder():
                     message=new_msg,
                     time=int(new_time),
                     channel=int(new_channel),
-                    position=0 if new_interval is not None else None,
                     embed=embed,
                     method='dashboard',
                     webhook=webhook,

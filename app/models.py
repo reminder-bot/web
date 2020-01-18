@@ -10,14 +10,13 @@ class Reminder(db.Model):
     message = db.Column( db.String(2000) )
     channel = db.Column( db.BigInteger )
     time = db.Column( db.BigInteger )
-    position = db.Column( db.Integer )
     enabled = db.Column( db.Boolean, nullable=False, default=True )
 
     webhook = db.Column( db.String(256) )
     avatar = db.Column( db.String(512), default="https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg", nullable=False )
     username = db.Column( db.String(32), default="Reminder", nullable=False )
 
-    method = db.Column( db.Text )
+    method = db.Column( db.String(9) )
     embed = db.Column( db.Integer, nullable=True )
 
     interval = db.Column( db.Integer )
