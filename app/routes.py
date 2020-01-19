@@ -168,7 +168,7 @@ def change_reminder():
             try:
                 new_interval = int(request.form.get('interval_new')) * int(request.form.get('multiplier_new'))
 
-            except ValueError:
+            except:
                 new_interval = None
 
             if request.form.get('embed') == 'on':
