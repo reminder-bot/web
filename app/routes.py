@@ -129,8 +129,28 @@ def api_get(endpoint):
 def api_post(endpoint, data):
     return requests.post('https://discordapp.com/api/{}'.format(endpoint), json=data, headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
 
+
 @app.route('/creminder', methods=['POST'])
 def change_reminder():
+    def end():
+        if request.args.get('redirect'):
+            return redirect(url_for('dashboard', id=request.args.get('redirect')))
+        
+        else:
+            return redirect( url_for('dashboard') )
+
+    current_reminder = None
+    current_uid = request.args.get('reminder')
+
+    if current_uid is not None:
+        current_reminder = Reminder.query.filter(Reminder.uid == current_uid).first()
+
+        if current_reminder is None:
+            flash('Error modifying existing reminder (reminder does not exist)')
+
+            return end()
+
+
     user = discord.get('api/users/@me').json()
     user_id = int( user['id'] )
 
@@ -145,16 +165,12 @@ def change_reminder():
     except:
         flash('Error setting reminder (form data malformed)')
         
-        if request.args.get('redirect'):
-            return redirect(url_for('dashboard', id=request.args.get('redirect')))
-        
-        else:
-            return redirect( url_for('dashboard') )
+        return end()
 
     else:
         new_interval = None
         embed = None
-        avatar = None
+        avatar = "https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg"
         username = None
 
         enabled = 'on' in request.form.getlist('enabled') or request.form.get('enabled') is None
@@ -182,7 +198,7 @@ def change_reminder():
             if not avatar or not avatar.startswith('http') or not '.' in avatar:
                 avatar = None
 
-        if not (0 < int(new_time) < time.time() + MAX_TIME):
+        if not (0 < new_time < time.time() + MAX_TIME):
             flash('Error setting reminder (time is too long)')
 
         elif new_msg is not None and (new_channel == member.dm_channel or new_channel in [x.channel for x in guild.channels]):
@@ -199,31 +215,40 @@ def change_reminder():
 
                 else:
                     webhook = None
+                        
+                if current_reminder is None:
 
-                reminder = Reminder(
-                    message=new_msg,
-                    time=int(new_time),
-                    channel=int(new_channel),
-                    embed=embed,
-                    method='dashboard',
-                    webhook=webhook,
-                    username=username,
-                    avatar=avatar,
-                    enabled=enabled,
-                    interval=new_interval)
+                    reminder = Reminder(
+                        message=new_msg,
+                        time=new_time,
+                        channel=new_channel,
+                        embed=embed,
+                        method='dashboard',
+                        webhook=webhook,
+                        username=username,
+                        avatar=avatar,
+                        enabled=True,
+                        interval=new_interval)
 
-                db.session.add(reminder)
+                    db.session.add(reminder)
+
+                else:
+                    current_reminder.message = new_msg
+                    current_reminder.time = new_time
+                    current_reminder.channel = new_channel
+                    current_reminder.embed = embed
+                    current_reminder.webhook = webhook
+                    current_reminder.username = username
+                    current_reminder.avatar = avatar
+                    current_reminder.enabled = enabled
+                    current_reminder.interval = new_interval
 
                 db.session.commit()
 
         elif new_channel not in [x.channel for x in guild.channels]:
             flash('Error setting reminder (channel not found)')
 
-        if request.args.get('redirect'):
-            return redirect(url_for('dashboard', id=request.args.get('redirect')))
-        
-        else:
-            return redirect(url_for('dashboard'))
+        return end()
 
 
 @app.route('/cache/', methods=['GET'])

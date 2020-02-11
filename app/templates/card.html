@@ -1,6 +1,6 @@
 <div class="col-md-12 col-lg-4">
     <div class="card box box-body">
-        <form method="post" action="{{ url_for('change_reminder', redirect=server.guild or 0, index=reminder.uid) }}" id="form{{ reminder.uid }}" autocomplete="off">
+        <form method="POST" action="{{ url_for('change_reminder', redirect=server.guild or 0, reminder=reminder.uid) }}" id="form{{ reminder.uid }}" autocomplete="off">
             <div class="card-header">
                 <h4><strong>Reminder</strong></h4>
             </div>
@@ -25,7 +25,7 @@
                         </div>
                         <div class="dropdown">
                             <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                Mention... (hint: use a double @ to get roles)
+                                Mention... (tip: use a double @ to get roles)
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdown-mention" id="dropdown-mention{{ reminder.uid }}" style="max-height: 40vh; overflow-y: scroll;">
