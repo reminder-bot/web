@@ -25,11 +25,11 @@ class Color():
             return Color(failed=True)
 
         else:
-            if 0 < color_hex < 0xFFFFFF:
-                return Color(failed=True)
+            if 0 <= color_hex <= 0xFFFFFF:
+                return Color(color=color_hex)
 
             else:
-                return Color(color=color_hex)
+                return Color(failed=True)
 
 
 @app.errorhandler(500)

@@ -31,6 +31,13 @@ class Reminder(db.Model):
 
         return full
 
+    def hex_color(self):
+        if self.embed is None:
+            return
+
+        else:
+            return hex(self.embed)[2:]
+
 
 class Guild(db.Model):
     __tablename__ = 'guilds'
