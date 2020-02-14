@@ -171,14 +171,12 @@ def change_reminder():
         new_interval = None
         embed = None
         avatar = "https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg"
-        username = None
 
         enabled = 'on' in request.form.getlist('enabled') or request.form.get('enabled') is None
 
-        username = request.form.get('username')
-        if username is not None:
-            if not (0 < len(username) <= 32):
-                username = None
+        username = request.form.get('username') or 'Reminder'
+        if not (0 < len(username) <= 32):
+            username = 'Reminder'
 
         if member.patreon:
             try:
