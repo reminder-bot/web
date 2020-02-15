@@ -114,9 +114,9 @@
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 {% if reminder.interval != None %}
-                                    <input type="number" class="form-control pull-left" id="interval_{{ reminder.uid }}" name="interval" value="{{ reminder.interval }}" style="width: 65%"></input>
+                                    <input type="number" class="form-control pull-left" id="interval_{{ reminder.uid }}" name="interval_new" value="{{ reminder.interval }}" style="width: 65%"></input>
 
-                                    <select id="multiplier_{{ reminder.uid }}" name="multiplier" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
+                                    <select id="multiplier_{{ reminder.uid }}" name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
                                         <option value="1" onclick="change_multiplier{{ reminder.uid }}()" selected>seconds</option>
                                         <option value="60" onclick="change_multiplier{{ reminder.uid }}()">minutes</option>
                                         <option value="3600" onclick="change_multiplier{{ reminder.uid }}()">hours</option>
