@@ -1,8 +1,9 @@
 <div class="col-md-12 col-lg-4" style="
 -webkit-box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);
 -moz-box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);
-box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);">
-    <div class="card box box-body">
+box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);
+padding: 0;">
+    <div class="card box box-body" style="margin: 0;">
         <form method="POST" action="{{ url_for('change_reminder', redirect=server.guild or 0) }}" id="form" autocomplete="off">
             <div class="card-header">
                 <h4><strong>Add Reminder</strong></h4>
@@ -13,13 +14,13 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);">
                 </div>
 
                 <div class="form-group">
-                    <label>Message:</label>
+                    <label for="input-message">Message:</label>
                     <div class="input-group">
                         <div class="input-group-addon">
                             <i class="fa fa-envelope"></i>
                         </div>
 
-                        <textarea type="text" name="message_new" class="form-control pull-right" maxlength="2000" id="input-message" required></textarea>
+                        <textarea name="message_new" class="form-control pull-right" maxlength="2000" id="input-message" required></textarea>
 
                     </div>
                     <div class="input-group" id="mention-input" style="visibility: hidden;">
@@ -58,12 +59,12 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);">
                     </div>
 
                     <div class="form-group">
-                        <label>Username (optional):</label>
+                        <label for="username">Username (optional):</label>
                         <div class="input-group">
                             <div class="input-group-addon">
                                 <i class="fas fa-file-signature"></i>
                             </div>
-                            <input type="text" class="form-control pull-right" name="username" maxlength="32" value=""></input>
+                            <input type="text" class="form-control pull-right" id="username" name="username" maxlength="32" value="" />
                         </div>
                     </div>
 
@@ -71,32 +72,32 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);">
                     <input type="text" name="channel_new" value="{{ member.dm_channel }}" id="input-channel" hidden required>
                 {% endif %}
 
-                <input name="time_new" value="0" id="time_new" hidden></input>
+                <input name="time_new" value="0" id="time_new" hidden />
 
                 <!-- DATE -->
+                <label for="datepicker">Time:</label>
+
                 <div class="form-group">
-                    <label>Date:</label>
-                    <div class="input-group date">
-                        <div class="input-group-addon">
-                            <i class="fa fa-calendar"></i>
-                        </div>
-                        <input type="text" class="form-control pull-right" id="datepicker" name="date"></input>
-                    </div>
-                    <!-- /.input group -->
-                </div>
-                <!-- TIME -->
-                <div class="bootstrap-timepicker">
-                    <div class="form-group">
-                        <label>Time:</label>
-                        <div class="input-group">
+
+                    <div class="col-5" style="display: inline-flex;">
+                        <div class="input-group date">
                             <div class="input-group-addon">
-                                <i class="fas fa-clock"></i>
+                                <i class="fa fa-calendar"></i>
                             </div>
-                            <input type="text" class="form-control timepicker" id="timepicker" name="time"></input>
+
+                            <input type="text" class="form-control" id="datepicker" name="date" />
                         </div>
-                        <!-- /.input group -->
                     </div>
-                    <!-- /.form group -->
+
+                    <div class="bootstrap-timepicker col-5" style="display: inline-flex;">
+                        <div class="input-group">
+
+                            <input type="text" class="form-control timepicker" id="timepicker" name="time" />
+
+                        </div>
+
+                    </div>
+
                 </div>
 
                 {% if member.patreon %}
@@ -108,7 +109,7 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);">
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 
-                                <input type="number" class="form-control pull-left" name="interval_new" value="" style="width: 75%;"></input>
+                                <input type="number" class="form-control pull-left" name="interval_new" value="" style="width: 75%;" />
 
                                 <select name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
                                     <option value="1" selected>seconds</option>
@@ -129,7 +130,7 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);">
                                     type="checkbox" 
                                     id="checkb"
                                     name="embed" 
-                                    onclick="toggle_colorpicker()" ></input> Send as Embed?</label>
+                                    onclick="toggle_colorpicker()" /> Send as Embed?</label>
                             </div>
                         </div>
 
@@ -141,7 +142,7 @@ box-shadow: 10px 10px 18px 1px rgba(0,0,0,0.75);">
                                         <i class="fas fa-palette"></i>
                                     </div>
                                     <div id="cp" class="input-group colorpicker-component">
-                                        <input type="text" class="form-control" name="color"></input>
+                                        <input type="text" class="form-control" name="color" />
                                         <span class="input-group-addon"><i></i></span>
                                     </div>
                                 </div>
@@ -172,12 +173,12 @@ toggle_colorpicker();
                         </script>
 
                         <div class="form-group">
-                            <label>Avatar:</label>
+                            <label for="avatar">Avatar:</label>
                             <div class="input-group">
                                 <div class="input-group-addon">
                                     <i class="fas fa-camera"></i>
                                 </div>
-                                <input type="text" class="form-control pull-right" name="avatar" value=""></input>
+                                <input type="text" class="form-control pull-right" id="avatar" name="avatar" value="" />
                             </div>
                         </div>
                     {% endif %}
@@ -187,15 +188,15 @@ toggle_colorpicker();
 
 function update_time()
 {
-    t_time = document.getElementById("timepicker");
-    d_time = document.getElementById("datepicker");
+    let t_time = document.getElementById("timepicker");
+    let d_time = document.getElementById("datepicker");
 
-    m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A');
+    let m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A');
 
     document.getElementById("time_new").value = m.unix();
 }
 
-current = moment.unix({{ time }});
+let current = moment.unix({{ time }});
 
 //Date picker
 $('#datepicker').datepicker({
