@@ -1,58 +1,61 @@
 {% extends "base.html" %}
 {% block content %}
 
-        <div class="container-fluid">
+    <div class="container-fluid">
 
-            <div class="row">
+        <div class="row">
 
-                <div class="col-md-1 col-lg-3 d-none d-md-block">
-                    <!-- padding block -->
+            <div class="col-md-1 col-lg-3 d-none d-md-block">
+                <!-- padding block -->
+            </div>
+
+            <div class="col-sm-12 col-md-10 col-lg-6">
+
+                <h1 class="display-3 text-dark text-center" style="margin-top: 6rem;">Reminder Bot Help</h1>
+
+                <div class="d-flex justify-content-center">
+                    <img src="{{ logo }}" class="rounded-circle" style="width: 18vw; height: 18vw; margin: 2rem;" alt="Reminder Bot Logo">
                 </div>
 
-                <div class="col-sm-12 col-md-10 col-lg-6">
-
-                    <h1 class="display-3 text-dark text-center" style="margin-top: 6rem;">Reminder Bot Help</h1>
-
-                    <div class="d-flex justify-content-center">
-                        <img src="{{ logo }}" class="rounded-circle" style="width: 18vw; height: 18vw; margin: 2rem;"></img>
-                    </div>
-
-                    <h2 class="font-weight-light text-secondary">Notices</h2><a href="javascript:document.getElementById('jump').scrollIntoView()">jump</a>
+                <h2 class="font-weight-light text-secondary">Notices</h2><a href="javascript:document.getElementById('jump').scrollIntoView()">jump</a>
+                <hr>
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Vote for Reminder Bot!</h4>
+                    <p>Head to <a href="https://discordbots.org/bot/349920059549941761/vote">discordbots.org</a> and vote for Reminder Bot! Votes help expand the Reminder Bot userbase and improve the bot.</p>
                     <hr>
-                    <div class="alert alert-success" role="alert">
-                        <h4 class="alert-heading">Vote for Reminder Bot!</h4>
-                        <p>Head to <a href="https://discordbots.org/bot/349920059549941761/vote">discordbots.org</a> and vote for Reminder Bot! Votes help expand the Reminder Bot userbase and improve the bot.</p>
-                        <hr>
-                        <p>You can vote <strong>once every 24 hours</strong></p>
-                    </div>
-
-                    <div class="alert alert-primary" role="alert">
-                        <h4 class="alert-heading">Dashboard</h4>
-                        <p>Have you tried out the <a href="{{ url_for('dashboard') }}">online dashboard?</a></p>
-                    </div>
-
-                    <div class="alert alert-info" role="alert">
-                        <h4 class="alert-heading">Advertise with Reminder Bot</h4>
-                        <p>Our site attracts thousands of unique visitors each month. <a href="mailto:judewrs@gmail.com">Email me</a> about affordable advertising slots</p>
-                    </div>
-
-                    <div id="jump"></div>
-                    {% for category, items in help %}
-                        <hr>
-                        <h2 class="font-weight-light text-secondary" style="margin-top: 2rem;">{{ category }}</h2>
-
-                        {% for item, description in items.items() %}
-                            <h4><code>{{ item }}</code></h4>
-
-                            <div class="lead" style="margin-left: 10%; margin-bottom: 2rem;">
-                                {{ description | safe }}
-                            </div>
-
-                        {% endfor %}
-                    {% endfor %}
-
+                    <p>You can vote <strong>once every 24 hours</strong></p>
                 </div>
+
+                <div class="alert alert-primary" role="alert">
+                    <h4 class="alert-heading">Dashboard</h4>
+                    <p>Have you tried out the <a href="{{ url_for('dashboard') }}">online dashboard?</a></p>
+                </div>
+
+                <div class="alert alert-info" role="alert">
+                    <h4 class="alert-heading">Advertise with Reminder Bot</h4>
+                    <p>Our site attracts thousands of unique visitors each month. <a href="mailto:judewrs@gmail.com">Email me</a> about affordable advertising slots</p>
+                </div>
+
+                <div id="jump"></div>
+
+                {% for category, items in help %}
+                    <hr>
+                    <h2 class="font-weight-light text-secondary" style="margin-top: 2rem;">{{ category }}</h2>
+
+                    {% for item, description in items.items() %}
+                        <h4><code>{{ item }}</code></h4>
+
+                        <div class="lead" style="margin-left: 10%; margin-bottom: 2rem;">
+                            {{ description | safe }}
+                        </div>
+
+                    {% endfor %}
+                {% endfor %}
 
             </div>
+
+        </div>
+
+    </div>
 
 {% endblock %}
