@@ -40,7 +40,7 @@ def internal_error(_error):
 
 @app.route('/')
 def index():
-    return redirect(url_for('help'))
+    return redirect(url_for('help_page'))
 
 
 @app.route('/help/')
@@ -51,7 +51,7 @@ def help_page():
     lang = lang.upper()
 
     if lang not in all_langs:
-        return redirect(url_for('help'))
+        return redirect(url_for('help_page'))
 
     with io.open('{}languages/strings_{}.py'.format(app.config['BASE_URI'], lang), 'r', encoding='utf8') as f:
         s = eval(f.read())
