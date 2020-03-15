@@ -69,7 +69,7 @@ padding: 0;">
                     </div>
 
                 {% else %}
-                    <input type="text" name="channel_new" value="{{ member.dm_channel }}" id="input-channel" hidden required>
+                    <input type="text" name="channel_new" value="{{ member.dm_channel }}" id="input-channel" hidden required />
                 {% endif %}
 
                 <input name="time_new" value="0" id="time_new" hidden />
@@ -85,12 +85,16 @@ padding: 0;">
                                 <i class="fa fa-calendar"></i>
                             </div>
 
+                            <label for="datepicker" class="sr-only">New Reminder Date</label>
+
                             <input type="text" class="form-control" id="datepicker" name="date" />
                         </div>
                     </div>
 
                     <div class="bootstrap-timepicker col-5" style="display: inline-flex;">
                         <div class="input-group">
+
+                            <label for="timepicker" class="sr-only">New Reminder Time</label>
 
                             <input type="text" class="form-control timepicker" id="timepicker" name="time" />
 

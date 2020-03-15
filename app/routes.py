@@ -44,7 +44,7 @@ def index():
 
 
 @app.route('/help/')
-def help():
+def help_page():
     all_langs = sorted([s[-5:-3] for s in os.listdir(app.config['BASE_URI'] + 'languages') if s.startswith('strings_')])
 
     lang = request.args.get('lang') or 'EN'

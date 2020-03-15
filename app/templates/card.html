@@ -10,13 +10,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Message:</label>
+                    <label for="input-message{{ reminder.uid }}">Message:</label>
                     <div class="input-group">
                         <div class="input-group-addon">
                             <i class="fa fa-envelope"></i>
                         </div>
 
-                        <textarea type="text" name="message_new" class="form-control pull-right" maxlength="2000" id="input-message{{ reminder.uid }}" required>{{ reminder.message }}</textarea>
+                        <textarea name="message_new" class="form-control pull-right" maxlength="2000" id="input-message{{ reminder.uid }}" required>{{ reminder.message }}</textarea>
 
                     </div>
                     <div class="input-group" id="mention-input{{ reminder.uid }}" style="visibility: hidden;">
@@ -38,13 +38,13 @@
                 <!-- CHANNEL -->
                 {% if server != None %}
                     <div class="form-group">
-                        <label>Channel:</label>
+                        <label for="channel{{ reminder.uid }}">Channel:</label>
                         <div class="input-group">
                             <div class="input-group-addon">
                                 <i class="fas fa-comment-alt"></i>
                             </div>
                             <div class="dropdown">
-                                <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;">
+                                <select name="channel_new" id="channel{{ reminder.uid }}" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;">
                                     <option value="{{ reminder.channel }}" selected>{{ reminder.channel_name }} (current)</option>
                                     {% for channel in guild.channels %}
                                         <option value="{{ channel.channel }}">{{ channel.name }}</option>
@@ -56,53 +56,56 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Username (optional):</label>
+                        <label for="username{{ reminder.uid }}">Username (optional):</label>
                         <div class="input-group">
                             <div class="input-group-addon">
                                 <i class="fas fa-file-signature"></i>
                             </div>
-                            <input type="text" class="form-control pull-right" name="username" maxlength="32" value="{{ reminder.username }}"></input>
+                            <input type="text" class="form-control pull-right" id="username{{ reminder.uid }}" name="username" maxlength="32" value="{{ reminder.username }}" />
                         </div>
                     </div>
 
                 {% else %}
-                    <input type="text" name="channel_new" value="{{ member.dm_channel }}" id="input-channel" hidden required>
+                    <input type="text" name="channel_new" value="{{ member.dm_channel }}" id="input-channel" hidden required />
                 {% endif %}
 
-                <input name="time_new" value="0" id="time_new{{ reminder.uid }}" hidden></input>
+                <input name="time_new" value="0" id="time_new{{ reminder.uid }}" hidden />
 
-                <!-- DATE -->
+                <label for="datepicker{{ reminder.uid }}">Time:</label>
+
                 <div class="form-group">
-                    <label>Date:</label>
-                    <div class="input-group date">
-                        <div class="input-group-addon">
-                            <i class="fa fa-calendar"></i>
-                        </div>
-                        <input type="text" class="form-control pull-right" id="datepicker{{ reminder.uid }}" name="date"></input>
-                    </div>
-                    <!-- /.input group -->
-                </div>
-                <!-- TIME -->
-                <div class="bootstrap-timepicker">
-                    <div class="form-group">
-                        <label>Time:</label>
-                        <div class="input-group">
+
+                    <div class="col-5" style="display: inline-flex;">
+                        <div class="input-group date">
                             <div class="input-group-addon">
-                                <i class="fas fa-clock"></i>
+                                <i class="fa fa-calendar"></i>
                             </div>
-                            <input type="text" class="form-control timepicker" id="timepicker{{ reminder.uid }}" name="time"></input>
+
+                            <label for="datepicker{{ reminder.uid }}" class="sr-only">Reminder Date</label>
+
+                            <input type="text" class="form-control" id="datepicker{{ reminder.uid }}" name="date" />
                         </div>
-                        <!-- /.input group -->
                     </div>
-                    <!-- /.form group -->
+
+                    <div class="bootstrap-timepicker col-5" style="display: inline-flex;">
+                        <div class="input-group">
+
+                            <label for="timepicker{{ reminder.uid }}" class="sr-only">Reminder Time</label>
+
+                            <input type="text" class="form-control timepicker" id="timepicker{{ reminder.uid }}" name="time" />
+
+                        </div>
+
+                    </div>
+
                 </div>
 
                 {% if member.patreon %}
-                    <input type="hidden" value="0" name="enabled"></input>
+                    <input type="hidden" value="0" name="enabled" />
 
                     <div class="form-group">
                         <div class="checkbox">
-                            <label><input type="checkbox" name="enabled" {{ 'checked' if reminder.enabled }}></input>Enabled?</label>
+                            <label><input type="checkbox" name="enabled" {{ 'checked' if reminder.enabled }} />Enabled?</label>
                         </div>
                     </div>
 
@@ -114,7 +117,7 @@
                                     <i class="fas fa-clock"></i>
                                 </div>
                                 {% if reminder.interval != None %}
-                                    <input type="number" class="form-control pull-left" id="interval_{{ reminder.uid }}" name="interval_new" value="{{ reminder.interval }}" style="width: 65%"></input>
+                                    <input type="number" class="form-control pull-left" id="interval_{{ reminder.uid }}" name="interval_new" value="{{ reminder.interval }}" style="width: 65%" />
 
                                     <select id="multiplier_{{ reminder.uid }}" name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
                                         <option value="1" onclick="change_multiplier{{ reminder.uid }}()" selected>seconds</option>
@@ -127,10 +130,10 @@
 
                                     <script>
 
-var before{{ reminder.uid }} = 1;
+let before{{ reminder.uid }} = 1;
 
 function change_multiplier{{ reminder.uid }}() {
-    var e = document.getElementById('multiplier_{{ reminder.uid }}').value;
+    let e = document.getElementById('multiplier_{{ reminder.uid }}').value;
 
     document.getElementById('interval_{{ reminder.uid }}').value *= before{{ reminder.uid }} / e;
 
@@ -139,7 +142,7 @@ function change_multiplier{{ reminder.uid }}() {
 
                                     </script>
                                 {% else %}
-                                    <input type="number" class="form-control pull-left" name="interval_new" value="" style="width: 75%;"></input>
+                                    <input type="number" class="form-control pull-left" name="interval_new" value="" style="width: 75%;" />
 
                                     <select name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
                                         <option value="1" selected>seconds</option>
@@ -162,7 +165,7 @@ function change_multiplier{{ reminder.uid }}() {
                                     id="checkb{{ reminder.uid }}"
                                     name="embed" 
                                     onclick="toggle_colorpicker{{ reminder.uid }}()" 
-                                    {{ 'checked' if reminder.embed != None }}></input> Send as Embed?</label>
+                                    {{ 'checked' if reminder.embed != None }} /> Send as Embed?</label>
                             </div>
                         </div>
 
