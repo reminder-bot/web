@@ -263,40 +263,39 @@ document.getElementById("input-message").addEventListener("input", m);
 
 {% endif %}
 
-/*
-$(window).on('load', function() {
-    'use strict';
-
-    $('.cp').colorpicker({'format': 'hex'});
-    
-    $('.checkb').on('click', function() {
-        
-    });
-
-});
-*/
-
-function send_delete(index)
+function send_delete(reminder)
 {
-    var xhttp = new XMLHttpRequest();
+    let xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            location.reload(true);
+        if (this.readyState === 4 && this.status === 200) {
+            location.reload();
         }
     };
-    xhttp.open("GET", "{{ url_for('delete') }}" + "?index=" + index, true);
+    xhttp.open("GET", "{{ url_for('delete') }}" + "?index=" + reminder, true);
     xhttp.send();
 }
 
 function send_delete_i(reminder, interval)
 {
-    var xhttp = new XMLHttpRequest();
+    let xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            location.reload(true);
+        if (this.readyState === 4 && this.status === 200) {
+            location.reload();
         }
     };
     xhttp.open("GET", "{{ url_for('delete_interval') }}" + "?reminder=" + reminder + "&interval=" + interval, true);
+    xhttp.send();
+}
+
+function toggle_enabled(reminder)
+{
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            location.reload();
+        }
+    };
+    xhttp.open("GET", "{{ url_for('toggle_enabled') }}" + "?reminder=" + reminder, true);
     xhttp.send();
 }
 

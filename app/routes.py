@@ -88,6 +88,17 @@ def delete_interval():
     r = Reminder.query.filter(Reminder.uid == request.args.get('reminder')).first()
 
     r.interval = None
+    r.enabled = True
+
+    db.session.commit()
+
+    return '', 200
+
+
+@app.route('/toggle_enabled', strict_slashes=False)
+def toggle_enabled():
+    reminder = Reminder.query.filter(Reminder.uid == request.args.get('reminder')).first()
+    reminder.enabled = not reminder.enabled
 
     db.session.commit()
 
@@ -172,8 +183,6 @@ def change_reminder():
         embed = None
         avatar = "https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg"
 
-        enabled = 'on' in request.form.getlist('enabled') or request.form.get('enabled') is None
-
         username = request.form.get('username') or 'Reminder'
         if not (0 < len(username) <= 32):
             username = 'Reminder'
@@ -193,7 +202,7 @@ def change_reminder():
                     print('Failed to decode color of "{}". Discarding'.format(request.form.get('color')))
 
             avatar = request.form.get('avatar')
-            if not avatar or not avatar.startswith('http') or not '.' in avatar:
+            if not avatar or not avatar.startswith('http'):
                 avatar = None
 
         if not (0 < new_time < time.time() + MAX_TIME):
@@ -239,7 +248,6 @@ def change_reminder():
                     current_reminder.webhook = webhook
                     current_reminder.username = username
                     current_reminder.avatar = avatar
-                    current_reminder.enabled = enabled
                     current_reminder.interval = new_interval
 
                 db.session.commit()

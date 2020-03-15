@@ -1,5 +1,8 @@
 <div class="col-md-12 col-lg-4">
-    <div class="card box box-body">
+    <div class="card box box-body"
+        {% if not reminder.enabled %}
+            style="opacity: 0.5"
+        {% endif %}>
         <form method="POST" action="{{ url_for('change_reminder', redirect=server.guild or 0, reminder=reminder.uid) }}" id="form{{ reminder.uid }}" autocomplete="off">
             <div class="card-header">
                 <h4><strong>Reminder</strong></h4>
@@ -101,13 +104,6 @@
                 </div>
 
                 {% if member.patreon %}
-                    <input type="hidden" value="0" name="enabled" />
-
-                    <div class="form-group">
-                        <div class="checkbox">
-                            <label><input type="checkbox" name="enabled" {{ 'checked' if reminder.enabled }} />Enabled?</label>
-                        </div>
-                    </div>
 
                     <div class="bootstrap-timepicker">
                         <div class="form-group">
@@ -158,27 +154,32 @@ function change_multiplier{{ reminder.uid }}() {
                     </div>
 
                     {% if server != None %}
-                        <div class="form-group">
-                            <div class="checkbox">
-                                <label><input 
-                                    type="checkbox" 
-                                    id="checkb{{ reminder.uid }}"
-                                    name="embed" 
-                                    onclick="toggle_colorpicker{{ reminder.uid }}()" 
-                                    {{ 'checked' if reminder.embed != None }} /> Send as Embed?</label>
-                            </div>
-                        </div>
 
                         <div class="colorpicker-component" id="colorpicker{{ reminder.uid }}">
                             <div class="form-group">
-                                <label>Embed Color:</label>
+                                <label>Embed:</label>
                                 <div class="input-group">
                                     <div class="input-group-addon">
                                         <i class="fas fa-palette"></i>
                                     </div>
+                                    <div class="input-group-addon">
+                                        <input type="checkbox" id="checkb{{ reminder.uid }}" name="embed" {{ 'checked' if reminder.embed != None }} />
+                                    </div>
                                     <div id="cp{{ reminder.uid }}" class="input-group colorpicker-component">
-                                        <input type="text" value="#{{ reminder.hex_color() }}" class="form-control" name="color"></input>
-                                        <span class="input-group-addon"><i></i></span>
+
+                                        {% if reminder.embed != None %}
+                                            <input type="text" value="#{{ reminder.hex_color() }}" class="form-control" name="color" />
+                                        {% else %}
+                                            <input type="text" class="form-control" name="color" />
+                                        {% endif %}
+
+                                        <span class="input-group-addon">
+                                            {% if reminder.embed != None %}
+                                                <i></i>
+                                            {% else %}
+                                                <i class="fas fa-eye-dropper"></i>
+                                            {% endif %}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -190,21 +191,6 @@ $(function() {
     $('#cp{{ reminder.uid }}').colorpicker({"format": "hex"});
 });
 
-function toggle_colorpicker{{ reminder.uid }}()
-{
-    check = document.getElementById("checkb{{ reminder.uid }}");
-    if (check.checked)
-    {
-        document.getElementById("colorpicker{{ reminder.uid }}").style.opacity = 1;
-    }
-    else
-    {
-        document.getElementById("colorpicker{{ reminder.uid }}").style.opacity = 0;
-    }
-}
-
-toggle_colorpicker{{ reminder.uid }}();
-
                         </script>
 
                         <div class="form-group">
@@ -213,7 +199,7 @@ toggle_colorpicker{{ reminder.uid }}();
                                 <div class="input-group-addon">
                                     <i class="fas fa-camera"></i>
                                 </div>
-                                <input type="text" class="form-control pull-right" name="avatar" value="{{ reminder.avatar }}"></input>
+                                <input type="text" class="form-control pull-right" name="avatar" value="{{ reminder.avatar }}" />
                             </div>
                         </div>
                     {% endif %}
@@ -257,6 +243,19 @@ update_time();
 
                 <div class="card-footer">
                     <button type="submit" class="btn btn-success">Save Changes</button>
+
+                    {% if reminder.interval != None %}
+                        <button type="button" class="btn btn-warning" onclick="toggle_enabled('{{ reminder.uid }}')">
+
+                            {% if reminder.enabled %}
+                                Disable
+                            {% else %}
+                                Enable
+                            {% endif %}
+
+                        </button>
+                    {% endif %}
+
                     <button type="button" onclick="send_delete('{{ reminder.uid }}')" class="btn btn-danger">Delete</button>
                 </div>
             </div>
