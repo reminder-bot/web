@@ -1,25 +1,46 @@
 from app import db
 import secrets
 
+
+class Embed(db.Model):
+    __tablename__ = 'embeds'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(db.String(256), nullable=False, default='')
+    description = db.Column(db.String(2048), nullable=False, default='')
+    color = db.Column(db.Integer, nullable=False, default=0x0)
+
+
+class Message(db.Model):
+    __tablename__ = 'messages'
+
+    content = db.Column(db.String(2048), nullable=False, default='')
+    embed = db.Column(db.Integer, db.ForeignKey(Embed.id))
+
+
 class Reminder(db.Model):
     __tablename__ = 'reminders'
 
-    id = db.Column( db.Integer, primary_key=True, unique=True )
-    uid = db.Column( db.String(64), unique=True, default=lambda: Reminder.create_uid() )
+    id = db.Column(db.Integer, primary_key=True, unique=True)
+    uid = db.Column(db.String(64), unique=True, default=lambda: Reminder.create_uid())
 
-    message = db.Column( db.String(2000) )
-    channel = db.Column( db.BigInteger )
-    time = db.Column( db.BigInteger )
-    enabled = db.Column( db.Boolean, nullable=False, default=True )
+    message_id = db.Column(db.Integer, db.ForeignKey(Message.id), nullable=False)
+    message = db.relationship(Message)
 
-    webhook = db.Column( db.String(256) )
-    avatar = db.Column( db.String(512), default="https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg", nullable=False )
-    username = db.Column( db.String(32), default="Reminder", nullable=False )
+    channel = db.Column(db.BigInteger)
+    time = db.Column(db.BigInteger)
+    enabled = db.Column(db.Boolean, nullable=False, default=True)
 
-    method = db.Column( db.String(9) )
-    embed = db.Column( db.Integer, nullable=True )
+    webhook = db.Column(db.String(256))
+    avatar = db.Column(db.String(512),
+                       default='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg',
+                       nullable=False)
+    username = db.Column(db.String(32), default='Reminder', nullable=False)
 
-    interval = db.Column( db.Integer )
+    method = db.Column(db.String(9))
+
+    interval = db.Column(db.Integer)
 
     channel_name = 'unknown'
 
@@ -42,48 +63,49 @@ class Reminder(db.Model):
 class Guild(db.Model):
     __tablename__ = 'guilds'
 
-    guild = db.Column( db.BigInteger, primary_key=True, autoincrement=False )
-    prefix = db.Column( db.String(5), default="$", nullable=False )
-    timezone = db.Column( db.String(30), default="UTC", nullable=False )
+    guild = db.Column(db.BigInteger, primary_key=True, autoincrement=False)
+    prefix = db.Column(db.String(5), default="$", nullable=False)
+    timezone = db.Column(db.String(30), default="UTC", nullable=False)
 
 
 # CACHING MODELS
 guild_users = db.Table('guild_users',
-    db.Column('guild', db.BigInteger, db.ForeignKey('guild_cache.guild')),
-    db.Column('user', db.BigInteger, db.ForeignKey('user_cache.user')),
-)
+                       db.Column('guild', db.BigInteger, db.ForeignKey('guild_cache.guild')),
+                       db.Column('user', db.BigInteger, db.ForeignKey('user_cache.user')),
+                       )
 
 guild_partials = db.Table('guild_partials',
-    db.Column('guild', db.BigInteger, db.ForeignKey('guild_cache.guild')),
-    db.Column('user', db.BigInteger, db.ForeignKey('partial_cache.user')),
-)
+                          db.Column('guild', db.BigInteger, db.ForeignKey('guild_cache.guild')),
+                          db.Column('user', db.BigInteger, db.ForeignKey('partial_cache.user')),
+                          )
+
 
 class User(db.Model):
     __tablename__ = 'user_cache'
 
-    id = db.Column( db.Integer, primary_key=True )
-    user = db.Column( db.BigInteger, unique=True )
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.BigInteger, unique=True)
 
-    patreon = db.Column( db.Boolean, nullable=False, default=False )
-    dm_channel = db.Column( db.BigInteger )
-    name = db.Column( db.String(64) )
+    patreon = db.Column(db.Boolean, nullable=False, default=False)
+    dm_channel = db.Column(db.BigInteger)
+    name = db.Column(db.String(64))
 
 
 class PartialMember(db.Model):
     __tablename__ = 'partial_cache'
 
-    id = db.Column( db.Integer, primary_key=True )
-    user = db.Column( db.BigInteger, unique=True )
-    name = db.Column( db.String(64) )
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.BigInteger, unique=True)
+    name = db.Column(db.String(64))
 
 
 class GuildData(db.Model):
     __tablename__ = 'guild_cache'
 
-    id = db.Column( db.Integer, primary_key=True )
-    guild = db.Column( db.BigInteger, unique=True )
+    id = db.Column(db.Integer, primary_key=True)
+    guild = db.Column(db.BigInteger, unique=True)
 
-    name = db.Column( db.Text )
+    name = db.Column(db.Text)
 
     channels = db.relationship('ChannelData', backref='g', lazy='dynamic')
     roles = db.relationship('RoleData', backref='g', lazy='dynamic')
@@ -105,18 +127,18 @@ class GuildData(db.Model):
 class RoleData(db.Model):
     __tablename__ = 'role_cache'
 
-    id = db.Column( db.Integer, primary_key=True )
-    role = db.Column( db.BigInteger, unique=True )
-    guild = db.Column( db.BigInteger, db.ForeignKey('guild_cache.guild') )
+    id = db.Column(db.Integer, primary_key=True)
+    role = db.Column(db.BigInteger, unique=True)
+    guild = db.Column(db.BigInteger, db.ForeignKey('guild_cache.guild'))
 
-    name = db.Column( db.Text )
+    name = db.Column(db.Text)
 
 
 class ChannelData(db.Model):
     __tablename__ = 'channel_cache'
 
-    id = db.Column( db.Integer, primary_key=True )
-    channel = db.Column( db.BigInteger, unique=True )
-    guild = db.Column( db.BigInteger, db.ForeignKey('guild_cache.guild') )
+    id = db.Column(db.Integer, primary_key=True)
+    channel = db.Column(db.BigInteger, unique=True)
+    guild = db.Column(db.BigInteger, db.ForeignKey('guild_cache.guild'))
 
-    name = db.Column( db.Text )
+    name = db.Column(db.Text)

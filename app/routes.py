@@ -1,6 +1,6 @@
 from flask import redirect, render_template, request, url_for, session, flash
 from app import app, discord, db
-from app.models import Guild, Reminder, User, PartialMember, GuildData, ChannelData, RoleData
+from app.models import Guild, Reminder, User, PartialMember, GuildData, ChannelData, RoleData, Message, Embed
 from app.markdown import markdown_parse
 import os
 import io
@@ -226,11 +226,16 @@ def change_reminder():
 
                 if current_reminder is None:
 
+                    if embed is not None:
+                        m = Message(embed=Embed(description=new_msg, color=embed))
+
+                    else:
+                        m = Message(content=new_msg)
+
                     reminder = Reminder(
-                        message=new_msg,
+                        message=m,
                         time=new_time,
                         channel=new_channel,
-                        embed=embed,
                         method='dashboard',
                         webhook=webhook,
                         username=username,
@@ -280,7 +285,7 @@ def cache():
         else:
             return 0
 
-    def get_user_guilds(user: User) -> list:
+    def get_user_guilds() -> list:
 
         def form_cached_guild(data: dict) -> GuildData:
             guild_query = GuildData.query.filter(GuildData.guild == data['id'])
@@ -312,7 +317,7 @@ def cache():
 
     cached_user.patreon = check_user_patreon(cached_user) > 0
 
-    cached_user.guilds = get_user_guilds(cached_user)
+    cached_user.guilds = get_user_guilds()
 
     db.session.commit()
 
