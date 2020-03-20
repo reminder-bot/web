@@ -18,7 +18,8 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     content = db.Column(db.String(2048), nullable=False, default='')
-    embed = db.Column(db.Integer, db.ForeignKey(Embed.id))
+    embed_id = db.Column(db.Integer, db.ForeignKey(Embed.id))
+    embed = db.relationship(Embed)
 
 
 class Reminder(db.Model):
