@@ -487,3 +487,14 @@ def dashboard():
 
             else:
                 return redirect(url_for('cache'))
+
+
+@app.route('/ame/', methods=['GET', 'POST'])
+def advanced_message_editor():
+    if request.method == 'POST':
+
+        return render_template('advanced_message_editor.html')
+
+    elif request.method == 'GET':
+
+        return render_template('advanced_message_editor.html')

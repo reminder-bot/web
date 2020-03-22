@@ -56,11 +56,11 @@ class Reminder(db.Model):
         return full
 
     def hex_color(self):
-        if self.embed is None:
+        if self.message.embed is None:
             return
 
         else:
-            return hex(self.embed)[2:]
+            return hex(self.message.embed.color)[2:]
 
 
 class Guild(db.Model):
