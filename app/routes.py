@@ -246,7 +246,11 @@ def change_reminder():
                     db.session.add(reminder)
 
                 else:
-                    current_reminder.message = new_msg
+                    if embed is not None:
+                        current_reminder.message.embed.description = new_msg
+                    else:
+                        current_reminder.message.content = new_msg
+
                     current_reminder.time = new_time
                     current_reminder.channel = new_channel
                     current_reminder.embed = embed

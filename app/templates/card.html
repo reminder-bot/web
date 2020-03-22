@@ -19,7 +19,8 @@
                             <i class="fa fa-envelope"></i>
                         </div>
 
-                        <textarea name="message_new" class="form-control pull-right" maxlength="2000" id="input-message{{ reminder.uid }}" required>{{ reminder.message }}</textarea>
+                        <textarea name="message_new" class="form-control pull-right" maxlength="2000" id="input-message{{ reminder.uid }}" required>
+{{ reminder.message.content if reminder.message.content.__len__() > 0 else reminder.message.embed.description }}</textarea>
 
                     </div>
                     <div class="input-group" id="mention-input{{ reminder.uid }}" style="visibility: hidden;">
