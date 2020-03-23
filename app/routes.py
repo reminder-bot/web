@@ -247,13 +247,20 @@ def change_reminder():
 
                 else:
                     if embed is not None:
-                        current_reminder.message.embed.description = new_msg
+                        if current_reminder.message.embed is None:
+                            current_reminder.message.embed = Embed(description=new_msg)
+                            current_reminder.message.content = ''
+
+                        else:
+                            current_reminder.message.embed.description = new_msg
+                            current_reminder.message.content = ''
+
                     else:
+                        current_reminder.message.embed = None
                         current_reminder.message.content = new_msg
 
                     current_reminder.time = new_time
                     current_reminder.channel = new_channel
-                    current_reminder.embed = embed
                     current_reminder.webhook = webhook
                     current_reminder.username = username
                     current_reminder.avatar = avatar
@@ -312,20 +319,24 @@ def cache():
 
         return cached_guilds
 
-    user: dict = discord.get('api/users/@me').json()
+    if not discord.authorized:
+        return 'You must Authorize with Discord OAuth to use the web dashboard.'
 
-    session['user_id'] = user['id']
+    else:
+        user: dict = discord.get('api/users/@me').json()
 
-    user_query = User.query.filter(User.user == user['id'])
-    cached_user: User = user_query.first() or create_cached_user(user)
+        session['user_id'] = user['id']
 
-    cached_user.patreon = check_user_patreon(cached_user) > 0
+        user_query = User.query.filter(User.user == user['id'])
+        cached_user: User = user_query.first() or create_cached_user(user)
 
-    cached_user.guilds = get_user_guilds()
+        cached_user.patreon = check_user_patreon(cached_user) > 0
 
-    db.session.commit()
+        cached_user.guilds = get_user_guilds()
 
-    return redirect(url_for('dashboard'))
+        db.session.commit()
+
+        return redirect(url_for('dashboard'))
 
 
 @app.route('/dashboard/', methods=['GET'])
