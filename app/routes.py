@@ -215,7 +215,7 @@ def change_reminder():
                 flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
 
             elif new_interval is not None and not MIN_INTERVAL < new_interval < MAX_TIME:
-                flash('Error setting reminder (interval timer is out of bounds)')
+                flash('Error setting reminder (interval timer is out of range 800s < t < 50yr)')
 
             else:
                 if request.args.get('id') != '0':
@@ -502,10 +502,29 @@ def dashboard():
 
 @app.route('/ame/', methods=['GET', 'POST'])
 def advanced_message_editor():
-    if request.method == 'POST':
+    if request.method == 'GET':
 
-        return render_template('advanced_message_editor.html')
+        try:
+            user = discord.get('api/users/@me').json()
 
-    elif request.method == 'GET':
+        except:
+            return redirect(url_for('oauth'))
+
+        else:
+            user_id: int = user['id']  # get user id from oauth
+
+            member = User.query.filter(User.user == user_id).first()
+
+            if member is None:
+                return redirect(url_for('cache'))
+
+            else:
+                return render_template('advanced_message_editor.html',
+                                       guilds=member.guilds,
+                                       guild=None,
+                                       server=None,
+                                       member=member)
+
+    elif request.method == 'POST':
 
         return render_template('advanced_message_editor.html')

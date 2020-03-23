@@ -21,6 +21,9 @@ class Message(db.Model):
     embed_id = db.Column(db.Integer, db.ForeignKey(Embed.id))
     embed = db.relationship(Embed)
 
+    # determines if this should be deleted when the reminder goes off or not
+    on_demand = db.Column(db.Boolean, nullable=False, default=True)
+
 
 class Reminder(db.Model):
     __tablename__ = 'reminders'
