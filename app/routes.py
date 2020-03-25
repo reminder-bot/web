@@ -502,29 +502,44 @@ def dashboard():
 
 @app.route('/ame/', methods=['GET', 'POST'])
 def advanced_message_editor():
-    if request.method == 'GET':
+    try:
+        user = discord.get('api/users/@me').json()
 
-        try:
-            user = discord.get('api/users/@me').json()
+    except:
+        return redirect(url_for('oauth'))
 
-        except:
-            return redirect(url_for('oauth'))
+    else:
 
-        else:
-            user_id: int = user['id']  # get user id from oauth
+        user_id: int = user['id']  # get user id from oauth
 
-            member = User.query.filter(User.user == user_id).first()
+        member = User.query.filter(User.user == user_id).first()
 
-            if member is None:
-                return redirect(url_for('cache'))
+        if member is None:
+            return redirect(url_for('cache'))
+
+        # switch on request method
+        if request.method == 'GET':
+
+            return render_template('advanced_message_editor.html',
+                                   guilds=member.guilds,
+                                   guild=None,
+                                   server=None,
+                                   member=member)
+
+        elif request.method == 'POST':
+
+            field = request.form.get
+
+            if field('embedded') is not None:
+                e = Embed(
+                    title=field('embed_title'), description=field('embed_description'), color=field('embed_color'))
 
             else:
-                return render_template('advanced_message_editor.html',
-                                       guilds=member.guilds,
-                                       guild=None,
-                                       server=None,
-                                       member=member)
+                e = None
 
-    elif request.method == 'POST':
+            m = Message(content=field('message_content'), on_demand=False, owner_id=member.id, embed=e)
 
-        return render_template('advanced_message_editor.html')
+            db.session.add(m)
+            db.session.commit()
+
+            return redirect(url_for('advanced_message_editor'))

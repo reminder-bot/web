@@ -1,5 +1,17 @@
 from app import db
 import secrets
+from sqlalchemy.dialects.mysql import BIGINT
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.BigInteger, unique=True)
+
+    patreon = db.Column(db.Boolean, nullable=False, default=False)
+    dm_channel = db.Column(db.BigInteger)
+    name = db.Column(db.String(64))
 
 
 class Embed(db.Model):
@@ -23,6 +35,8 @@ class Message(db.Model):
 
     # determines if this should be deleted when the reminder goes off or not
     on_demand = db.Column(db.Boolean, nullable=False, default=True)
+
+    owner_id = db.Column(db.Integer, db.ForeignKey(User.id))
 
 
 class Reminder(db.Model):
@@ -77,24 +91,13 @@ class Guild(db.Model):
 # CACHING MODELS
 guild_users = db.Table('guild_users',
                        db.Column('guild', db.BigInteger, db.ForeignKey('guild_cache.guild')),
-                       db.Column('user', db.BigInteger, db.ForeignKey('user_cache.user')),
+                       db.Column('user', BIGINT(unsigned=True), db.ForeignKey('users.user')),
                        )
 
 guild_partials = db.Table('guild_partials',
                           db.Column('guild', db.BigInteger, db.ForeignKey('guild_cache.guild')),
                           db.Column('user', db.BigInteger, db.ForeignKey('partial_cache.user')),
                           )
-
-
-class User(db.Model):
-    __tablename__ = 'user_cache'
-
-    id = db.Column(db.Integer, primary_key=True)
-    user = db.Column(db.BigInteger, unique=True)
-
-    patreon = db.Column(db.Boolean, nullable=False, default=False)
-    dm_channel = db.Column(db.BigInteger)
-    name = db.Column(db.String(64))
 
 
 class PartialMember(db.Model):
