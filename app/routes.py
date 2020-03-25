@@ -524,7 +524,8 @@ def advanced_message_editor():
                                    guilds=member.guilds,
                                    guild=None,
                                    server=None,
-                                   member=member)
+                                   member=member,
+                                   messages=Message.query.filter(Message.owner_id == member.id))
 
         elif request.method == 'POST':
 

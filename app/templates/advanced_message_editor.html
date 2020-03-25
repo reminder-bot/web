@@ -36,73 +36,118 @@
                                     <label for="embedded">Attach Embed?</label>
                                 </div>
                                 <div class="input-group-addon">
-                                    <input type="checkbox" name="embedded" id="embedded" />
+                                    <input type="checkbox" name="embedded" id="embedded" onchange="embed_options_display()" />
                                 </div>
                             </div>
 
                         </div>
 
-                        <div class="colorpicker-component">
+                        <div id="embed_options" style="overflow: hidden;">
+                            <div class="colorpicker-component">
+                                <div class="form-group">
+                                    <label for="color">Embed Color</label>
+
+                                    <div class="input-group">
+
+                                        <div class="input-group-addon">
+                                            <i class="fas fa-palette"></i>
+                                        </div>
+
+                                        <div id="cp" class="input-group colorpicker-component">
+
+                                            <input type="text" value="#8FB677" class="form-control" name="embed_color" id="color" />
+
+                                            <span class="input-group-addon">
+                                                <i class="fas fa-eye-dropper"></i>
+                                            </span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <script>
+
+$(function() {
+    $('#cp').colorpicker({"format": "hex"});
+});
+
+function embed_options_display() {
+    if (document.getElementById("embedded").checked) {
+        document.getElementById("embed_options").style.height = "auto";
+    }
+    else {
+        document.getElementById("embed_options").style.height = "0";
+    }
+}
+
+embed_options_display();
+
+                            </script>
+
+
                             <div class="form-group">
-                                <label for="color">Embed Color</label>
+                                <label for="embed_title">Embed Title</label>
 
                                 <div class="input-group">
-
                                     <div class="input-group-addon">
-                                        <i class="fas fa-palette"></i>
+                                        <i class="fa fa-heading"></i>
                                     </div>
 
-                                    <div id="cp" class="input-group colorpicker-component">
+                                    <input name="embed_title" maxlength="256" id="embed_title" class="form-control" />
+                                </div>
+                            </div>
 
-                                        <input type="text" value="#8FB677" class="form-control" name="embed_color" id="color" />
+                            <div class="form-group">
+                                <label for="embed_description">Embed Description</label>
 
-                                        <span class="input-group-addon">
-                                            <i class="fas fa-eye-dropper"></i>
-                                        </span>
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-file-alt"></i>
                                     </div>
 
+                                    <textarea name="embed_description" maxlength="2048" id="embed_description" class="form-control"></textarea>
                                 </div>
                             </div>
                         </div>
 
-                        <script>
-
-                    $(function() {
-                        $('#cp').colorpicker({"format": "hex"});
-                    });
-
-                        </script>
-
-
                         <div class="form-group">
-                            <label for="embed_title">Embed Title</label>
-
-                            <div class="input-group">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-heading"></i>
-                                </div>
-
-                                <input name="embed_title" maxlength="256" id="embed_title" class="form-control" />
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="embed_description">Embed Description</label>
-
-                            <div class="input-group">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-file-alt"></i>
-                                </div>
-
-                                <textarea name="embed_description" maxlength="2048" id="embed_description" class="form-control"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <input class="form-control" type="submit" />
+                            <input class="form-control btn btn-primary" type="submit" value="Add Message" />
                         </div>
 
                     </form>
+
+
+                    <div class="container">
+                        {% for message in messages %}
+
+                            <div class="row" style="width: 100%;">
+
+                                <div class="content">
+                                    {{ message.content }}
+                                </div>
+
+                                {% if message.embed != None %}
+
+                                    <div class="embed" style="
+                                            border-left-color: {{ message.embed.color }};
+                                            border-left-style: solid;
+                                            border-left-width: 5px;
+                                            border-bottom-left-radius: 4px;
+                                            border-top-left-radius: 4px;
+                                            padding-left: 20px;">
+                                        <strong>{{ message.embed.title }}</strong>
+                                        <br>
+                                        {{ message.embed.description }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        {% endfor %}
+                    </div>
+
                 </div>
             </div>
         </div>
