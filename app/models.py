@@ -74,6 +74,12 @@ class Reminder(db.Model):
         else:
             return hex(self.message.embed.color)[2:]
 
+    def message_content(self):
+        if len(self.message.content) > 0:
+            return self.message.content
+        else:
+            return self.message.embed.description
+
 
 class Guild(db.Model):
     __tablename__ = 'guilds'
