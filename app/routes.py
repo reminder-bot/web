@@ -168,8 +168,9 @@ def change_reminder():
     member = User.query.filter(User.user == user_id).first()
     guild = GuildData.query.filter(GuildData.guild == int(request.args.get('redirect'))).first()
 
+    new_msg = request.form.get('message_new')
+
     try:
-        new_msg = request.form.get('message_new')
         new_channel = int(request.form.get('channel_new'))
         new_time = int(request.form.get('time_new'))
 
@@ -180,7 +181,6 @@ def change_reminder():
 
     else:
         new_interval = None
-        embed = None
         avatar = "https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg"
 
         username = request.form.get('username') or 'Reminder'
@@ -194,13 +194,6 @@ def change_reminder():
             except:
                 new_interval = None
 
-            if request.form.get('embed') == 'on':
-                embed_color = Color.decode(request.form.get('color')[1:])
-                embed = embed_color.color
-
-                if embed_color.failed:
-                    print('Failed to decode color of "{}". Discarding'.format(request.form.get('color')))
-
             avatar = request.form.get('avatar')
             if not avatar or not avatar.startswith('http'):
                 avatar = None
@@ -208,8 +201,7 @@ def change_reminder():
         if not (0 < new_time < time.time() + MAX_TIME):
             flash('Error setting reminder (time is too long)')
 
-        elif new_msg is not None and (
-                new_channel == member.dm_channel or new_channel in [x.channel for x in guild.channels]):
+        elif new_channel == member.dm_channel or new_channel in [x.channel for x in guild.channels]:
 
             if not 0 < len(new_msg) < 2000:
                 flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
@@ -224,13 +216,9 @@ def change_reminder():
                 else:
                     webhook = None
 
-                if current_reminder is None:
+                if current_reminder is None and new_msg is not None:
 
-                    if embed is not None:
-                        m = Message(embed=Embed(description=new_msg, color=embed))
-
-                    else:
-                        m = Message(content=new_msg)
+                    m = Message(content=new_msg)
 
                     reminder = Reminder(
                         message=m,
@@ -245,26 +233,16 @@ def change_reminder():
 
                     db.session.add(reminder)
 
-                else:
-                    if embed is not None:
-                        if current_reminder.message.embed is None:
-                            current_reminder.message.embed = Embed(description=new_msg)
-                            current_reminder.message.content = ''
-
-                        else:
-                            current_reminder.message.embed.description = new_msg
-                            current_reminder.message.content = ''
-
-                    else:
-                        current_reminder.message.embed = None
-                        current_reminder.message.content = new_msg
-
+                elif new_msg is None:
                     current_reminder.time = new_time
                     current_reminder.channel = new_channel
                     current_reminder.webhook = webhook
                     current_reminder.username = username
                     current_reminder.avatar = avatar
                     current_reminder.interval = new_interval
+
+                else:
+                    flash('Message not found for new reminder')
 
                 db.session.commit()
 
