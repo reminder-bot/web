@@ -500,8 +500,8 @@ def dashboard():
                 return redirect(url_for('cache'))
 
 
-@app.route('/ame/', methods=['GET', 'POST'])
-def advanced_message_editor():
+@app.route('/dashboard/ame/<reminder_uid>', methods=['GET'])
+def advanced_message_editor(reminder_uid: str):
     try:
         user = discord.get('api/users/@me').json()
 
@@ -517,30 +517,46 @@ def advanced_message_editor():
         if member is None:
             return redirect(url_for('cache'))
 
-        # switch on request method
-        if request.method == 'GET':
+        else:
+            reminder = Reminder.query.filter(Reminder.uid == reminder_uid).first()
 
             return render_template('advanced_message_editor.html',
                                    guilds=member.guilds,
                                    guild=None,
                                    server=None,
                                    member=member,
-                                   messages=Message.query.filter(Message.owner_id == member.id))
+                                   message=reminder.message,
+                                   reminder_uid=reminder_uid)
 
-        elif request.method == 'POST':
 
-            field = request.form.get
+@app.route('/dashboard/update_message/<reminder_uid>', methods=['POST'])
+def update_message(reminder_uid: str):
+    reminder = Reminder.query.filter(Reminder.uid == reminder_uid).first_or_404()
 
-            if field('embedded') is not None:
-                e = Embed(
-                    title=field('embed_title'), description=field('embed_description'), color=field('embed_color'))
+    field = request.form.get
 
-            else:
-                e = None
+    if field('embedded') is not None:
+        color = Color.decode(field('embed_color')[1:])
 
-            m = Message(content=field('message_content'), on_demand=False, owner_id=member.id, embed=e)
+        if color.failed:
+            flash('Invalid color')
+            return redirect(url_for('advanced_message_editor', reminder_uid=reminder_uid))
 
-            db.session.add(m)
-            db.session.commit()
+        else:
+            reminder.message.embed = Embed(
+                                       title=field('embed_title'),
+                                       description=field('embed_description'),
+                                       color=color.color)
 
-            return redirect(url_for('advanced_message_editor'))
+    else:
+        if reminder.message.embed is not None:
+            db.session.delete(reminder.message.embed)
+
+        reminder.message.embed = None
+
+    reminder.message.content = field('message_content')
+
+    db.session.commit()
+
+    return redirect(url_for('advanced_message_editor', reminder_uid=reminder_uid))
+

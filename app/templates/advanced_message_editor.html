@@ -1,6 +1,14 @@
 {% extends "dashboard_base.html" %}
 {% block content %}
 
+    <style>
+
+#embed_options {
+    overflow: hidden;
+}
+
+    </style>
+
     <section class="content">
 
         <div class="container" style="width: 100%;">
@@ -13,7 +21,7 @@
                         Advanced Message Editor
                     </h1>
 
-                    <form method="POST">
+                    <form method="POST" action="{{ url_for('update_message', reminder_uid=reminder_uid) }}">
 
                         <div class="form-group">
                             <label for="message_content">Message Content</label>
@@ -23,7 +31,7 @@
                                     <i class="fa fa-envelope"></i>
                                 </div>
 
-                                <textarea name="message_content" maxlength="2048" id="message_content" class="form-control" ></textarea>
+                                <textarea name="message_content" maxlength="2048" id="message_content" class="form-control" >{{ message.content }}</textarea>
                             </div>
 
                         </div>
@@ -36,13 +44,13 @@
                                     <label for="embedded">Attach Embed?</label>
                                 </div>
                                 <div class="input-group-addon">
-                                    <input type="checkbox" name="embedded" id="embedded" onchange="embed_options_display()" />
+                                    <input type="checkbox" name="embedded" id="embedded" onchange="embed_options_display()" {{ 'checked' if message.embed != None else '' }}/>
                                 </div>
                             </div>
 
                         </div>
 
-                        <div id="embed_options" style="overflow: hidden;">
+                        <div id="embed_options">
                             <div class="colorpicker-component">
                                 <div class="form-group">
                                     <label for="color">Embed Color</label>
@@ -53,9 +61,9 @@
                                             <i class="fas fa-palette"></i>
                                         </div>
 
-                                        <div id="cp" class="input-group colorpicker-component">
+                                        <div id="cp" class="cp input-group colorpicker-component">
 
-                                            <input type="text" value="#8FB677" class="form-control" name="embed_color" id="color" />
+                                            <input type="text" value="#{{ '8FB677' if message.embed == None else hex(message.embed.color) }}" class="form-control" name="embed_color" id="color" />
 
                                             <span class="input-group-addon">
                                                 <i class="fas fa-eye-dropper"></i>
@@ -69,7 +77,7 @@
                             <script>
 
 $(function() {
-    $('#cp').colorpicker({"format": "hex"});
+    $('.cp').colorpicker({"format": "hex"});
 });
 
 function embed_options_display() {
@@ -85,7 +93,6 @@ embed_options_display();
 
                             </script>
 
-
                             <div class="form-group">
                                 <label for="embed_title">Embed Title</label>
 
@@ -94,7 +101,7 @@ embed_options_display();
                                         <i class="fa fa-heading"></i>
                                     </div>
 
-                                    <input name="embed_title" maxlength="256" id="embed_title" class="form-control" />
+                                    <input name="embed_title" maxlength="256" id="embed_title" class="form-control" value="{{ message.embed.title }}" />
                                 </div>
                             </div>
 
@@ -106,48 +113,16 @@ embed_options_display();
                                         <i class="fa fa-file-alt"></i>
                                     </div>
 
-                                    <textarea name="embed_description" maxlength="2048" id="embed_description" class="form-control"></textarea>
+                                    <textarea name="embed_description" maxlength="2048" id="embed_description" class="form-control">{{ message.embed.description }}</textarea>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <input class="form-control btn btn-primary" type="submit" value="Add Message" />
+                            <input class="form-control btn btn-primary" type="submit" value="Update Message" />
                         </div>
 
                     </form>
-
-
-                    <div class="container">
-                        {% for message in messages %}
-
-                            <div class="row" style="width: 100%;">
-
-                                <div class="content">
-                                    {{ message.content }}
-                                </div>
-
-                                {% if message.embed != None %}
-
-                                    <div class="embed" style="
-                                            border-left-color: {{ message.embed.color }};
-                                            border-left-style: solid;
-                                            border-left-width: 5px;
-                                            border-bottom-left-radius: 4px;
-                                            border-top-left-radius: 4px;
-                                            padding-left: 20px;">
-                                        <strong>{{ message.embed.title }}</strong>
-                                        <br>
-                                        {{ message.embed.description }}
-                                    </div>
-
-                                {% endif %}
-
-                            </div>
-
-                        {% endfor %}
-                    </div>
-
                 </div>
             </div>
         </div>
