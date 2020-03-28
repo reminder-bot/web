@@ -9,6 +9,7 @@ import time
 
 MAX_TIME = 1576800000
 MIN_INTERVAL = 800
+LOGO_URL = 'https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg'
 
 
 class Color:
@@ -58,7 +59,7 @@ def help_page():
         s = eval(f.read())
 
     return render_template('help.html', help=s['help_raw'], languages=all_langs, title='Help', language=lang,
-                           logo='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg')
+                           logo=LOGO_URL)
 
 
 @app.route('/updates/<log>')
@@ -68,7 +69,7 @@ def updates(log):
             fr = f.readlines()
 
         return render_template('update.html', content=markdown_parse(fr), title='Update',
-                               logo='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg')
+                               logo=LOGO_URL)
 
     except FileNotFoundError:
         return redirect('https://jellywx.com')
@@ -182,7 +183,7 @@ def change_reminder():
 
     else:
         new_interval = None
-        avatar = "https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg"
+        avatar = LOGO_URL
 
         username = request.form.get('username') or 'Reminder'
         if not (0 < len(username) <= 32):
@@ -256,17 +257,17 @@ def change_reminder():
 @app.route('/cache/', methods=['GET'])
 def cache():
     def create_cached_user(data: dict) -> User:
-        user = User(user=data['id'], name=data['username'])
+        new_caching_user = User(user=data['id'], name=data['username'])
         dm_channel = api_post('users/@me/channels', {'recipient_id': data['id']}).json()
 
-        user.dm_channel = dm_channel['id']
+        new_caching_user.dm_channel = dm_channel['id']
 
-        db.session.add(user)
+        db.session.add(new_caching_user)
 
-        return user
+        return new_caching_user
 
-    def check_user_patreon(user: User) -> int:
-        reminder_guild_member = api_get('guilds/{}/members/{}'.format(app.config['PATREON_SERVER'], user.user))
+    def check_user_patreon(checking_user: User) -> int:
+        reminder_guild_member = api_get('guilds/{}/members/{}'.format(app.config['PATREON_SERVER'], checking_user.user))
 
         if reminder_guild_member.status_code == 200:
             roles = [int(x) for x in reminder_guild_member.json()['roles']]
@@ -280,11 +281,11 @@ def cache():
         def form_cached_guild(data: dict) -> GuildData:
             guild_query = GuildData.query.filter(GuildData.guild == data['id'])
 
-            guild = guild_query.first() or GuildData(guild=data['id'])
+            guild_data = guild_query.first() or GuildData(guild=data['id'])
 
-            guild.name = data['name']
+            guild_data.name = data['name']
 
-            return guild
+            return guild_data
 
         guilds: list = discord.get('api/users/@me/guilds').json()
         cached_guilds: list = []
@@ -320,11 +321,11 @@ def cache():
 
 @app.route('/dashboard/', methods=['GET'])
 def dashboard():
-    def permitted_access(guild: GuildData):
+    def permitted_access(accessing_guild: GuildData):
         if request.args.get('refresh') is not None:
             print('Refreshing guild data for {}'.format(guild_id))
 
-            server_data = Guild.query.get(guild.guild)
+            server_data = Guild.query.get(accessing_guild.guild)
 
             if server_data is None:
                 flash('Guild not found')
@@ -332,18 +333,18 @@ def dashboard():
 
             else:
                 try:
-                    channels = [x for x in api_get('guilds/{}/channels'.format(guild.guild)).json() if
-                                isinstance(x, dict) and x['type'] == 0]
+                    guild_channels = [x for x in api_get('guilds/{}/channels'.format(accessing_guild.guild)).json() if
+                                      isinstance(x, dict) and x['type'] == 0]
 
                 except:
                     flash('Bot no longer in specified guild')
                     return redirect(url_for('dashboard'))
 
                 else:
-                    ChannelData.query.filter((ChannelData.guild == guild.guild) & ChannelData.channel.notin_(
-                        [x['id'] for x in channels])).delete(synchronize_session='fetch')
+                    ChannelData.query.filter((ChannelData.guild == accessing_guild.guild) & ChannelData.channel.notin_(
+                        [x['id'] for x in guild_channels])).delete(synchronize_session='fetch')
 
-                    for channel in channels:
+                    for channel in guild_channels:
                         c = ChannelData.query.filter(ChannelData.channel == channel['id'])
 
                         if c.count() > 0:
@@ -351,12 +352,12 @@ def dashboard():
                             ch.name = channel['name']
 
                         else:
-                            ch = ChannelData(channel=channel['id'], name=channel['name'], guild=guild.guild)
+                            ch = ChannelData(channel=channel['id'], name=channel['name'], guild=accessing_guild.guild)
                             db.session.add(ch)
 
-                    members = api_get('guilds/{}/members?limit=150'.format(guild.guild)).json()
+                    members = api_get('guilds/{}/members?limit=150'.format(accessing_guild.guild)).json()
 
-                    guild.partials = []
+                    accessing_guild.partials = []
 
                     for me in members:
                         m = PartialMember.query.filter(PartialMember.user == me['user']['id']).first()
@@ -368,9 +369,9 @@ def dashboard():
                             m = PartialMember(user=me['user']['id'], name=me['user']['username'])
                             db.session.add(m)
 
-                        guild.partials.append(m)
+                        accessing_guild.partials.append(m)
 
-                    roles = api_get('guilds/{}/roles'.format(guild.guild)).json()
+                    roles = api_get('guilds/{}/roles'.format(accessing_guild.guild)).json()
 
                     RoleData.query.filter(
                         (RoleData.guild == guild_id) & RoleData.role.notin_([x['id'] for x in roles])).delete(
@@ -389,14 +390,16 @@ def dashboard():
 
                     db.session.commit()
 
-        guild = GuildData.query.filter(GuildData.guild == guild_id).first()
+        accessing_guild = GuildData.query.filter(GuildData.guild == guild_id).first()
         server = Guild.query.get(guild_id)
-        reminders = Reminder.query.filter(Reminder.channel.in_([x.channel for x in guild.channels])).order_by(
-            Reminder.time).all()  # fetch reminders
+        guild_reminders = Reminder.query.filter(
+            Reminder.channel.in_(
+                [x.channel for x in accessing_guild.channels])
+            ).order_by(Reminder.time).all()
 
-        if guild is not None:
-            for reminder in reminders:  # assign channel names to all reminders
-                for channel in guild.channels:
+        if accessing_guild is not None:
+            for reminder in guild_reminders:  # assign channel names to all reminders
+                for channel in accessing_guild.channels:
                     if reminder.channel == channel.channel:
                         reminder.channel_name = channel.name
                         break
@@ -406,14 +409,14 @@ def dashboard():
             return render_template('dashboard.html',
                                    out=False,
                                    guilds=member.guilds,
-                                   reminders=reminders,
-                                   guild=guild,
+                                   reminders=guild_reminders,
+                                   guild=accessing_guild,
                                    server=server,
                                    member=member,
                                    time=time.time())
 
         else:
-            return redirect(url_for('dashboard', id=guild.guild))
+            return redirect(url_for('dashboard', id=accessing_guild.guild))
 
     if not discord.authorized:
         # if the user isn't authorized through oauth yet
@@ -523,9 +526,9 @@ def update_message(reminder_uid: str):
 
         else:
             reminder.message.embed = Embed(
-                                       title=field('embed_title'),
-                                       description=field('embed_description'),
-                                       color=color.color)
+                title=field('embed_title'),
+                description=field('embed_description'),
+                color=color.color)
 
     else:
         if reminder.message.embed is not None:
@@ -538,4 +541,3 @@ def update_message(reminder_uid: str):
     db.session.commit()
 
     return redirect(url_for('advanced_message_editor', reminder_uid=reminder_uid))
-

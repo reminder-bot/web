@@ -64,31 +64,32 @@ function mention(id, i)
 
 function manage_characters(e, i)
 {
-    var text = e.target.value;
-    var parts = text.split(" ");
-    var last = parts[parts.length-1].toLowerCase();
-    var name = last.slice(1);
+    let text = e.target.value;
+    let parts = text.split(" ");
+    let last = parts[parts.length-1].toLowerCase();
+    let name = last.slice(1);
 
-    var type = last[0];
+    let type = last[0];
 
-    var out = [];
+    let out = [];
 
     if ( type === "@" )
     {
-        var roles_also = last[1] == "@";
+        let roles_also = last[1] === "@";
+        let set;
 
         if ( roles_also ) 
         {
-            var set = roles;
+            set = roles;
         }
         else 
         {
-            var set = members
+            set = members;
         }
 
         document.getElementById("mention-input" + i).style.visibility = "visible";
 
-        for ( key in set )
+        for (let key in set )
         {
             if ( key.includes(name) )
             {
@@ -100,7 +101,7 @@ function manage_characters(e, i)
     {
         document.getElementById("mention-input" + i).style.visibility = "visible";
 
-        for (key in channels)
+        for (let key in channels)
         {
             if ( key.includes(name) )
             {
@@ -117,25 +118,28 @@ function manage_characters(e, i)
 
     out.sort();
 
-    for (el in out)
+    for (let el in out)
     {
-        var name_n = out[el];
+        let name_n = out[el];
+
         if ( type === "@" )
         {
+            let id;
+
             if ( last[1] === "@" ) 
             {
-                var id = roles[name_n.slice(1)];
+                id = roles[name_n.slice(1)];
             }
             else
             {
-                var id = members[name_n.slice(1)];
+                id = members[name_n.slice(1)];
             }
-            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="javascript:mention('<@${id}>', '${i}')">${name_n}</a></li>`;
+            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="mention('<@${id}>', '${i}')">${name_n}</a></li>`;
         }
         else
         {
-            var id = channels[name_n.slice(1)];
-            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="javascript:mention('<#${id}>', '${i}')">${name_n}</a></li>`;
+            let id = channels[name_n.slice(1)];
+            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="mention('<#${id}>', '${i}')">${name_n}</a></li>`;
         }
     }
 }
@@ -160,38 +164,38 @@ document.getElementById("input-message").addEventListener("input", m);
 
 function send_delete(reminder)
 {
-    let xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
+    let request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
             location.reload();
         }
     };
-    xhttp.open("GET", "{{ url_for('delete') }}" + "?index=" + reminder, true);
-    xhttp.send();
+    request.open("GET", "{{ url_for('delete') }}" + "?index=" + reminder, true);
+    request.send();
 }
 
 function send_delete_i(reminder, interval)
 {
-    let xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
+    let request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
             location.reload();
         }
     };
-    xhttp.open("GET", "{{ url_for('delete_interval') }}" + "?reminder=" + reminder + "&interval=" + interval, true);
-    xhttp.send();
+    request.open("GET", "{{ url_for('delete_interval') }}" + "?reminder=" + reminder + "&interval=" + interval, true);
+    request.send();
 }
 
 function toggle_enabled(reminder)
 {
-    let xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
+    let request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
             location.reload();
         }
     };
-    xhttp.open("GET", "{{ url_for('toggle_enabled') }}" + "?reminder=" + reminder, true);
-    xhttp.send();
+    request.open("GET", "{{ url_for('toggle_enabled') }}" + "?reminder=" + reminder, true);
+    request.send();
 }
 
         </script>
