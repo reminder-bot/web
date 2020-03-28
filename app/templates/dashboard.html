@@ -37,19 +37,19 @@
 <script>
 
 {% if server != None %}
-var channels = {
+let channels = {
     {% for channel in guild.channels %}
     "{{ channel.name.replace('\\', '')[:32] }}": "{{ channel.channel }}",
     {% endfor %}
 };
 
-var members = {
+let members = {
     {% for m in guild.partials %}
     "{{ m.name.replace('\\', '').lower()[:32] }}": "{{ m.user }}",
     {% endfor %}
 };
 
-var roles = {
+let roles = {
     {% for role in guild.roles %}
     "@{{ role.name.replace('\\', '').lower()[:32] }}": "&{{ role.role }}",
     {% endfor %}
@@ -57,7 +57,7 @@ var roles = {
 
 function mention(id, i)
 {
-    var value = document.getElementById("input-message" + i).value;
+    let value = document.getElementById("input-message" + i).value;
     value = value.split(" ").slice(0, -1).join(" ") + " " + id;
     document.getElementById("input-message" + i).value = value;
 }
@@ -144,16 +144,6 @@ function manage_characters(e, i)
     }
 }
 
-{% for reminder in reminders %}
-    
-    function m{{ reminder.uid }}(e) {
-        manage_characters(e, "{{ reminder.uid }}");
-    }
-
-    document.getElementById("input-message{{ reminder.uid }}").addEventListener("input", m{{ reminder.uid }});
-
-{% endfor %}
-
 function m(e) {
     manage_characters(e, "");
 }
@@ -161,6 +151,7 @@ function m(e) {
 document.getElementById("input-message").addEventListener("input", m);
 
 {% endif %}
+{# end of guild-only code #}
 
 function send_delete(reminder)
 {
