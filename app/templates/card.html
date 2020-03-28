@@ -19,23 +19,10 @@
                             <i class="fa fa-envelope"></i>
                         </div>
 
-                        <textarea id="input-message{{ reminder.uid }}" disabled>{{ reminder.message_content() }}</textarea>
+                        <textarea id="input-message{{ reminder.uid }}" class="form-control" disabled>{{ reminder.message_content() }}</textarea>
 
                     </div>
                     <a href="{{ url_for('advanced_message_editor', reminder_uid=reminder.uid) }}" target="_blank">Edit Message</a>
-                    <div class="input-group" id="mention-input{{ reminder.uid }}" style="visibility: hidden;">
-                        <div class="input-group-addon">
-                            <i class="fas fa-at"></i>
-                        </div>
-                        <div class="dropdown">
-                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                Mention... (tip: use a double @ to get roles)
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdown-mention" id="dropdown-mention{{ reminder.uid }}" style="max-height: 40vh; overflow-y: scroll;">
-                            </ul>
-                        </div>
-                    </div>
                     <!-- /.input group -->
                 </div>
 

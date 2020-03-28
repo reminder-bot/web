@@ -35,7 +35,8 @@ class Color:
 @app.errorhandler(500)
 def internal_error(_error):
     session.clear()
-    return "An error has occured! We've made a report, and cleared your cache on this website. If you encounter this error again, please send us a message on Discord!"
+    return "An error has occurred! We've made a report, and cleared your session cache on this website. If you " \
+           "encounter this error again, please send us a message on Discord!"
 
 
 @app.route('/')
@@ -56,7 +57,7 @@ def help_page():
     with io.open('{}languages/strings_{}.py'.format(app.config['BASE_URI'], lang), 'r', encoding='utf8') as f:
         s = eval(f.read())
 
-    return render_template('help.html', help=s['help_raw'], languages=all_langs, title='Help',
+    return render_template('help.html', help=s['help_raw'], languages=all_langs, title='Help', language=lang,
                            logo='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg')
 
 
