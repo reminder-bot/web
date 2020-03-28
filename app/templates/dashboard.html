@@ -30,13 +30,13 @@
         <h1>
             Please select a guild.
         </h1>
-        <p class="text-muted">This website is tested on Chrome and Firefox. Please report any issues in my Discord guild.</p>
+        <p class="text-muted">This website is tested on Firefox. Some features require default JavaScript settings. Please report any issues in my Discord guild.</p>
     </section>
 {% endif %}
 
 <script>
 
-{% if server != None %}
+{% if guild != None %}
 let channels = {
     {% for channel in guild.channels %}
     "{{ channel.name.replace('\\', '')[:32] }}": "{{ channel.channel }}",
@@ -55,16 +55,16 @@ let roles = {
     {% endfor %}
 };
 
-function mention(id, i)
+function mention(constructed_mention, reminder_uid)
 {
-    let value = document.getElementById("input-message" + i).value;
-    value = value.split(" ").slice(0, -1).join(" ") + " " + id;
-    document.getElementById("input-message" + i).value = value;
+    let value = document.getElementById("input-message" + reminder_uid).value;
+    value = value.split(" ").slice(0, -1).join(" ") + " " + constructed_mention;
+    document.getElementById("input-message" + reminder_uid).value = value;
 }
 
-function manage_characters(e, i)
+function manage_characters(change_event, i)
 {
-    let text = e.target.value;
+    let text = change_event.target.value;
     let parts = text.split(" ");
     let last = parts[parts.length-1].toLowerCase();
     let name = last.slice(1);
@@ -73,8 +73,7 @@ function manage_characters(e, i)
 
     let out = [];
 
-    if ( type === "@" )
-    {
+    if ( type === "@" ) {
         let roles_also = last[1] === "@";
         let set;
 
@@ -87,7 +86,7 @@ function manage_characters(e, i)
             set = members;
         }
 
-        document.getElementById("mention-input" + i).style.visibility = "visible";
+        document.getElementById("mention-input" + i).style.height = "auto";
 
         for (let key in set )
         {
@@ -97,9 +96,8 @@ function manage_characters(e, i)
             }
         }
     }
-    else if ( type === "#" )
-    {
-        document.getElementById("mention-input" + i).style.visibility = "visible";
+    else if ( type === "#" ) {
+        document.getElementById("mention-input" + i).style.height = "auto";
 
         for (let key in channels)
         {
@@ -109,35 +107,29 @@ function manage_characters(e, i)
             }
         }
     }
-    else
-    {
-        document.getElementById("mention-input" + i).style.visibility = "hidden";
+    else {
+        document.getElementById("mention-input" + i).style.height = "0px";
     }
 
     document.getElementById("dropdown-mention" + i).innerHTML = "";
 
     out.sort();
 
-    for (let el in out)
-    {
+    for (let el in out) {
         let name_n = out[el];
 
-        if ( type === "@" )
-        {
+        if ( type === "@" ) {
             let id;
 
-            if ( last[1] === "@" ) 
-            {
+            if ( last[1] === "@" ) {
                 id = roles[name_n.slice(1)];
             }
-            else
-            {
+            else {
                 id = members[name_n.slice(1)];
             }
             document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="mention('<@${id}>', '${i}')">${name_n}</a></li>`;
         }
-        else
-        {
+        else {
             let id = channels[name_n.slice(1)];
             document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="mention('<#${id}>', '${i}')">${name_n}</a></li>`;
         }
@@ -153,8 +145,7 @@ document.getElementById("input-message").addEventListener("input", m);
 {% endif %}
 {# end of guild-only code #}
 
-function send_delete(reminder)
-{
+function send_delete(reminder) {
     let request = new XMLHttpRequest();
     request.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
@@ -165,8 +156,7 @@ function send_delete(reminder)
     request.send();
 }
 
-function send_delete_i(reminder, interval)
-{
+function send_delete_i(reminder, interval) {
     let request = new XMLHttpRequest();
     request.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
@@ -177,8 +167,7 @@ function send_delete_i(reminder, interval)
     request.send();
 }
 
-function toggle_enabled(reminder)
-{
+function toggle_enabled(reminder) {
     let request = new XMLHttpRequest();
     request.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {

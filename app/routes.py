@@ -1,4 +1,4 @@
-from flask import redirect, render_template, request, url_for, session, flash
+from flask import redirect, render_template, request, url_for, session, flash, abort
 from app import app, discord, db
 from app.models import Guild, Reminder, User, PartialMember, GuildData, ChannelData, RoleData, Message, Embed
 from app.markdown import markdown_parse
@@ -411,7 +411,6 @@ def dashboard():
                                    guilds=member.guilds,
                                    reminders=guild_reminders,
                                    guild=accessing_guild,
-                                   server=server,
                                    member=member,
                                    time=time.time())
 
@@ -482,8 +481,8 @@ def dashboard():
                 return redirect(url_for('cache'))
 
 
-@app.route('/dashboard/ame/<reminder_uid>', methods=['GET'])
-def advanced_message_editor(reminder_uid: str):
+@app.route('/dashboard/ame/<guild_id>/<reminder_uid>', methods=['GET'])
+def advanced_message_editor(guild_id: int, reminder_uid: str):
     try:
         user = discord.get('api/users/@me').json()
 
@@ -495,16 +494,20 @@ def advanced_message_editor(reminder_uid: str):
         user_id: int = user['id']  # get user id from oauth
 
         member = User.query.filter(User.user == user_id).first()
+        server = GuildData.query.filter(GuildData.guild == guild_id).first_or_404()
 
         if member is None:
             return redirect(url_for('cache'))
+
+        elif server not in member.guilds:
+            return abort(403)
 
         else:
             reminder = Reminder.query.filter(Reminder.uid == reminder_uid).first()
 
             return render_template('advanced_message_editor.html',
                                    guilds=member.guilds,
-                                   guild=None,
+                                   guild=server,
                                    server=None,
                                    member=member,
                                    message=reminder.message,

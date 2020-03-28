@@ -3,7 +3,7 @@
         {% if not reminder.enabled %}
             style="opacity: 0.5"
         {% endif %}>
-        <form method="POST" action="{{ url_for('change_reminder', redirect=server.guild or 0, reminder=reminder.uid) }}" id="form{{ reminder.uid }}" autocomplete="off">
+        <form method="POST" action="{{ url_for('change_reminder', redirect=guild.guild or 0, reminder=reminder.uid) }}" id="form{{ reminder.uid }}" autocomplete="off">
             <div class="card-header">
                 <h4><strong>Reminder</strong></h4>
             </div>
@@ -22,12 +22,12 @@
                         <textarea id="input-message{{ reminder.uid }}" class="form-control" disabled>{{ reminder.message_content() }}</textarea>
 
                     </div>
-                    <a href="{{ url_for('advanced_message_editor', reminder_uid=reminder.uid) }}" target="_blank">Edit Message</a>
+                    <a href="{{ url_for('advanced_message_editor', guild_id=guild.guild, reminder_uid=reminder.uid) }}" target="_blank">Edit Message</a>
                     <!-- /.input group -->
                 </div>
 
                 <!-- CHANNEL -->
-                {% if server != None %}
+                {% if guild != None %}
                     <div class="form-group">
                         <label for="channel{{ reminder.uid }}">Channel:</label>
                         <div class="input-group">
@@ -141,7 +141,7 @@ function change_multiplier{{ reminder.uid }}() {
                         <!-- /.form group -->
                     </div>
 
-                    {% if server != None %}
+                    {% if guild != None %}
 
                         <div class="form-group">
                             <label>Avatar:</label>
@@ -159,8 +159,8 @@ function change_multiplier{{ reminder.uid }}() {
 
 function update_time()
 {
-    t_time = document.getElementById("timepicker{{ reminder.uid }}");
-    d_time = document.getElementById("datepicker{{ reminder.uid }}");
+    let t_time = document.getElementById("timepicker{{ reminder.uid }}");
+    let d_time = document.getElementById("datepicker{{ reminder.uid }}");
 
     m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A');
 

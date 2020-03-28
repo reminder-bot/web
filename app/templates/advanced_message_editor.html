@@ -123,9 +123,118 @@ embed_options_display();
                         </div>
 
                     </form>
+
+                    <div class="input-group" id="mention-dropdown" style="display: none;">
+                        <div class="input-group-addon">
+                            <i class="fas fa-at"></i>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                Mention... (tip: use a double @ to mention roles)
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdown-mention" style="max-height: 40vh; overflow-y: scroll;">
+                            </ul>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </section>
+    <script>
+
+'use strict';
+
+function mention(id, prefix, element_id) {
+    let $activeElement = $(`#${element_id}`);
+
+    console.log($activeElement);
+
+    let words = $activeElement.val().split(' ');
+
+    // remove the last word
+    words.pop();
+
+    words.push(`<${prefix}${id}>`);
+
+    $activeElement.val(words.join(' '));
+}
+
+const channels = [
+    {% for channel in guild.channels %}
+        {name: "{{ channel.name.replace('\\', '')[:32] }}", id: "{{ channel.channel }}"},
+    {% endfor %}
+];
+
+const members = [
+    {% for m in guild.partials %}
+        {name: "{{ m.name.replace('\\', '').lower()[:32] }}", id: "{{ m.user }}"},
+    {% endfor %}
+];
+
+const roles = [
+    {% for role in guild.roles %}
+        {name: "@{{ role.name.replace('\\', '').lower()[:32] }}", id: "{{ role.role }}"},
+    {% endfor %}
+];
+
+
+$('textarea').on('keyup', function() {
+    // split text into actual words
+    let all_words = $(this).val().split(' ');
+
+    // remove final word
+    let final_word = all_words.pop();
+
+    let search_name;
+    let associated_set;
+    let prefix;
+
+    let show_dropdown = false;
+
+    // show roles if word starts with @@
+    if ( final_word.startsWith('@@') ) {
+        search_name = final_word.slice(2);
+        prefix = '@&';
+        associated_set = roles;
+        show_dropdown = true;
+    }
+    // show users if word starts with single @
+    else if ( final_word.startsWith('@') ) {
+        search_name = final_word.slice(1);
+        prefix = '@';
+        associated_set = members;
+        show_dropdown = true;
+    }
+    // show channels if #
+    else if ( final_word.startsWith('#') ) {
+        search_name = final_word.slice(1);
+        prefix = '#';
+        associated_set = channels;
+        show_dropdown = true;
+    }
+
+    let $dropdown = $('#mention-dropdown');
+
+    if (show_dropdown) {
+        let this_id = $(this).attr('id');
+
+        let filtered_set = associated_set.filter(function(item) { return item.name.startsWith(search_name); });
+
+        let mapped_set = filtered_set.map(function(item) {
+            return `<li><a onclick="mention('${item.id}', '${prefix}', '${this_id}')">${item.name}</a></li>`
+        });
+
+        $dropdown.show();
+        $dropdown.find('ul').empty().append(mapped_set);
+    }
+    else {
+        console.log('staying hidden');
+        $dropdown.hide();
+    }
+});
+
+    </script>
 
 {% endblock %}
