@@ -391,7 +391,6 @@ def dashboard():
                     db.session.commit()
 
         accessing_guild = GuildData.query.filter(GuildData.guild == guild_id).first()
-        server = Guild.query.get(guild_id)
         guild_reminders = Reminder.query.filter(
             Reminder.channel.in_(
                 [x.channel for x in accessing_guild.channels])
@@ -481,7 +480,7 @@ def dashboard():
                 return redirect(url_for('cache'))
 
 
-@app.route('/dashboard/ame/<guild_id>/<reminder_uid>', methods=['GET'])
+@app.route('/dashboard/ame/<int:guild_id>/<reminder_uid>', methods=['GET'])
 def advanced_message_editor(guild_id: int, reminder_uid: str):
     try:
         user = discord.get('api/users/@me').json()
@@ -508,14 +507,13 @@ def advanced_message_editor(guild_id: int, reminder_uid: str):
             return render_template('advanced_message_editor.html',
                                    guilds=member.guilds,
                                    guild=server,
-                                   server=None,
                                    member=member,
                                    message=reminder.message,
                                    reminder_uid=reminder_uid)
 
 
-@app.route('/dashboard/update_message/<reminder_uid>', methods=['POST'])
-def update_message(reminder_uid: str):
+@app.route('/dashboard/update_message/<int:guild_id>/<reminder_uid>', methods=['POST'])
+def update_message(guild_id: int, reminder_uid: str):
     reminder = Reminder.query.filter(Reminder.uid == reminder_uid).first_or_404()
 
     field = request.form.get
@@ -525,7 +523,7 @@ def update_message(reminder_uid: str):
 
         if color.failed:
             flash('Invalid color')
-            return redirect(url_for('advanced_message_editor', reminder_uid=reminder_uid))
+            return redirect(url_for('advanced_message_editor', guild_id=guild_id, reminder_uid=reminder_uid))
 
         else:
             reminder.message.embed = Embed(
@@ -543,4 +541,4 @@ def update_message(reminder_uid: str):
 
     db.session.commit()
 
-    return redirect(url_for('advanced_message_editor', reminder_uid=reminder_uid))
+    return redirect(url_for('advanced_message_editor', guild_id=guild_id, reminder_uid=reminder_uid))

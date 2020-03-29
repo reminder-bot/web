@@ -21,7 +21,7 @@
                         Advanced Message Editor
                     </h1>
 
-                    <form method="POST" action="{{ url_for('update_message', reminder_uid=reminder_uid) }}">
+                    <form method="POST" action="{{ url_for('update_message', guild_id=guild.guild, reminder_uid=reminder_uid) }}">
 
                         <div class="form-group">
                             <label for="message_content">Message Content</label>
