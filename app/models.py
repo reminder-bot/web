@@ -11,7 +11,8 @@ class User(db.Model):
 
     patreon = db.Column(db.Boolean, nullable=False, default=False)
     dm_channel = db.Column(db.BigInteger)
-    name = db.Column(db.String(64))
+    language = db.Column(db.String(2), nullable=False, default='EN')
+    name = db.Column(db.String(37))
 
 
 class Embed(db.Model):

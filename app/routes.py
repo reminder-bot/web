@@ -269,7 +269,7 @@ def change_reminder():
 @app.route('/cache/', methods=['GET'])
 def cache():
     def create_cached_user(data: dict) -> User:
-        new_caching_user = User(user=data['id'], name=data['username'])
+        new_caching_user = User(user=data['id'], name='{}#{}'.format(data['username'], data['discriminator']))
         dm_channel = api_post('users/@me/channels', {'recipient_id': data['id']}).json()
 
         new_caching_user.dm_channel = dm_channel['id']
