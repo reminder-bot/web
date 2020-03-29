@@ -205,7 +205,7 @@ def change_reminder():
 
         elif new_channel == member.dm_channel or new_channel in [x.channel for x in guild.channels]:
 
-            if not 0 < len(new_msg) < 2000:
+            if new_msg is not None and not 0 < len(new_msg) < 2048:
                 flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
 
             elif new_interval is not None and not MIN_INTERVAL < new_interval < MAX_TIME:
