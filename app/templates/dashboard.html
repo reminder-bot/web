@@ -86,7 +86,7 @@ function manage_characters(change_event, i)
             set = members;
         }
 
-        document.getElementById("mention-input" + i).style.height = "auto";
+        document.getElementById("mention-input" + i).style.display = "table";
 
         for (let key in set )
         {
@@ -97,7 +97,7 @@ function manage_characters(change_event, i)
         }
     }
     else if ( type === "#" ) {
-        document.getElementById("mention-input" + i).style.height = "auto";
+        document.getElementById("mention-input" + i).style.display = "table";
 
         for (let key in channels)
         {
@@ -108,7 +108,7 @@ function manage_characters(change_event, i)
         }
     }
     else {
-        document.getElementById("mention-input" + i).style.height = "0px";
+        document.getElementById("mention-input" + i).style.display = "none";
     }
 
     document.getElementById("dropdown-mention" + i).innerHTML = "";
