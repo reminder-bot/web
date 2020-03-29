@@ -12,22 +12,37 @@
                     <!-- This div is for writing error messages into DO NOT DELETE -->
                 </div>
 
-                <div class="form-group">
-                    <label for="input-message{{ reminder.uid }}">Message:</label>
-                    <div class="input-group">
-                        <div class="input-group-addon">
-                            <i class="fa fa-envelope"></i>
+                {% if guild == None %}
+                    <div class="form-group">
+                        <label for="input-message{{ reminder.uid }}">Message:</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-envelope"></i>
+                            </div>
+
+                            <textarea id="input-message{{ reminder.uid }}" class="form-control" name="message_new">{{ reminder.message_content() }}</textarea>
+
                         </div>
-
-                        <textarea id="input-message{{ reminder.uid }}" class="form-control" disabled>{{ reminder.message_content() }}</textarea>
-
+                        <!-- /.input group -->
                     </div>
-                    <a href="{{ url_for('advanced_message_editor', guild_id=guild.guild, reminder_uid=reminder.uid) }}" target="_blank">Edit Message</a>
-                    <!-- /.input group -->
-                </div>
 
-                <!-- CHANNEL -->
-                {% if guild != None %}
+                    <input type="text" name="channel_new" value="{{ member.dm_channel }}" id="input-channel" hidden required />
+
+                {% else %}
+                    <div class="form-group">
+                        <label for="input-message{{ reminder.uid }}">Message:</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-envelope"></i>
+                            </div>
+
+                            <textarea id="input-message{{ reminder.uid }}" class="form-control" disabled>{{ reminder.message_content() }}</textarea>
+
+                        </div>
+                        <a href="{{ url_for('advanced_message_editor', guild_id=guild.guild, reminder_uid=reminder.uid) }}" target="_blank">Edit Message</a>
+                        <!-- /.input group -->
+                    </div>
+
                     <div class="form-group">
                         <label for="channel{{ reminder.uid }}">Channel:</label>
                         <div class="input-group">
@@ -56,8 +71,6 @@
                         </div>
                     </div>
 
-                {% else %}
-                    <input type="text" name="channel_new" value="{{ member.dm_channel }}" id="input-channel" hidden required />
                 {% endif %}
 
                 <input name="time_new" value="0" id="time_new{{ reminder.uid }}" hidden />

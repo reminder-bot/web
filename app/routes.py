@@ -235,12 +235,19 @@ def change_reminder():
 
                     db.session.add(reminder)
 
+                # updating an old reminder
                 elif new_msg is None:
                     current_reminder.time = new_time
                     current_reminder.channel = new_channel
                     current_reminder.webhook = webhook
                     current_reminder.username = username
                     current_reminder.avatar = avatar
+                    current_reminder.interval = new_interval
+
+                # in a DM
+                elif guild is None:
+                    current_reminder.message.content = new_msg
+                    current_reminder.time = new_time
                     current_reminder.interval = new_interval
 
                 else:
