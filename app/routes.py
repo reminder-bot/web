@@ -165,7 +165,12 @@ def change_reminder():
             return end()
 
     user = discord.get('api/users/@me').json()
-    user_id = int(user['id'])
+    try:
+        user_id = int(user['id'])
+
+    except KeyError:
+        flash('Discord verification failed. Please retry')
+        return end()
 
     member = User.query.filter(User.user == user_id).first()
     guild = GuildData.query.filter(GuildData.guild == int(request.args.get('redirect'))).first()
