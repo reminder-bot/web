@@ -1,6 +1,6 @@
 from flask import redirect, render_template, request, url_for, session, flash, abort
 from app import app, discord, db
-from app.models import Guild, Reminder, User, PartialMember, GuildData, ChannelData, RoleData, Message, Embed
+from app.models import Guild, Reminder, User, Channel, Role, Message, Embed
 from app.markdown import markdown_parse
 import os
 import io
@@ -173,7 +173,7 @@ def change_reminder():
         return end()
 
     member = User.query.filter(User.user == user_id).first()
-    guild = GuildData.query.filter(GuildData.guild == int(request.args.get('redirect'))).first()
+    guild = Guild.query.filter(Guild.guild == int(request.args.get('redirect'))).first()
 
     new_msg = request.form.get('message_new')
 
@@ -290,10 +290,10 @@ def cache():
 
     def get_user_guilds() -> list:
 
-        def form_cached_guild(data: dict) -> GuildData:
-            guild_query = GuildData.query.filter(GuildData.guild == data['id'])
+        def form_cached_guild(data: dict) -> Guild:
+            guild_query = Guild.query.filter(Guild.guild == data['id'])
 
-            guild_data = guild_query.first() or GuildData(guild=data['id'])
+            guild_data = guild_query.first() or Guild(guild=data['id'])
 
             guild_data.name = data['name']
 
@@ -305,7 +305,7 @@ def cache():
         for guild in guilds:
 
             if guild['permissions'] & 0x00002028 or guild['owner']:
-                cached_guild: GuildData = form_cached_guild(guild)
+                cached_guild: Guild = form_cached_guild(guild)
 
                 cached_guilds.append(cached_guild)
 
@@ -333,87 +333,57 @@ def cache():
 
 @app.route('/dashboard/', methods=['GET'])
 def dashboard():
-    def permitted_access(accessing_guild: GuildData):
+    def permitted_access(accessing_guild: Guild):
+        # if user wants to refresh the guild's data (syncing members and shit)
         if request.args.get('refresh') is not None:
-            print('Refreshing guild data for {}'.format(guild_id))
+            print('Refreshing guild data for {}'.format(accessing_guild.guild))
 
-            server_data = Guild.query.get(accessing_guild.guild)
+            try:
+                guild_channels = [x for x in api_get('guilds/{}/channels'.format(accessing_guild.guild)).json() if
+                                  isinstance(x, dict) and x['type'] == 0]
 
-            if server_data is None:
-                flash('Guild not found')
+            except:
+                flash('Bot no longer in specified guild')
                 return redirect(url_for('dashboard'))
 
             else:
-                try:
-                    guild_channels = [x for x in api_get('guilds/{}/channels'.format(accessing_guild.guild)).json() if
-                                      isinstance(x, dict) and x['type'] == 0]
+                Channel.query.filter((Channel.guild == accessing_guild) & Channel.channel.notin_(
+                    [x['id'] for x in guild_channels])).delete(synchronize_session='fetch')
 
-                except:
-                    flash('Bot no longer in specified guild')
-                    return redirect(url_for('dashboard'))
+                for channel in guild_channels:
+                    c = Channel.query.filter(Channel.channel == channel['id'])
 
-                else:
-                    ChannelData.query.filter((ChannelData.guild == accessing_guild.guild) & ChannelData.channel.notin_(
-                        [x['id'] for x in guild_channels])).delete(synchronize_session='fetch')
+                    if c.count() > 0:
+                        ch = c.first()
+                        ch.name = channel['name']
 
-                    for channel in guild_channels:
-                        c = ChannelData.query.filter(ChannelData.channel == channel['id'])
+                    else:
+                        ch = Channel(channel=channel['id'], name=channel['name'], guild=accessing_guild)
+                        db.session.add(ch)
 
-                        if c.count() > 0:
-                            ch = c.first()
-                            ch.name = channel['name']
+                roles = api_get('guilds/{}/roles'.format(accessing_guild.guild)).json()
 
-                        else:
-                            ch = ChannelData(channel=channel['id'], name=channel['name'], guild=accessing_guild.guild)
-                            db.session.add(ch)
+                Role.query.filter(
+                    (Role.guild_id == guild_id) & Role.role.notin_([x['id'] for x in roles])).delete(
+                    synchronize_session='fetch')
 
-                    members = api_get('guilds/{}/members?limit=150'.format(accessing_guild.guild)).json()
+                for role in roles:
+                    r = Role.query.filter(Role.role == role['id'])
 
-                    accessing_guild.partials = []
+                    if r.count() > 0:
+                        ro = r.first()
+                        ro.name = role['name']
 
-                    for me in members:
-                        m = PartialMember.query.filter(PartialMember.user == me['user']['id']).first()
+                    else:
+                        ro = Role(role=role['id'], name=role['name'], guild=accessing_guild)
+                        db.session.add(ro)
 
-                        if m is not None:
-                            m.name = me['user']['username']
+                db.session.commit()
 
-                        else:
-                            m = PartialMember(user=me['user']['id'], name=me['user']['username'])
-                            db.session.add(m)
-
-                        accessing_guild.partials.append(m)
-
-                    roles = api_get('guilds/{}/roles'.format(accessing_guild.guild)).json()
-
-                    RoleData.query.filter(
-                        (RoleData.guild == guild_id) & RoleData.role.notin_([x['id'] for x in roles])).delete(
-                        synchronize_session='fetch')
-
-                    for role in roles:
-                        c = RoleData.query.filter(RoleData.role == role['id'])
-
-                        if c.count() > 0:
-                            ch = c.first()
-                            ch.name = role['name']
-
-                        else:
-                            ch = RoleData(role=role['id'], name=role['name'], guild=guild_id)
-                            db.session.add(ch)
-
-                    db.session.commit()
-
-        accessing_guild = GuildData.query.filter(GuildData.guild == guild_id).first()
         guild_reminders = Reminder.query.filter(
             Reminder.channel.in_(
                 [x.channel for x in accessing_guild.channels])
             ).order_by(Reminder.time).all()
-
-        if accessing_guild is not None:
-            for reminder in guild_reminders:  # assign channel names to all reminders
-                for channel in accessing_guild.channels:
-                    if reminder.channel == channel.channel:
-                        reminder.channel_name = channel.name
-                        break
 
         if request.args.get('refresh') is None:
 
@@ -455,28 +425,28 @@ def dashboard():
                     flash('Guild not found')
                     return redirect(url_for('dashboard'))
 
-                if guild_id == 0:
-                    channels = [member.dm_channel]
-                    reminders = Reminder.query.filter(Reminder.channel == channels[0]).order_by(
-                        Reminder.time).all()  # fetch reminders
-
-                    return render_template('dashboard.html',
-                                           out=False,
-                                           guilds=member.guilds,
-                                           reminders=reminders,
-                                           guild=None,
-                                           server=None,
-                                           member=member,
-                                           time=time.time())
-
                 else:
-                    for guild in member.guilds:
-                        if guild.guild == guild_id:
-                            return permitted_access(guild)
+                    if guild_id == 0:
+                        channels = [member.dm_channel]
+                        reminders = Reminder.query.filter(Reminder.channel == channels[0]).order_by(
+                            Reminder.time).all()  # fetch reminders
+
+                        return render_template('dashboard.html',
+                                               out=False,
+                                               guilds=member.guilds,
+                                               reminders=reminders,
+                                               guild=None,
+                                               member=member,
+                                               time=time.time())
 
                     else:
-                        flash('No permissions to view guild')
-                        return redirect(url_for('dashboard'))
+                        for guild in member.guilds:
+                            if guild.guild == guild_id:
+                                return permitted_access(guild)
+
+                        else:
+                            flash('No permissions to view guild')
+                            return redirect(url_for('dashboard'))
 
             elif request.args.get('refresh') is None:
 
@@ -484,7 +454,6 @@ def dashboard():
                                        out=True,
                                        guilds=member.guilds,
                                        guild=None,
-                                       server=None,
                                        member=member,
                                        time=time.time())
 
