@@ -36,7 +36,7 @@
                                 <i class="fa fa-envelope"></i>
                             </div>
 
-                            <textarea id="input-message{{ reminder.uid }}" class="form-control" disabled>{{ reminder.message_content() }}</textarea>
+                            <textarea id="input-message{{ reminder.uid }}" style="resize: none;" class="form-control" disabled>{{ reminder.message_content() }}</textarea>
 
                         </div>
                         <a href="{{ url_for('advanced_message_editor', guild_id=guild.guild, reminder_uid=reminder.uid) }}" target="_blank">Edit Message</a>
