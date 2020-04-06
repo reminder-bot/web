@@ -157,12 +157,12 @@ function change_multiplier{{ reminder.uid }}() {
                     {% if guild != None %}
 
                         <div class="form-group">
-                            <label>Avatar:</label>
+                            <label for="avatar">Avatar:</label>
                             <div class="input-group">
                                 <div class="input-group-addon">
                                     <i class="fas fa-camera"></i>
                                 </div>
-                                <input type="text" class="form-control pull-right" name="avatar" value="{{ reminder.avatar }}" />
+                                <input type="text" class="form-control pull-right" name="avatar" value="{{ reminder.avatar }}" id="avatar" />
                             </div>
                         </div>
                     {% endif %}
