@@ -74,6 +74,9 @@ class Channel(db.Model):
 
     guild_id = db.Column(INT(unsigned=True), db.ForeignKey(Guild.id, ondelete='CASCADE'), nullable=False)
 
+    def __repr__(self):
+        return '{}.{}'.format(self.name, self.channel)
+
     def update_webhook(self, api_get, api_post, client_id):
         # get existing webhooks
         webhooks = api_get('channels/{}/webhooks'.format(self.channel)).json()

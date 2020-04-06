@@ -197,7 +197,7 @@ def change_reminder():
                 flash('Error setting reminder (interval timer is out of range 800s < t < 50yr)')
 
             else:
-                channel = Guild.channels.filter(Channel.id == new_channel)
+                channel = guild.channels.filter(Channel.channel == new_channel).first_or_404()
 
                 if current_reminder is None and new_msg is not None:
 
