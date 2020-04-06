@@ -13,13 +13,13 @@
 
         <div class="container" style="width: 100%">
             <div class="row" style="width: 100%">
+                {% include "create_card.html" %}
+
                 {% for reminder in reminders %}
 
                     {% include "card.html" %}
 
                 {% endfor %}
-
-                {% include "create_card.html" %}
             </div>
         </div>
 
