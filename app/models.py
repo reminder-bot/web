@@ -1,6 +1,6 @@
 from app import db
 import secrets
-from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INT
+from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INTEGER as INT
 
 
 class User(db.Model):
@@ -56,8 +56,8 @@ class Guild(db.Model):
 
     users = db.relationship(
         'User', secondary=guild_users,
-        primaryjoin=(guild_users.c.guild == guild),
-        secondaryjoin=(guild_users.c.user == User.user),
+        primaryjoin=(guild_users.c.guild == id),
+        secondaryjoin=(guild_users.c.user == User.id),
         backref=db.backref('guilds', lazy='dynamic'), lazy='dynamic'
     )
 
@@ -73,6 +73,23 @@ class Channel(db.Model):
     webhook_token = db.Column(db.Text)
 
     guild_id = db.Column(INT(unsigned=True), db.ForeignKey(Guild.id, ondelete='CASCADE'), nullable=False)
+
+    def update_webhook(self, api_get, api_post, client_id):
+        # get existing webhooks
+        webhooks = api_get('channels/{}/webhooks'.format(self.channel)).json()
+
+        if isinstance(webhooks, list):
+            existing = [x for x in webhooks if x['user']['id'] == client_id]
+
+            if len(existing) == 0:
+                # get new webhook
+                req = api_post('channels/{}/webhooks'.format(self.channel), {'name': 'Reminders'}).json()
+                self.webhook_id = req['id']
+                self.webhook_token = req['token']
+
+            else:
+                self.webhook_id = existing[0]['id']
+                self.webhook_token = existing[0]['token']
 
 
 class Role(db.Model):
@@ -96,6 +113,10 @@ class Reminder(db.Model):
 
     channel_id = db.Column(INT(unsigned=True), db.ForeignKey(Channel.id), nullable=True)
     channel = db.relationship(Channel)
+    guild = db.relationship(Guild,
+                            secondary='join(Channel, Guild, Channel.guild_id == Guild.id)',
+                            primaryjoin='Reminder.channel_id==Channel.id',
+                            secondaryjoin='Channel.guild_id==Guild.id')
 
     user_id = db.Column(INT(unsigned=True), db.ForeignKey(User.id), nullable=True)
     user = db.relationship(User)

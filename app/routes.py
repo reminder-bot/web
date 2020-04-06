@@ -114,26 +114,6 @@ def oauth():
     return redirect(url_for('discord.login'))
 
 
-def get_webhook(channel: int):
-    # get existing webooks
-    webhooks = api_get('channels/{}/webhooks'.format(channel)).json()
-
-    if isinstance(webhooks, list):
-        existing = [x for x in webhooks if x['user']['id'] == app.config['DISCORD_OAUTH_CLIENT_ID']]
-
-        if len(existing) == 0:
-            # get new webhook
-            req = api_post('channels/{}/webhooks'.format(channel), {'name': 'Reminders'}).json()
-            wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(req['id'], req['token'])
-        else:
-            wh = 'https://discordapp.com/api/webhooks/{}/{}'.format(existing[0]['id'], existing[0]['token'])
-
-        return wh
-
-    else:
-        return None
-
-
 def api_get(endpoint):
     return requests.get('https://discordapp.com/api/{}'.format(endpoint),
                         headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
@@ -217,22 +197,20 @@ def change_reminder():
                 flash('Error setting reminder (interval timer is out of range 800s < t < 50yr)')
 
             else:
-                if request.args.get('id') != '0':
-                    webhook = get_webhook(new_channel)
-
-                else:
-                    webhook = None
+                channel = Guild.channels.filter(Channel.id == new_channel)
 
                 if current_reminder is None and new_msg is not None:
+
+                    if (channel.webhook_id or channel.webhook_token) is None:
+                        channel.update_webhook(api_get, api_post, app.config['DISCORD_OAUTH_CLIENT_ID'])
 
                     m = Message(content=new_msg)
 
                     reminder = Reminder(
                         message=m,
                         time=new_time,
-                        channel=new_channel,
+                        channel=channel,
                         method='dashboard',
-                        webhook=webhook,
                         username=username,
                         avatar=avatar,
                         enabled=True,
@@ -243,8 +221,7 @@ def change_reminder():
                 # updating an old reminder
                 elif new_msg is None:
                     current_reminder.time = new_time
-                    current_reminder.channel = new_channel
-                    current_reminder.webhook = webhook
+                    current_reminder.channel = channel
                     current_reminder.username = username
                     current_reminder.avatar = avatar
                     current_reminder.interval = new_interval
@@ -381,9 +358,7 @@ def dashboard():
                 db.session.commit()
 
         guild_reminders = Reminder.query.filter(
-            Reminder.channel.in_(
-                [x.channel for x in accessing_guild.channels])
-            ).order_by(Reminder.time).all()
+            Reminder.guild.contains(accessing_guild)).order_by(Reminder.time).all()
 
         if request.args.get('refresh') is None:
 
@@ -474,7 +449,7 @@ def advanced_message_editor(guild_id: int, reminder_uid: str):
         user_id: int = user['id']  # get user id from oauth
 
         member = User.query.filter(User.user == user_id).first()
-        server = GuildData.query.filter(GuildData.guild == guild_id).first_or_404()
+        server = Guild.query.filter(Guild.guild == guild_id).first_or_404()
 
         if member is None:
             return redirect(url_for('cache'))
