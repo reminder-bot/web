@@ -188,7 +188,7 @@ def change_reminder():
         if not (0 < new_time < time.time() + MAX_TIME):
             flash('Error setting reminder (time is too long)')
 
-        elif new_channel == member.dm_channel or new_channel in [x.channel for x in guild.channels]:
+        elif new_channel == -1 or new_channel in [x.channel for x in guild.channels]:
 
             if new_msg is not None and not 0 < len(new_msg) < 2048:
                 flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
@@ -197,19 +197,25 @@ def change_reminder():
                 flash('Error setting reminder (interval timer is out of range 800s < t < 50yr)')
 
             else:
-                channel = guild.channels.filter(Channel.channel == new_channel).first_or_404()
-
-                if current_reminder is None and new_msg is not None:
+                if new_channel != -1:
+                    channel = Channel.query.filter(Channel.channel == new_channel).first_or_404()
 
                     if (channel.webhook_id or channel.webhook_token) is None:
                         channel.update_webhook(api_get, api_post, app.config['DISCORD_OAUTH_CLIENT_ID'])
+
+                    channel_id = channel.id
+                else:
+                    channel_id = member.dm_channel
+
+                # creating a new reminder for DM or guild
+                if current_reminder is None and new_msg is not None:
 
                     m = Message(content=new_msg)
 
                     reminder = Reminder(
                         message=m,
                         time=new_time,
-                        channel=channel,
+                        channel_id=channel_id,
                         method='dashboard',
                         username=username,
                         avatar=avatar,
@@ -218,15 +224,15 @@ def change_reminder():
 
                     db.session.add(reminder)
 
-                # updating an old reminder
+                # updating an old reminder in a guild
                 elif new_msg is None:
                     current_reminder.time = new_time
-                    current_reminder.channel = channel
+                    current_reminder.channel_id = channel_id
                     current_reminder.username = username
                     current_reminder.avatar = avatar
                     current_reminder.interval = new_interval
 
-                # in a DM
+                # updating an old reminder in a DM
                 elif guild is None:
                     current_reminder.message.content = new_msg
                     current_reminder.time = new_time
@@ -402,8 +408,7 @@ def dashboard():
 
                 else:
                     if guild_id == 0:
-                        channels = [member.dm_channel]
-                        reminders = Reminder.query.filter(Reminder.channel == channels[0]).order_by(
+                        reminders = Reminder.query.filter(Reminder.channel_id == member.dm_channel).order_by(
                             Reminder.time).all()  # fetch reminders
 
                         return render_template('dashboard.html',
