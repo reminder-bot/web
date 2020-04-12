@@ -1,3 +1,4 @@
+import typing
 from flask import redirect, render_template, request, url_for, session, flash, abort
 from app import app, discord, db
 from app.models import Guild, Reminder, User, Channel, Role, Message, Embed
@@ -251,16 +252,6 @@ def change_reminder():
 
 @app.route('/cache/', methods=['GET'])
 def cache():
-    def create_cached_user(data: dict) -> User:
-        new_caching_user = User(user=data['id'], name='{}#{}'.format(data['username'], data['discriminator']))
-        dm_channel = api_post('users/@me/channels', {'recipient_id': data['id']}).json()
-
-        new_caching_user.dm_channel = dm_channel['id']
-
-        db.session.add(new_caching_user)
-
-        return new_caching_user
-
     def check_user_patreon(checking_user: User) -> int:
         reminder_guild_member = api_get('guilds/{}/members/{}'.format(app.config['PATREON_SERVER'], checking_user.user))
 
@@ -295,7 +286,8 @@ def cache():
         return cached_guilds
 
     if not discord.authorized:
-        return 'You must Authorize with Discord OAuth to use the web dashboard.'
+        return render_template('dashboard_error.html', error_message='You must Authorize with Discord OAuth to '
+                                                                     'use the web dashboard.')
 
     else:
         user: dict = discord.get('api/users/@me').json()
@@ -303,15 +295,21 @@ def cache():
         session['user_id'] = user['id']
 
         user_query = User.query.filter(User.user == user['id'])
-        cached_user: User = user_query.first() or create_cached_user(user)
+        cached_user: typing.Optional[User] = user_query.first()
 
-        cached_user.patreon = check_user_patreon(cached_user) > 0
+        if cached_user is None:
+            return render_template('dashboard_error.html',
+                                   error_message='You need to interact with the bot at least '
+                                                 'once within Discord before using the dashboard')
 
-        cached_user.guilds = get_user_guilds()
+        else:
+            cached_user.patreon = check_user_patreon(cached_user) > 0
 
-        db.session.commit()
+            cached_user.guilds = get_user_guilds()
 
-        return redirect(url_for('dashboard'))
+            db.session.commit()
+
+            return redirect(url_for('dashboard'))
 
 
 @app.route('/dashboard/', methods=['GET'])

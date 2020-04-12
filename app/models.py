@@ -151,5 +151,7 @@ class Reminder(db.Model):
     def message_content(self):
         if len(self.message.content) > 0:
             return self.message.content
-        else:
+        elif self.message.embed is not None:
             return self.message.embed.description
+        else:
+            return ''
