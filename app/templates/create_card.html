@@ -50,7 +50,9 @@ padding: 0;">
                             <div class="dropdown">
                                 <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;">
                                     {% for channel in guild.channels %}
-                                        <option value="{{ channel.channel }}">{{ channel.name }}</option>
+                                        {% if channel.name != None %}
+                                            <option value="{{ channel.channel }}">{{ channel.name }}</option>
+                                        {% endif %}
                                     {% endfor %}
                                 </select>
                             </div>

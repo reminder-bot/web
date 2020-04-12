@@ -39,7 +39,9 @@
 {% if guild != None %}
 let channels = {
     {% for channel in guild.channels %}
-    "{{ channel.name.replace('\\', '')[:32] }}": "{{ channel.channel }}",
+        {% if channel.name != None %}
+            "{{ channel.name.replace('\\', '')[:32] }}": "{{ channel.channel }}",
+        {% endif %}
     {% endfor %}
 };
 
