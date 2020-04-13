@@ -361,8 +361,8 @@ def dashboard():
 
                 db.session.commit()
 
-        guild_reminders = Reminder.query.filter(
-            Reminder.guild.contains(accessing_guild)).order_by(Reminder.time).all()
+        channel_ids = [channel.id for channel in guild.channels]
+        guild_reminders = Reminder.query.filter(Reminder.channel_id.in_(channel_ids)).order_by(Reminder.time).all()
 
         if request.args.get('refresh') is None:
 

@@ -116,10 +116,6 @@ class Reminder(db.Model):
 
     channel_id = db.Column(INT(unsigned=True), db.ForeignKey(Channel.id), nullable=True)
     channel = db.relationship(Channel)
-    guild = db.relationship(Guild,
-                            secondary='join(Channel, Guild, Channel.guild_id == Guild.id)',
-                            primaryjoin='Reminder.channel_id==Channel.id',
-                            secondaryjoin='Channel.guild_id==Guild.id')
 
     time = db.Column(BIGINT(unsigned=True))
     enabled = db.Column(db.Boolean, nullable=False, default=True)
