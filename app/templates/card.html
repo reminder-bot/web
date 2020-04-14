@@ -51,7 +51,7 @@
                             </div>
                             <div class="dropdown">
                                 <select name="channel_new" id="channel{{ reminder.uid }}" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;">
-                                    <option value="{{ reminder.channel }}" selected>{{ reminder.channel.name }} (current)</option>
+                                    <option value="{{ reminder.channel.channel }}" selected>{{ reminder.channel.name }} (current)</option>
                                     {% for channel in guild.channels %}
                                         {% if channel.name != None %}
                                             <option value="{{ channel.channel }}">{{ channel.name }}</option>
