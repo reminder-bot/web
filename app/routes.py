@@ -1,5 +1,5 @@
 import typing
-from flask import redirect, render_template, request, url_for, session, flash, abort
+from flask import redirect, render_template, request, url_for, session, flash, abort, jsonify
 from app import app, discord, db
 from app.models import Guild, Reminder, User, Channel, Role, Message, Embed
 from app.markdown import markdown_parse
@@ -98,14 +98,35 @@ def delete_interval():
     return '', 200
 
 
-@app.route('/toggle_enabled', strict_slashes=False)
+@app.route('/toggle_enabled/', methods=['POST'])
 def toggle_enabled():
-    reminder = Reminder.query.filter(Reminder.uid == request.args.get('reminder')).first()
-    reminder.enabled = not reminder.enabled
+    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
 
-    db.session.commit()
+    if reminder is not None:
+        reminder.enabled = not reminder.enabled
 
-    return '', 200
+        db.session.commit()
+
+        return jsonify({'enabled': reminder.enabled})
+
+    else:
+        return '', 400
+
+
+@app.route('/change_name/', methods=['POST'])
+def change_name():
+    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
+    name = request.json['name']
+
+    if reminder is not None and len(name) < 25:
+        reminder.name = name
+
+        db.session.commit()
+
+        return '', 200
+
+    else:
+        return '', 400
 
 
 @app.route('/oauth/')

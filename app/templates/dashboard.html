@@ -180,6 +180,68 @@ function toggle_enabled(reminder) {
     request.send();
 }
 
+$('.toggle-enabled').on('click', function (event) {
+    event.preventDefault();
+
+    let button = $(this);
+    let card = button.closest('.reminder-card');
+
+    let uid = card.data('uid');
+
+    $.ajax({
+        url: '{{ url_for('toggle_enabled') }}',
+        data: JSON.stringify({uid: uid}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'POST',
+
+        success: function(data, _t, _x) {
+            if (data.enabled) {
+                card.fadeTo(100, 1);
+                button.html('Disable');
+            }
+            else {
+                card.fadeTo(100, 0.5);
+                button.html('Enable');
+            }
+        }
+    })
+});
+
+let reminder_name = $('.reminder-name');
+
+reminder_name.keyup(function (e) {
+    if (e.keyCode === 13) {
+        $(this).blur();
+    }
+});
+
+reminder_name.on('blur', function () {
+    let uid = $(this).closest('.reminder-card').data('uid');
+
+    let save_icon = $(this).siblings('.saving-icon');
+
+    save_icon.stop();
+
+    save_icon.removeClass('fa-check');
+    save_icon.addClass('fa-save');
+
+    save_icon.fadeTo(50, 1);
+
+    $.ajax({
+        url: '{{ url_for('change_name') }}',
+        data: JSON.stringify({name: $(this).val(), uid: uid}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'POST',
+
+        success: function(_d, _t, _j) {
+            save_icon.removeClass('fa-save');
+            save_icon.addClass('fa-check');
+
+            save_icon.fadeTo(2000, 0)
+        }
+    });
+});
+
         </script>
 
 {% endblock %}

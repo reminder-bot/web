@@ -1,12 +1,17 @@
 <div class="col-md-12 col-lg-4">
-    <div class="card box box-body"
+    <div class="card box box-body reminder-card" data-uid="{{ reminder.uid }}"
         {% if not reminder.enabled %}
             style="opacity: 0.5"
         {% endif %}>
-        <form method="POST" action="{{ url_for('change_reminder', redirect=guild.guild or 0, reminder=reminder.uid) }}" id="form{{ reminder.uid }}" autocomplete="off">
             <div class="card-header">
-                <h4><strong>Reminder</strong></h4>
+                <h4>
+                    <strong>
+                        <input style="border: 1px solid black" value="{{ reminder.name }}" class="reminder-name" maxlength="24">
+                        <i class="fas fa-check saving-icon" style="opacity: 0"></i>
+                    </strong>
+                </h4>
             </div>
+        <form method="POST" action="{{ url_for('change_reminder', redirect=guild.guild or 0, reminder=reminder.uid) }}" id="form{{ reminder.uid }}" autocomplete="off">
             <div class="card-body">
                 <div id="modal">
                     <!-- This div is for writing error messages into DO NOT DELETE -->
@@ -210,7 +215,7 @@ update_time();
                     <button type="submit" class="btn btn-success">Save Changes</button>
 
                     {% if reminder.interval != None %}
-                        <button type="button" class="btn btn-warning" onclick="toggle_enabled('{{ reminder.uid }}')">
+                        <button type="button" class="btn btn-warning toggle-enabled">
 
                             {% if reminder.enabled %}
                                 Disable

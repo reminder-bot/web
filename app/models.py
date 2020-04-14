@@ -108,8 +108,12 @@ class Role(db.Model):
 class Reminder(db.Model):
     __tablename__ = 'reminders'
 
+    __table_args__ = (db.UniqueConstraint('name', 'channel_id'), )
+
     id = db.Column(INT(unsigned=True), primary_key=True, unique=True)
     uid = db.Column(db.String(64), unique=True, default=lambda: Reminder.create_uid())
+
+    name = db.Column(db.String(24), default='Reminder')
 
     message_id = db.Column(INT(unsigned=True), db.ForeignKey(Message.id), nullable=False)
     message = db.relationship(Message)
@@ -120,7 +124,7 @@ class Reminder(db.Model):
     time = db.Column(INT(unsigned=True))
     enabled = db.Column(db.Boolean, nullable=False, default=True)
 
-    avatar = db.Column(db.String(256),
+    avatar = db.Column(db.String(512),
                        default='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg',
                        nullable=False)
     username = db.Column(db.String(32), default='Reminder', nullable=False)
