@@ -147,17 +147,6 @@ document.getElementById("input-message").addEventListener("input", m);
 {% endif %}
 {# end of guild-only code #}
 
-function send_delete(reminder) {
-    let request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
-            location.reload();
-        }
-    };
-    request.open("GET", "{{ url_for('delete') }}" + "?index=" + reminder, true);
-    request.send();
-}
-
 function send_delete_i(reminder, interval) {
     let request = new XMLHttpRequest();
     request.onreadystatechange = function() {
@@ -169,16 +158,26 @@ function send_delete_i(reminder, interval) {
     request.send();
 }
 
-function toggle_enabled(reminder) {
-    let request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
-            location.reload();
+$('.delete-reminder').on('click', function (event) {
+    event.preventDefault();
+
+    let card = $(this).closest('.reminder-card');
+
+    let uid = card.data('uid');
+
+    $.ajax({
+        url: '{{ url_for('delete_reminder') }}',
+        data: JSON.stringify({uid: uid}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'POST',
+
+        success: function(_d, _t, _j) {
+            card.fadeOut(500, function() {
+                card.parent().remove();
+            });
         }
-    };
-    request.open("GET", "{{ url_for('toggle_enabled') }}" + "?reminder=" + reminder, true);
-    request.send();
-}
+    })
+});
 
 $('.toggle-enabled').on('click', function (event) {
     event.preventDefault();

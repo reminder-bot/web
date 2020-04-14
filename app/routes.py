@@ -76,9 +76,9 @@ def updates(log):
         return redirect('https://jellywx.com')
 
 
-@app.route('/delete', strict_slashes=False)
-def delete():
-    reminder = Reminder.query.filter(Reminder.uid == request.args.get('index'))
+@app.route('/delete_reminder/', methods=['POST'])
+def delete_reminder():
+    reminder = Reminder.query.filter(Reminder.uid == request.json['uid'])
     reminder.delete(synchronize_session='fetch')
 
     db.session.commit()
