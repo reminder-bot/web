@@ -163,7 +163,7 @@ def change_reminder():
         new_time = int(request.form.get('time_new'))
 
     except:
-        flash('Error setting reminder (form data malformed)')
+        flash('Error setting reminder (time or channel missing)')
 
         return end()
 

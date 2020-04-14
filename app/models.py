@@ -117,7 +117,7 @@ class Reminder(db.Model):
     channel_id = db.Column(INT(unsigned=True), db.ForeignKey(Channel.id), nullable=True)
     channel = db.relationship(Channel)
 
-    time = db.Column(BIGINT(unsigned=True))
+    time = db.Column(INT(unsigned=True))
     enabled = db.Column(db.Boolean, nullable=False, default=True)
 
     avatar = db.Column(db.String(256),
