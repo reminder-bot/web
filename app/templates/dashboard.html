@@ -147,16 +147,47 @@ document.getElementById("input-message").addEventListener("input", m);
 {% endif %}
 {# end of guild-only code #}
 
-function send_delete_i(reminder, interval) {
-    let request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
-            location.reload();
+$('.multiplier-selector').on('change', function () {
+    let interval_input = $(this).siblings('.interval-input');
+
+    let selected = $(this).find(':selected');
+
+    let old_multiplier = interval_input.data('current-multiplier');
+    let new_multiplier = selected.val();
+
+    let current_interval = interval_input.val();
+
+    let new_interval = (current_interval * old_multiplier) / new_multiplier;
+
+    interval_input.val(new_interval);
+    interval_input.data('current-multiplier', new_multiplier);
+});
+
+$('.delete-interval').on('click', function (event) {
+    event.preventDefault();
+
+    let delete_button = $(this);
+    let interval_input = delete_button.siblings('.interval-input');
+
+    let card = delete_button.closest('.reminder-card');
+
+    let disable_button = card.find('.toggle-enabled');
+
+    let uid = card.data('uid');
+
+    $.ajax({
+        url: '{{ url_for('delete_interval') }}',
+        data: JSON.stringify({uid: uid}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'POST',
+
+        success: function(_d, _t, _j) {
+            interval_input.val('');
+            delete_button.remove();
+            disable_button.remove();
         }
-    };
-    request.open("GET", "{{ url_for('delete_interval') }}" + "?reminder=" + reminder + "&interval=" + interval, true);
-    request.send();
-}
+    })
+});
 
 $('.delete-reminder').on('click', function (event) {
     event.preventDefault();

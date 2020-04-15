@@ -86,9 +86,9 @@ def delete_reminder():
     return '', 200
 
 
-@app.route('/delete_interval', strict_slashes=False)
+@app.route('/delete_interval/', methods=['POST'])
 def delete_interval():
-    r = Reminder.query.filter(Reminder.uid == request.args.get('reminder')).first()
+    r = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
 
     r.interval = None
     r.enabled = True

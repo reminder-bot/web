@@ -3,14 +3,14 @@
         {% if not reminder.enabled %}
             style="opacity: 0.5"
         {% endif %}>
-            <div class="card-header">
-                <h4>
-                    <strong>
-                        <input style="border: 1px solid black" value="{{ reminder.name }}" class="reminder-name" maxlength="24">
-                        <i class="fas fa-check saving-icon" style="opacity: 0"></i>
-                    </strong>
-                </h4>
-            </div>
+        <div class="card-header">
+            <h4>
+                <strong>
+                    <input style="border: 1px solid black" value="{{ reminder.name }}" class="reminder-name" maxlength="24">
+                    <i class="fas fa-check saving-icon" style="opacity: 0"></i>
+                </strong>
+            </h4>
+        </div>
         <form method="POST" action="{{ url_for('change_reminder', redirect=guild.guild or 0, reminder=reminder.uid) }}" id="form{{ reminder.uid }}" autocomplete="off">
             <div class="card-body">
                 <div id="modal">
@@ -120,41 +120,20 @@
                                 <div class="input-group-addon">
                                     <i class="fas fa-clock"></i>
                                 </div>
+
+                                <input type="number" class="form-control pull-left interval-input" name="interval_new" value="{{ reminder.interval }}" style="width: 65%" data-current-multiplier="1" />
+
+                                <select name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;" class="multiplier-selector">
+                                    <option value="1" selected>seconds</option>
+                                    <option value="60">minutes</option>
+                                    <option value="3600">hours</option>
+                                    <option value="86400">days</option>
+                                </select>
+
                                 {% if reminder.interval != None %}
-                                    <input type="number" class="form-control pull-left" id="interval_{{ reminder.uid }}" name="interval_new" value="{{ reminder.interval }}" style="width: 65%" />
-
-                                    <select id="multiplier_{{ reminder.uid }}" name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
-                                        <option value="1" onclick="change_multiplier{{ reminder.uid }}()" selected>seconds</option>
-                                        <option value="60" onclick="change_multiplier{{ reminder.uid }}()">minutes</option>
-                                        <option value="3600" onclick="change_multiplier{{ reminder.uid }}()">hours</option>
-                                        <option value="86400" onclick="change_multiplier{{ reminder.uid }}()">days</option>
-                                    </select>
-
-                                    <button type="button" class="btn btn-danger" onclick="send_delete_i('{{ reminder.uid }}')"><i class="fas fa-trash"></i></button>
-
-                                    <script>
-
-let before{{ reminder.uid }} = 1;
-
-function change_multiplier{{ reminder.uid }}() {
-    let e = document.getElementById('multiplier_{{ reminder.uid }}').value;
-
-    document.getElementById('interval_{{ reminder.uid }}').value *= before{{ reminder.uid }} / e;
-
-    before{{ reminder.uid }} = e;
-}
-
-                                    </script>
-                                {% else %}
-                                    <input type="number" class="form-control pull-left" name="interval_new" value="" style="width: 75%;" />
-
-                                    <select name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
-                                        <option value="1" selected>seconds</option>
-                                        <option value="60">minutes</option>
-                                        <option value="3600">hours</option>
-                                        <option value="86400">days</option>
-                                    </select>
+                                    <button type="button" class="btn btn-danger delete-interval"><i class="fas fa-trash"></i></button>
                                 {% endif %}
+
                             </div>
                             <!-- /.input group -->
                         </div>
