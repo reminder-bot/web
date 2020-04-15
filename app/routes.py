@@ -129,6 +129,38 @@ def change_name():
         return '', 400
 
 
+@app.route('/change_username/', methods=['POST'])
+def change_username():
+    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
+    username = request.json['username']
+
+    if reminder is not None and len(username) < 32:
+        reminder.username = username
+
+        db.session.commit()
+
+        return '', 200
+
+    else:
+        return '', 400
+
+
+@app.route('/change_avatar/', methods=['POST'])
+def change_avatar():
+    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
+    avatar = request.json['avatar']
+
+    if reminder is not None and len(avatar) < 512:
+        reminder.avatar = avatar
+
+        db.session.commit()
+
+        return '', 200
+
+    else:
+        return '', 400
+
+
 @app.route('/change_channel/', methods=['POST'])
 def change_channel():
     reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
@@ -159,6 +191,43 @@ def change_time():
 
     else:
         return '', 400
+
+
+@app.route('/change_interval/', methods=['POST'])
+def change_interval():
+    user = discord.get('api/users/@me').json()
+    try:
+        user_id = int(user['id'])
+
+    except KeyError:
+        flash('Discord verification failed. Please retry')
+        return '', 403
+
+    else:
+        member = User.query.filter(User.user == user_id).first()
+
+        if member.patreon:
+            reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
+            interval = request.json['interval']
+
+            if reminder is not None:
+                if interval is not None and MIN_INTERVAL < interval < MAX_TIME:
+                    reminder.interval = interval
+
+                    db.session.commit()
+
+                    return '', 200
+
+                elif interval is None:
+                    reminder.interval = None
+
+                    return '', 200
+
+            else:
+                return '', 400
+
+        else:
+            return '', 403
 
 
 @app.route('/oauth/')

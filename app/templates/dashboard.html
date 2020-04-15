@@ -223,6 +223,28 @@ $('.multiplier-selector').on('change', function () {
     interval_input.data('current-multiplier', new_multiplier);
 });
 
+$('.interval-input').on('blur', function () {
+    let card = $(this).closest('.reminder-card');
+    let uid = card.data('uid');
+
+    let delete_button = card.find('.delete-interval');
+    let disable_button = card.find('.toggle-enabled');
+
+    let multiplier = $(this).data('current-multiplier');
+
+    $.ajax({
+        url: '{{ url_for('change_interval') }}',
+        data: JSON.stringify({uid: uid, interval: $(this).val() * multiplier}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'POST',
+
+        success: function () {
+            delete_button.show();
+            disable_button.show();
+        }
+    });
+});
+
 $('.delete-interval').on('click', function (event) {
     event.preventDefault();
 
@@ -243,8 +265,8 @@ $('.delete-interval').on('click', function (event) {
 
         success: function(_d, _t, _j) {
             interval_input.val('');
-            delete_button.remove();
-            disable_button.remove();
+            delete_button.hide();
+            disable_button.hide();
         }
     })
 });
@@ -297,15 +319,13 @@ $('.toggle-enabled').on('click', function (event) {
     })
 });
 
-let reminder_name = $('.reminder-name');
-
-reminder_name.keyup(function (e) {
+$('input').keyup(function (e) {
     if (e.keyCode === 13) {
         $(this).blur();
     }
 });
 
-reminder_name.on('blur', function () {
+$('.reminder-name').on('blur', function () {
     let uid = $(this).closest('.reminder-card').data('uid');
 
     let save_icon = $(this).siblings('.saving-icon');
@@ -330,6 +350,28 @@ reminder_name.on('blur', function () {
             save_icon.fadeTo(2000, 0)
         }
     });
+});
+
+$('reminder-username').on('blur', function () {
+    let uid = $(this).closest('.reminder-card').data('uid');
+
+    $.ajax({
+        url: '{{ url_for('change_username') }}',
+        data: JSON.stringify({uid: uid, username: $(this).val()}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'POST'
+    })
+});
+
+$('.reminder-avatar').on('blur', function () {
+    let uid = $(this).closest('.reminder-card').data('uid');
+
+    $.ajax({
+        url: '{{ url_for('change_avatar') }}',
+        data: JSON.stringify({uid: uid, avatar: $(this).val()}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'POST'
+    })
 });
 
         </script>

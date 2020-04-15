@@ -11,165 +11,165 @@
                 </strong>
             </h4>
         </div>
-        <form method="POST" action="{{ url_for('change_reminder', redirect=guild.guild or 0, reminder=reminder.uid) }}" id="form{{ reminder.uid }}" autocomplete="off">
-            <div class="card-body">
-                <div id="modal">
-                    <!-- This div is for writing error messages into DO NOT DELETE -->
-                </div>
-
-                {% if guild == None %}
-                    <div class="form-group">
-                        <label for="input-message{{ reminder.uid }}">Message:</label>
-                        <div class="input-group">
-                            <div class="input-group-addon">
-                                <i class="fa fa-envelope"></i>
-                            </div>
-
-                            <textarea id="input-message{{ reminder.uid }}" class="form-control" name="message_new">{{ reminder.message_content() }}</textarea>
-
-                        </div>
-                        <!-- /.input group -->
-                    </div>
-
-                    <input type="text" name="channel_new" value="-1" id="input-channel" hidden required />
-
-                {% else %}
-                    <div class="form-group">
-                        <label for="input-message{{ reminder.uid }}">Message:</label>
-                        <div class="input-group">
-                            <div class="input-group-addon">
-                                <i class="fa fa-envelope"></i>
-                            </div>
-
-                            <textarea id="input-message{{ reminder.uid }}" style="resize: none;" class="form-control" disabled>{{ reminder.message_content() }}</textarea>
-
-                        </div>
-                        <a href="{{ url_for('advanced_message_editor', guild_id=guild.guild, reminder_uid=reminder.uid) }}" target="_blank">Edit Message</a>
-                        <!-- /.input group -->
-                    </div>
-
-                    <div class="form-group">
-                        <label for="channel{{ reminder.uid }}">Channel:</label>
-                        <div class="input-group">
-                            <div class="input-group-addon">
-                                <i class="fas fa-comment-alt"></i>
-                            </div>
-                            <div class="dropdown">
-                                <select name="channel_new" class="channel-selector" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;">
-                                    <option value="{{ reminder.channel.channel }}" selected>{{ reminder.channel.name }} (current)</option>
-                                    {% for channel in guild.channels %}
-                                        {% if channel.name != None %}
-                                            <option value="{{ channel.channel }}">{{ channel.name }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <!-- /.input group -->
-                    </div>
-
-                    <div class="form-group">
-                        <label for="username{{ reminder.uid }}">Username (optional):</label>
-                        <div class="input-group">
-                            <div class="input-group-addon">
-                                <i class="fas fa-file-signature"></i>
-                            </div>
-                            <input type="text" class="form-control pull-right" id="username{{ reminder.uid }}" name="username" maxlength="32" value="{{ reminder.username }}" />
-                        </div>
-                    </div>
-
-                {% endif %}
-
-                <label for="datepicker{{ reminder.uid }}">Time:</label>
-
-                <div class="form-group time-selectors" data-start-time="{{ reminder.time }}">
-
-                    <div class="col-5" style="display: inline-flex;">
-                        <div class="input-group date">
-                            <div class="input-group-addon">
-                                <i class="fa fa-calendar"></i>
-                            </div>
-
-                            <label for="datepicker{{ reminder.uid }}" class="sr-only">Reminder Date</label>
-
-                            <input type="text" class="form-control datepicker time-update" id="datepicker{{ reminder.uid }}" name="date" />
-                        </div>
-                    </div>
-
-                    <div class="bootstrap-timepicker col-5" style="display: inline-flex;">
-                        <div class="input-group">
-
-                            <label for="timepicker{{ reminder.uid }}" class="sr-only">Reminder Time</label>
-
-                            <input type="text" class="form-control timepicker time-update" id="timepicker{{ reminder.uid }}" name="time" />
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                {% if member.patreon %}
-
-                    <div class="bootstrap-timepicker">
-                        <div class="form-group">
-                            <label>Interval:</label>
-                            <div class="input-group">
-                                <div class="input-group-addon">
-                                    <i class="fas fa-clock"></i>
-                                </div>
-
-                                <input type="number" class="form-control pull-left interval-input" name="interval_new" value="{{ reminder.interval }}" style="width: 65%" data-current-multiplier="1" />
-
-                                <select name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;" class="multiplier-selector">
-                                    <option value="1" selected>seconds</option>
-                                    <option value="60">minutes</option>
-                                    <option value="3600">hours</option>
-                                    <option value="86400">days</option>
-                                </select>
-
-                                {% if reminder.interval != None %}
-                                    <button type="button" class="btn btn-danger delete-interval"><i class="fas fa-trash"></i></button>
-                                {% endif %}
-
-                            </div>
-                            <!-- /.input group -->
-                        </div>
-                        <!-- /.form group -->
-                    </div>
-
-                    {% if guild != None %}
-
-                        <div class="form-group">
-                            <label for="avatar">Avatar:</label>
-                            <div class="input-group">
-                                <div class="input-group-addon">
-                                    <i class="fas fa-camera"></i>
-                                </div>
-                                <input type="text" class="form-control pull-right" name="avatar" value="{{ reminder.avatar }}" id="avatar" />
-                            </div>
-                        </div>
-                    {% endif %}
-                {% endif %}
-                
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-success">Save Changes</button>
-
-                    {% if reminder.interval != None %}
-                        <button type="button" class="btn btn-warning toggle-enabled">
-
-                            {% if reminder.enabled %}
-                                Disable
-                            {% else %}
-                                Enable
-                            {% endif %}
-
-                        </button>
-                    {% endif %}
-
-                    <button type="button" class="btn btn-danger delete-reminder">Delete</button>
-                </div>
+        <div class="card-body">
+            <div id="modal">
+                <!-- This div is for writing error messages into DO NOT DELETE -->
             </div>
-        </form>
+
+            {% if guild == None %}
+                <div class="form-group">
+                    <label for="input-message{{ reminder.uid }}">Message:</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fa fa-envelope"></i>
+                        </div>
+
+                        <textarea id="input-message{{ reminder.uid }}" class="form-control" name="message_new">{{ reminder.message_content() }}</textarea>
+
+                    </div>
+                    <!-- /.input group -->
+                </div>
+
+                <input type="text" name="channel_new" value="-1" id="input-channel" hidden required />
+
+            {% else %}
+                <div class="form-group">
+                    <label for="input-message{{ reminder.uid }}">Message:</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fa fa-envelope"></i>
+                        </div>
+
+                        <textarea id="input-message{{ reminder.uid }}" style="resize: none;" class="form-control" disabled>{{ reminder.message_content() }}</textarea>
+
+                    </div>
+                    <a href="{{ url_for('advanced_message_editor', guild_id=guild.guild, reminder_uid=reminder.uid) }}" target="_blank">Edit Message</a>
+                    <!-- /.input group -->
+                </div>
+
+                <div class="form-group">
+                    <label for="channel{{ reminder.uid }}">Channel:</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fas fa-comment-alt"></i>
+                        </div>
+                        <div class="dropdown">
+                            <select name="channel_new" class="channel-selector" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;" autocomplete="off">
+                                <option value="{{ reminder.channel.channel }}" selected>{{ reminder.channel.name }} (current)</option>
+                                {% for channel in guild.channels %}
+                                    {% if channel.name != None %}
+                                        <option value="{{ channel.channel }}">{{ channel.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <!-- /.input group -->
+                </div>
+
+                <div class="form-group">
+                    <label for="username{{ reminder.uid }}">Username (optional):</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fas fa-file-signature"></i>
+                        </div>
+                        <input type="text" class="form-control pull-right reminder-username" id="username{{ reminder.uid }}" maxlength="32" value="{{ reminder.username }}" />
+                    </div>
+                </div>
+
+            {% endif %}
+
+            <label for="datepicker{{ reminder.uid }}">Time:</label>
+
+            <div class="form-group time-selectors" data-start-time="{{ reminder.time }}">
+
+                <div class="col-5" style="display: inline-flex;">
+                    <div class="input-group date">
+                        <div class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+
+                        <label for="datepicker{{ reminder.uid }}" class="sr-only">Reminder Date</label>
+
+                        <input type="text" class="form-control datepicker time-update" id="datepicker{{ reminder.uid }}" name="date" />
+                    </div>
+                </div>
+
+                <div class="bootstrap-timepicker col-5" style="display: inline-flex;">
+                    <div class="input-group">
+
+                        <label for="timepicker{{ reminder.uid }}" class="sr-only">Reminder Time</label>
+
+                        <input type="text" class="form-control timepicker time-update" id="timepicker{{ reminder.uid }}" name="time" />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% if member.patreon %}
+
+                <div class="bootstrap-timepicker">
+                    <div class="form-group">
+                        <label>Interval:</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+
+                            <input type="number" class="form-control pull-left interval-input" value="{{ reminder.interval }}" style="width: 65%" data-current-multiplier="1" />
+
+                            <select name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;" class="multiplier-selector">
+                                <option value="1" selected>seconds</option>
+                                <option value="60">minutes</option>
+                                <option value="3600">hours</option>
+                                <option value="86400">days</option>
+                            </select>
+
+                            <button type="button" class="btn btn-danger delete-interval"
+                                    {% if reminder.interval == None %}
+                                        style="display: none;"
+                                    {% endif %}>
+                                <i class="fas fa-trash"></i>
+                            </button>
+
+                        </div>
+                        <!-- /.input group -->
+                    </div>
+                    <!-- /.form group -->
+                </div>
+
+                {% if guild != None %}
+
+                    <div class="form-group">
+                        <label for="avatar">Avatar:</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <input type="text" class="form-control pull-right reminder-avatar" name="avatar" value="{{ reminder.avatar }}" id="avatar" />
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <div class="card-footer">
+                <button type="button" class="btn btn-warning toggle-enabled"
+                        {% if reminder.interval == None %}
+                            style="display: none;"
+                        {% endif %}>
+
+                    {% if reminder.enabled %}
+                        Disable
+                    {% else %}
+                        Enable
+                    {% endif %}
+
+                </button>
+
+                <button type="button" class="btn btn-danger delete-reminder">Delete</button>
+            </div>
+        </div>
     </div>
 </div>
