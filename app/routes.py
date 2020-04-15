@@ -129,6 +129,38 @@ def change_name():
         return '', 400
 
 
+@app.route('/change_channel/', methods=['POST'])
+def change_channel():
+    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
+    channel = Channel.query.filter(Channel.channel == int(request.json['channel'])).first()
+
+    if reminder is not None and channel is not None:
+        reminder.channel = channel
+
+        db.session.commit()
+
+        return '', 200
+
+    else:
+        return '', 400
+
+
+@app.route('/change_time/', methods=['POST'])
+def change_time():
+    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
+    new_time = request.json['time']
+
+    if reminder is not None and new_time is not None and 0 < new_time < time.time() + MAX_TIME:
+        reminder.time = new_time
+
+        db.session.commit()
+
+        return '', 200
+
+    else:
+        return '', 400
+
+
 @app.route('/oauth/')
 def oauth():
     session.clear()

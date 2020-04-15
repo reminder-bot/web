@@ -55,7 +55,7 @@
                                 <i class="fas fa-comment-alt"></i>
                             </div>
                             <div class="dropdown">
-                                <select name="channel_new" id="channel{{ reminder.uid }}" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;">
+                                <select name="channel_new" class="channel-selector" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;">
                                     <option value="{{ reminder.channel.channel }}" selected>{{ reminder.channel.name }} (current)</option>
                                     {% for channel in guild.channels %}
                                         {% if channel.name != None %}
@@ -80,11 +80,9 @@
 
                 {% endif %}
 
-                <input name="time_new" value="0" id="time_new{{ reminder.uid }}" hidden />
-
                 <label for="datepicker{{ reminder.uid }}">Time:</label>
 
-                <div class="form-group">
+                <div class="form-group time-selectors" data-start-time="{{ reminder.time }}">
 
                     <div class="col-5" style="display: inline-flex;">
                         <div class="input-group date">
@@ -94,7 +92,7 @@
 
                             <label for="datepicker{{ reminder.uid }}" class="sr-only">Reminder Date</label>
 
-                            <input type="text" class="form-control" id="datepicker{{ reminder.uid }}" name="date" />
+                            <input type="text" class="form-control datepicker time-update" id="datepicker{{ reminder.uid }}" name="date" />
                         </div>
                     </div>
 
@@ -103,7 +101,7 @@
 
                             <label for="timepicker{{ reminder.uid }}" class="sr-only">Reminder Time</label>
 
-                            <input type="text" class="form-control timepicker" id="timepicker{{ reminder.uid }}" name="time" />
+                            <input type="text" class="form-control timepicker time-update" id="timepicker{{ reminder.uid }}" name="time" />
 
                         </div>
 
@@ -154,42 +152,6 @@
                     {% endif %}
                 {% endif %}
                 
-                <script>
-
-function update_time()
-{
-    let t_time = document.getElementById("timepicker{{ reminder.uid }}");
-    let d_time = document.getElementById("datepicker{{ reminder.uid }}");
-
-    m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A');
-
-    document.getElementById("time_new{{ reminder.uid if reminder else "" }}").value = m.unix();
-}
-
-current = moment.unix({{ reminder.time if reminder else time }});
-
-//Date picker
-$('#datepicker{{ reminder.uid }}').datepicker({
-    format: 'yyyy/mm/dd',
-    autoclose: true,
-});
-
-$('#datepicker{{ reminder.uid }}').datepicker('update', current.toDate());
-//Timepicker
-$('#timepicker{{ reminder.uid }}').timepicker({
-    minuteStep: 1,
-    showInputs: false,
-    showSeconds: true,
-    defaultTime: current.format('hh:mm A'),
-});
-
-$("#datepicker{{ reminder.uid }}").change(update_time);
-$("#timepicker{{ reminder.uid }}").change(update_time);
-
-update_time();
-
-                </script>
-
                 <div class="card-footer">
                     <button type="submit" class="btn btn-success">Save Changes</button>
 

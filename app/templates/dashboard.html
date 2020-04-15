@@ -147,6 +147,66 @@ document.getElementById("input-message").addEventListener("input", m);
 {% endif %}
 {# end of guild-only code #}
 
+$(function () {
+    $('.time-selectors').each(function () {
+        let time = moment.unix($(this).data('start-time'));
+
+        $(this).find('.timepicker').timepicker('setTime', time.format('hh:mm:ss A'));
+        $(this).find('.datepicker').datepicker('update', time.format('YYYY/MM/DD'));
+    });
+
+    function update_time() {
+        let uid = $(this).closest('.reminder-card').data('uid');
+
+        let parent = $(this).closest('.time-selectors');
+
+        let dp = parent.find('.datepicker');
+        let tp = parent.find('.timepicker');
+
+        let m = moment(`${dp.val()} ${tp.val()}`, 'YYYY/MM/DD HH:mm:ss A');
+
+        $.ajax({
+            url: '{{ url_for('change_time') }}',
+            data: JSON.stringify({uid: uid, time: m.unix()}),
+            contentType: 'application/json; charset=utf-8',
+            method: 'POST'
+        });
+    }
+
+    $('.timepicker').on('blur', update_time);
+    $('.datepicker').on('change', update_time);
+});
+
+$('.datepicker').datepicker({
+    format: 'yyyy/mm/dd',
+    autoclose: true,
+});
+
+$('.timepicker').timepicker({
+    minuteStep: 1,
+    showInputs: false,
+    showSeconds: true,
+});
+
+$('.channel-selector').on('change', function () {
+    let uid = $(this).closest('.reminder-card').data('uid');
+
+    let option = $(this).find(':selected');
+    let channel = $(this).val();
+
+    $.ajax({
+        url: '{{ url_for('change_channel') }}',
+        data: JSON.stringify({uid: uid, channel: channel}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'POST',
+
+        success: function (_d, _t, _j) {
+            let current_name = option.html();
+            option.html(`${current_name} (current)`);
+        }
+    })
+});
+
 $('.multiplier-selector').on('change', function () {
     let interval_input = $(this).siblings('.interval-input');
 
