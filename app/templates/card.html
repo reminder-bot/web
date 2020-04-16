@@ -6,7 +6,13 @@
         <div class="card-header">
             <h4>
                 <strong>
-                    <input style="border: 1px solid black" value="{{ reminder.name }}" class="reminder-name" maxlength="24">
+                    <input
+                            style="border: 1px solid black"
+                            value="{{ reminder.name }}"
+                            class="reminder-name"
+                            maxlength="24"
+                            data-initial-value="{{ reminder.name }}"
+                            autocomplete="off" />
                 </strong>
             </h4>
         </div>

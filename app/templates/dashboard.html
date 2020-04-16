@@ -374,16 +374,11 @@ $('input').keyup(function (e) {
 });
 
 $('.reminder-name').on('blur', function () {
-    let uid = $(this).closest('.reminder-card').data('uid');
+    let input = $(this);
+    let card = $(this).closest('.reminder-card');
+    mark_as_saving(card);
 
-    let save_icon = $(this).siblings('.saving-icon');
-
-    save_icon.stop();
-
-    save_icon.removeClass('fa-check');
-    save_icon.addClass('fa-save');
-
-    save_icon.fadeTo(50, 1);
+    let uid = card.data('uid');
 
     $.ajax({
         url: '{{ url_for('change_name') }}',
@@ -391,12 +386,8 @@ $('.reminder-name').on('blur', function () {
         contentType: 'application/json; charset=utf-8',
         method: 'POST',
 
-        success: function(_d, _t, _j) {
-            save_icon.removeClass('fa-save');
-            save_icon.addClass('fa-check');
-
-            save_icon.fadeTo(2000, 0)
-        }
+        success: function () { mark_as_saved(card); },
+        error: function (resp) { show_error(card, resp, input); }
     });
 });
 
@@ -421,13 +412,21 @@ $('.reminder-username').on('blur', function () {
 });
 
 $('.reminder-avatar').on('blur', function () {
+    let card = $(this).closest('.reminder-card');
+    mark_as_saving(card);
+
+    let input = $(this);
+
     let uid = $(this).closest('.reminder-card').data('uid');
 
     $.ajax({
         url: '{{ url_for('change_avatar') }}',
         data: JSON.stringify({uid: uid, avatar: $(this).val()}),
         contentType: 'application/json; charset=utf-8',
-        method: 'POST'
+        method: 'POST',
+
+        success: function () { mark_as_saved(card); },
+        error: function (error_message) { show_error(card, error_message, input) }
     })
 });
 

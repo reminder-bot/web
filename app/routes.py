@@ -127,7 +127,7 @@ def change_name():
             return '', 200
 
         else:
-            return 'Name too long. Please use a maximum of 24 characters'
+            return 'Name too long. Please use a maximum of 24 characters', 400
 
     else:
         return 'Reminder not found', 404
