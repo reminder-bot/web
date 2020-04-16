@@ -178,16 +178,19 @@ function show_error(card, text, input) {
 }
 
 $(function () {
-    $('.time-selectors').each(function () {
+    function reset_time_inputs() {
         let time = moment.unix($(this).data('start-time'));
 
         $(this).find('.timepicker').timepicker('setTime', time.format('hh:mm:ss A'));
         $(this).find('.datepicker').datepicker('update', time.format('YYYY/MM/DD'));
-    });
+    }
+
+    $('.time-selectors').each(reset_time_inputs);
 
     function update_time() {
         let card = $(this).closest('.reminder-card');
         mark_as_saving(card);
+
         let uid = card.data('uid');
 
         let parent = $(this).closest('.time-selectors');
@@ -204,7 +207,10 @@ $(function () {
             method: 'POST',
 
             success: function () { mark_as_saved(card); },
-            error: function (resp) { show_error(card, resp, null); }
+            error: function (resp) {
+                show_error(card, resp, null);
+                card.find('.time-selectors').each(reset_time_inputs);
+            }
         });
     }
 
