@@ -7,13 +7,12 @@
             <h4>
                 <strong>
                     <input style="border: 1px solid black" value="{{ reminder.name }}" class="reminder-name" maxlength="24">
-                    <i class="fas fa-check saving-icon" style="opacity: 0"></i>
                 </strong>
             </h4>
         </div>
         <div class="card-body">
-            <div id="modal">
-                <!-- This div is for writing error messages into DO NOT DELETE -->
+            <div class="error-area" style="color: red;">
+
             </div>
 
             {% if guild == None %}
@@ -73,7 +72,14 @@
                         <div class="input-group-addon">
                             <i class="fas fa-file-signature"></i>
                         </div>
-                        <input type="text" class="form-control pull-right reminder-username" id="username{{ reminder.uid }}" maxlength="32" value="{{ reminder.username }}" />
+                        <input
+                                type="text"
+                                class="form-control pull-right reminder-username"
+                                id="username{{ reminder.uid }}"
+                                value="{{ reminder.username }}"
+                                data-initial-value="{{ reminder.username }}"
+                                autocomplete="off"
+                                maxlength="32" />
                     </div>
                 </div>
 
@@ -118,7 +124,14 @@
                                 <i class="fas fa-clock"></i>
                             </div>
 
-                            <input type="number" class="form-control pull-left interval-input" value="{{ reminder.interval }}" style="width: 65%" data-current-multiplier="1" />
+                            <input
+                                    type="number"
+                                    class="form-control pull-left interval-input"
+                                    value="{{ reminder.interval }}"
+                                    style="width: 65%"
+                                    data-current-multiplier="1"
+                                    data-initial-value="{{ reminder.interval }}"
+                                    autocomplete="off" />
 
                             <select name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;" class="multiplier-selector">
                                 <option value="1" selected>seconds</option>
@@ -148,13 +161,25 @@
                             <div class="input-group-addon">
                                 <i class="fas fa-camera"></i>
                             </div>
-                            <input type="text" class="form-control pull-right reminder-avatar" name="avatar" value="{{ reminder.avatar }}" id="avatar" />
+                            <input
+                                    type="text"
+                                    class="form-control pull-right reminder-avatar"
+                                    value="{{ reminder.avatar }}"
+                                    id="avatar"
+                                    maxlength="512"
+                                    data-initial-value="{{ reminder.avatar }}"
+                                    autocomplete="off" />
                         </div>
                     </div>
                 {% endif %}
             {% endif %}
 
             <div class="card-footer">
+                <button type="button" class="btn btn-success save-notice" disabled>
+                    <i class="fas fa-check saving-icon"></i>
+                    <span>Saved!</span>
+                </button>
+
                 <button type="button" class="btn btn-warning toggle-enabled"
                         {% if reminder.interval == None %}
                             style="display: none;"

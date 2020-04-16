@@ -79,21 +79,17 @@ function manage_characters(change_event, i)
         let roles_also = last[1] === "@";
         let set;
 
-        if ( roles_also ) 
-        {
+        if ( roles_also ) {
             set = roles;
         }
-        else 
-        {
+        else {
             set = members;
         }
 
         document.getElementById("mention-input" + i).style.display = "table";
 
-        for (let key in set )
-        {
-            if ( key.includes(name) )
-            {
+        for (let key in set ) {
+            if ( key.includes(name) ) {
                 out.push("@" + key);
             }
         }
@@ -101,10 +97,8 @@ function manage_characters(change_event, i)
     else if ( type === "#" ) {
         document.getElementById("mention-input" + i).style.display = "table";
 
-        for (let key in channels)
-        {
-            if ( key.includes(name) )
-            {
+        for (let key in channels) {
+            if ( key.includes(name) ) {
                 out.push("#" + key);
             }
         }
@@ -147,6 +141,42 @@ document.getElementById("input-message").addEventListener("input", m);
 {% endif %}
 {# end of guild-only code #}
 
+
+function mark_as_saving(card) {
+    let save_button = card.find('.save-notice');
+
+    save_button.fadeTo(150, 0.45).removeClass('btn-danger').addClass('btn-success');
+    save_button.find('span').text('Saving...');
+    save_button.find('i').removeClass('fa-check fa-exclamation-triangle').addClass('fa-save');
+}
+
+function mark_as_saved(card) {
+    let save_button = card.find('.save-notice');
+
+    save_button.fadeTo(150, 0.65).removeClass('btn-danger').addClass('btn-success');
+    save_button.find('span').text('Saved!');
+    save_button.find('i').removeClass('fa-save fa-exclamation-triangle').addClass('fa-check');
+}
+
+function show_error(card, text, input) {
+
+    if (input !== null && input.data('initial-value') !== null) {
+        // restore initial value
+        input.val(input.data('initial-value'));
+    }
+
+    let save_button = card.find('button.save-notice');
+    let error_div = card.find('div.error-area');
+
+    // show error message provided by server
+    error_div.text(text.responseText);
+
+    // switch button to danger and add error text
+    save_button.fadeTo(150, 0.85).removeClass('btn-success').addClass('btn-danger');
+    save_button.find('span').text('Error');
+    save_button.find('i').removeClass('fa-save fa-check').addClass('fa-exclamation-triangle');
+}
+
 $(function () {
     $('.time-selectors').each(function () {
         let time = moment.unix($(this).data('start-time'));
@@ -156,7 +186,9 @@ $(function () {
     });
 
     function update_time() {
-        let uid = $(this).closest('.reminder-card').data('uid');
+        let card = $(this).closest('.reminder-card');
+        mark_as_saving(card);
+        let uid = card.data('uid');
 
         let parent = $(this).closest('.time-selectors');
 
@@ -169,7 +201,10 @@ $(function () {
             url: '{{ url_for('change_time') }}',
             data: JSON.stringify({uid: uid, time: m.unix()}),
             contentType: 'application/json; charset=utf-8',
-            method: 'POST'
+            method: 'POST',
+
+            success: function () { mark_as_saved(card); },
+            error: function (resp) { show_error(card, resp, null); }
         });
     }
 
@@ -189,7 +224,9 @@ $('.timepicker').timepicker({
 });
 
 $('.channel-selector').on('change', function () {
-    let uid = $(this).closest('.reminder-card').data('uid');
+    let card = $(this).closest('.reminder-card');
+    mark_as_saving(card);
+    let uid = card.data('uid');
 
     let option = $(this).find(':selected');
     let channel = $(this).val();
@@ -203,7 +240,9 @@ $('.channel-selector').on('change', function () {
         success: function (_d, _t, _j) {
             let current_name = option.html();
             option.html(`${current_name} (current)`);
-        }
+            mark_as_saved(card);
+        },
+        error: function (resp) { show_error(card, resp, null) }
     })
 });
 
@@ -225,12 +264,14 @@ $('.multiplier-selector').on('change', function () {
 
 $('.interval-input').on('blur', function () {
     let card = $(this).closest('.reminder-card');
+    mark_as_saving(card);
     let uid = card.data('uid');
 
     let delete_button = card.find('.delete-interval');
     let disable_button = card.find('.toggle-enabled');
 
     let multiplier = $(this).data('current-multiplier');
+    let input = $(this);
 
     $.ajax({
         url: '{{ url_for('change_interval') }}',
@@ -239,8 +280,15 @@ $('.interval-input').on('blur', function () {
         method: 'POST',
 
         success: function () {
+            mark_as_saved(card);
             delete_button.show();
             disable_button.show();
+        },
+        error: function (resp) {
+            input.data('current-multiplier', '1');
+            card.find('.multiplier-selector').val('1');
+
+            show_error(card, resp, input);
         }
     });
 });
@@ -352,14 +400,23 @@ $('.reminder-name').on('blur', function () {
     });
 });
 
-$('reminder-username').on('blur', function () {
-    let uid = $(this).closest('.reminder-card').data('uid');
+$('.reminder-username').on('blur', function () {
+    let card = $(this).closest('.reminder-card');
+    mark_as_saving(card);
+
+    let input = $(this);
+
+    let uid = card.data('uid');
 
     $.ajax({
         url: '{{ url_for('change_username') }}',
         data: JSON.stringify({uid: uid, username: $(this).val()}),
         contentType: 'application/json; charset=utf-8',
-        method: 'POST'
+        dataType: 'text',
+        method: 'POST',
+
+        success: function () { mark_as_saved(card); },
+        error: function (error_message) { show_error(card, error_message, input) }
     })
 });
 

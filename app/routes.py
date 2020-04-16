@@ -110,7 +110,7 @@ def toggle_enabled():
         return jsonify({'enabled': reminder.enabled})
 
     else:
-        return '', 400
+        return 'Reminder not found', 404
 
 
 @app.route('/change_name/', methods=['POST'])
@@ -118,15 +118,19 @@ def change_name():
     reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
     name = request.json['name']
 
-    if reminder is not None and len(name) < 25:
-        reminder.name = name
+    if reminder is not None:
+        if len(name) <= 24:
+            reminder.name = name
 
-        db.session.commit()
+            db.session.commit()
 
-        return '', 200
+            return '', 200
+
+        else:
+            return 'Name too long. Please use a maximum of 24 characters'
 
     else:
-        return '', 400
+        return 'Reminder not found', 404
 
 
 @app.route('/change_username/', methods=['POST'])
@@ -134,15 +138,19 @@ def change_username():
     reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
     username = request.json['username']
 
-    if reminder is not None and len(username) < 32:
-        reminder.username = username
+    if reminder is not None:
+        if len(username) <= 32:
+            reminder.username = username
 
-        db.session.commit()
+            db.session.commit()
 
-        return '', 200
+            return '', 200
+
+        else:
+            return 'Username too long. Please use a maximum of 32 characters', 400
 
     else:
-        return '', 400
+        return 'Reminder not found', 404
 
 
 @app.route('/change_avatar/', methods=['POST'])
@@ -150,15 +158,19 @@ def change_avatar():
     reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
     avatar = request.json['avatar']
 
-    if reminder is not None and len(avatar) < 512:
-        reminder.avatar = avatar
+    if reminder is not None:
+        if len(avatar) <= 512:
+            reminder.avatar = avatar
 
-        db.session.commit()
+            db.session.commit()
 
-        return '', 200
+            return '', 200
+
+        else:
+            return 'Avatar URL too long. Please use a maximum of 512 characters', 400
 
     else:
-        return '', 400
+        return 'Reminder not found', 404
 
 
 @app.route('/change_channel/', methods=['POST'])
@@ -166,15 +178,19 @@ def change_channel():
     reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
     channel = Channel.query.filter(Channel.channel == int(request.json['channel'])).first()
 
-    if reminder is not None and channel is not None:
-        reminder.channel = channel
+    if reminder is not None:
+        if channel is not None:
+            reminder.channel = channel
 
-        db.session.commit()
+            db.session.commit()
 
-        return '', 200
+            return '', 200
+
+        else:
+            return 'Channel not found', 404
 
     else:
-        return '', 400
+        return 'Reminder not found', 404
 
 
 @app.route('/change_time/', methods=['POST'])
@@ -182,15 +198,28 @@ def change_time():
     reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
     new_time = request.json['time']
 
-    if reminder is not None and new_time is not None and 0 < new_time < time.time() + MAX_TIME:
-        reminder.time = new_time
+    if reminder is not None:
+        if new_time is not None and 0 < new_time < time.time() + MAX_TIME:
+            reminder.time = new_time
 
-        db.session.commit()
+            db.session.commit()
 
-        return '', 200
+            return '', 200
+
+        elif new_time < 0:
+            return 'Time cannot be less than zero', 400
+
+        elif new_time > time.time() + MAX_TIME:
+            return 'Time must be less than {} seconds in the future'.format(MAX_TIME), 400
+
+        elif new_time is None:
+            return 'Something went wrong with client-side time processing. Please refresh the page', 400
+
+        else:
+            return 'This error should never happen, but something went wrong', 400
 
     else:
-        return '', 400
+        return 'Reminder not found', 404
 
 
 @app.route('/change_interval/', methods=['POST'])
@@ -200,8 +229,8 @@ def change_interval():
         user_id = int(user['id'])
 
     except KeyError:
-        flash('Discord verification failed. Please retry')
-        return '', 403
+        flash('Discord verification failed. Please refresh the page')
+        return 'Discord verification failed. Please refresh the page', 403
 
     else:
         member = User.query.filter(User.user == user_id).first()
@@ -211,7 +240,7 @@ def change_interval():
             interval = request.json['interval']
 
             if reminder is not None:
-                if interval is not None and MIN_INTERVAL < interval < MAX_TIME:
+                if interval is not None and MIN_INTERVAL <= interval < MAX_TIME:
                     reminder.interval = interval
 
                     db.session.commit()
@@ -223,11 +252,20 @@ def change_interval():
 
                     return '', 200
 
+                elif MIN_INTERVAL > interval:
+                    return 'Interval too short (must be longer than {} seconds'.format(MIN_INTERVAL), 400
+
+                elif interval > MAX_TIME:
+                    return 'Interval too long (must be shorter than {} seconds'.format(MAX_TIME), 400
+
+                else:
+                    return 'This error should never appear, but something went wrong', 400
+
             else:
-                return '', 400
+                return 'Reminder not found', 404
 
         else:
-            return '', 403
+            return 'Patreon required', 403
 
 
 @app.route('/oauth/')
@@ -256,17 +294,6 @@ def change_reminder():
         else:
             return redirect(url_for('dashboard'))
 
-    current_reminder = None
-    current_uid = request.args.get('reminder')
-
-    if current_uid is not None:
-        current_reminder = Reminder.query.filter(Reminder.uid == current_uid).first()
-
-        if current_reminder is None:
-            flash('Error modifying existing reminder (reminder does not exist)')
-
-            return end()
-
     user = discord.get('api/users/@me').json()
     try:
         user_id = int(user['id'])
@@ -280,58 +307,60 @@ def change_reminder():
 
     new_msg = request.form.get('message_new')
 
-    try:
-        new_channel = int(request.form.get('channel_new'))
-        new_time = int(request.form.get('time_new'))
-
-    except:
-        flash('Error setting reminder (time or channel missing)')
+    if new_msg is None or len(new_msg) == 0:
+        flash('Error setting reminder (no message provided')
 
         return end()
-
     else:
-        new_interval = None
-        avatar = LOGO_URL
+        try:
+            new_channel = int(request.form.get('channel_new'))
+            new_time = int(request.form.get('time_new'))
 
-        username = request.form.get('username') or 'Reminder'
-        if not (0 < len(username) <= 32):
-            username = 'Reminder'
+        except:
+            flash('Error setting reminder (time or channel missing)')
 
-        if member.patreon:
-            try:
-                new_interval = int(request.form.get('interval_new')) * int(request.form.get('multiplier_new'))
+            return end()
 
-            except:
-                new_interval = None
+        else:
+            new_interval = None
+            avatar = LOGO_URL
 
-            avatar = request.form.get('avatar')
-            if not avatar or not avatar.startswith('http'):
-                avatar = None
+            username = request.form.get('username') or 'Reminder'
+            if not (0 < len(username) <= 32):
+                username = 'Reminder'
 
-        if not (0 < new_time < time.time() + MAX_TIME):
-            flash('Error setting reminder (time is too long)')
+            if member.patreon:
+                try:
+                    new_interval = int(request.form.get('interval_new')) * int(request.form.get('multiplier_new'))
 
-        elif new_channel == -1 or new_channel in [x.channel for x in guild.channels]:
+                except:
+                    new_interval = None
 
-            if new_msg is not None and not 0 < len(new_msg) < 2048:
-                flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
+                avatar = request.form.get('avatar')
+                if not avatar or not avatar.startswith('http'):
+                    avatar = None
 
-            elif new_interval is not None and not MIN_INTERVAL < new_interval < MAX_TIME:
-                flash('Error setting reminder (interval timer is out of range 800s < t < 50yr)')
+            if not (0 < new_time < time.time() + MAX_TIME):
+                flash('Error setting reminder (time is too long)')
 
-            else:
-                if new_channel != -1:
-                    channel = Channel.query.filter(Channel.channel == new_channel).first_or_404()
+            elif new_channel == -1 or new_channel in [x.channel for x in guild.channels]:
 
-                    if (channel.webhook_id or channel.webhook_token) is None:
-                        channel.update_webhook(api_get, api_post, app.config['DISCORD_OAUTH_CLIENT_ID'])
+                if new_msg is not None and not 0 < len(new_msg) < 2048:
+                    flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
 
-                    channel_id = channel.id
+                elif new_interval is not None and not MIN_INTERVAL < new_interval < MAX_TIME:
+                    flash('Error setting reminder (interval timer is out of range 800s < t < 50yr)')
+
                 else:
-                    channel_id = member.dm_channel
+                    if new_channel != -1:
+                        channel = Channel.query.filter(Channel.channel == new_channel).first_or_404()
 
-                # creating a new reminder for DM or guild
-                if current_reminder is None and new_msg is not None:
+                        if (channel.webhook_id or channel.webhook_token) is None:
+                            channel.update_webhook(api_get, api_post, app.config['DISCORD_OAUTH_CLIENT_ID'])
+
+                        channel_id = channel.id
+                    else:
+                        channel_id = member.dm_channel
 
                     m = Message(content=new_msg)
 
@@ -347,29 +376,12 @@ def change_reminder():
 
                     db.session.add(reminder)
 
-                # updating an old reminder in a guild
-                elif new_msg is None:
-                    current_reminder.time = new_time
-                    current_reminder.channel_id = channel_id
-                    current_reminder.username = username
-                    current_reminder.avatar = avatar
-                    current_reminder.interval = new_interval
+                    db.session.commit()
 
-                # updating an old reminder in a DM
-                elif guild is None:
-                    current_reminder.message.content = new_msg
-                    current_reminder.time = new_time
-                    current_reminder.interval = new_interval
+            elif new_channel not in [x.channel for x in guild.channels]:
+                flash('Error setting reminder (channel not found)')
 
-                else:
-                    flash('Message not found for new reminder')
-
-                db.session.commit()
-
-        elif new_channel not in [x.channel for x in guild.channels]:
-            flash('Error setting reminder (channel not found)')
-
-        return end()
+            return end()
 
 
 @app.route('/cache/', methods=['GET'])
