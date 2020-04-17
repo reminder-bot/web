@@ -152,18 +152,14 @@ function mark_as_saving(card) {
 function mark_as_saved(card) {
     let save_button = card.find('.save-notice');
 
+    card.find('.error-area').text('');
+
     save_button.fadeTo(150, 0.65).removeClass('btn-danger').addClass('btn-success');
     save_button.find('span').text('Saved!');
     save_button.find('i').removeClass('fa-save fa-exclamation-triangle').addClass('fa-check');
 }
 
-function show_error(card, text, input) {
-
-    if (input !== null && input.data('initial-value') !== null) {
-        // restore initial value
-        input.val(input.data('initial-value'));
-    }
-
+function show_error(card, text) {
     let save_button = card.find('button.save-notice');
     let error_div = card.find('div.error-area');
 
@@ -207,7 +203,7 @@ $(function () {
 
             success: function () { mark_as_saved(card); },
             error: function (resp) {
-                show_error(card, resp, null);
+                show_error(card, resp);
                 card.find('.time-selectors').each(reset_time_inputs);
             }
         });
@@ -247,7 +243,7 @@ $('.channel-selector').on('change', function () {
             option.html(`${current_name} (current)`);
             mark_as_saved(card);
         },
-        error: function (resp) { show_error(card, resp, null) }
+        error: function (resp) { show_error(card, resp) }
     })
 });
 
@@ -276,7 +272,6 @@ $('.interval-input').on('blur', function () {
     let disable_button = card.find('.toggle-enabled');
 
     let multiplier = $(this).data('current-multiplier');
-    let input = $(this);
 
     $.ajax({
         url: '{{ url_for('change_interval') }}',
@@ -290,10 +285,7 @@ $('.interval-input').on('blur', function () {
             disable_button.show();
         },
         error: function (resp) {
-            input.data('current-multiplier', '1');
-            card.find('.multiplier-selector').val('1');
-
-            show_error(card, resp, input);
+            show_error(card, resp);
         }
     });
 });
@@ -392,7 +384,7 @@ $('.reminder-name').on('blur', function () {
         method: 'POST',
 
         success: function () { mark_as_saved(card); },
-        error: function (resp) { show_error(card, resp, input); }
+        error: function (resp) { show_error(card, resp); }
     });
 });
 
@@ -410,7 +402,7 @@ $('.dm-message').on('blur', function () {
         method: 'POST',
 
         success: function () { mark_as_saved(card); },
-        error: function (resp) { show_error(card, resp, input); }
+        error: function (resp) { show_error(card, resp); }
     });
 });
 
@@ -430,7 +422,7 @@ $('.reminder-username').on('blur', function () {
         method: 'POST',
 
         success: function () { mark_as_saved(card); },
-        error: function (error_message) { show_error(card, error_message, input) }
+        error: function (error_message) { show_error(card, error_message) }
     })
 });
 
@@ -449,7 +441,7 @@ $('.reminder-avatar').on('blur', function () {
         method: 'POST',
 
         success: function () { mark_as_saved(card); },
-        error: function (error_message) { show_error(card, error_message, input) }
+        error: function (error_message) { show_error(card, error_message) }
     })
 });
 
