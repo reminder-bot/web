@@ -153,6 +153,29 @@ def change_username():
         return 'Reminder not found', 404
 
 
+@app.route('/change_message/', methods=['POST'])
+def change_message():
+    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
+    message = request.json['message']
+
+    if reminder is not None:
+        if 0 < len(message) <= 2048:
+            reminder.message.content = message
+
+            db.session.commit()
+
+            return '', 200
+
+        elif 0 < len(message):
+            return 'Message too short. Please use at least 1 character', 400
+
+        else:
+            return 'Message too long. Please use a maximum of 2048 characters', 400
+
+    else:
+        return 'Reminder not found', 404
+
+
 @app.route('/change_avatar/', methods=['POST'])
 def change_avatar():
     reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
@@ -505,8 +528,7 @@ def dashboard():
                                    guilds=member.guilds,
                                    reminders=guild_reminders,
                                    guild=accessing_guild,
-                                   member=member,
-                                   time=time.time())
+                                   member=member)
 
         else:
             return redirect(url_for('dashboard', id=accessing_guild.guild))
@@ -548,8 +570,7 @@ def dashboard():
                                                guilds=member.guilds,
                                                reminders=reminders,
                                                guild=None,
-                                               member=member,
-                                               time=time.time())
+                                               member=member)
 
                     else:
                         for guild in member.guilds:
@@ -566,8 +587,7 @@ def dashboard():
                                        out=True,
                                        guilds=member.guilds,
                                        guild=None,
-                                       member=member,
-                                       time=time.time())
+                                       member=member)
 
             else:
                 return redirect(url_for('cache'))

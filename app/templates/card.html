@@ -29,7 +29,7 @@
                             <i class="fa fa-envelope"></i>
                         </div>
 
-                        <textarea id="input-message{{ reminder.uid }}" class="form-control" name="message_new">{{ reminder.message_content() }}</textarea>
+                        <textarea id="input-message{{ reminder.uid }}" class="form-control dm-message" name="message_new" autocomplete="off">{{ reminder.message_content() }}</textarea>
 
                     </div>
                     <!-- /.input group -->
@@ -53,13 +53,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="channel{{ reminder.uid }}">Channel:</label>
+                    <label for="channel-{{ reminder.uid }}">Channel:</label>
                     <div class="input-group">
                         <div class="input-group-addon">
                             <i class="fas fa-comment-alt"></i>
                         </div>
                         <div class="dropdown">
-                            <select name="channel_new" class="channel-selector" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;" autocomplete="off">
+                            <select id="channel-{{ reminder.uid }}" name="channel_new" class="channel-selector" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;" autocomplete="off">
                                 <option value="{{ reminder.channel.channel }}" selected>{{ reminder.channel.name }} (current)</option>
                                 {% for channel in guild.channels %}
                                     {% if channel.name != None %}

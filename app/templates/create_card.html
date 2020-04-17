@@ -146,8 +146,7 @@ padding: 0;">
                 
                 <script>
 
-function update_time()
-{
+function update_time() {
     let t_time = document.getElementById("timepicker");
     let d_time = document.getElementById("datepicker");
 
@@ -156,7 +155,7 @@ function update_time()
     document.getElementById("time_new").value = m.unix();
 }
 
-let current = moment.unix({{ time }});
+let current = moment();
 
 //Date picker
 $('#datepicker').datepicker({

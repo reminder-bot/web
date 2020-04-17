@@ -141,7 +141,6 @@ document.getElementById("input-message").addEventListener("input", m);
 {% endif %}
 {# end of guild-only code #}
 
-
 function mark_as_saving(card) {
     let save_button = card.find('.save-notice');
 
@@ -389,6 +388,24 @@ $('.reminder-name').on('blur', function () {
     $.ajax({
         url: '{{ url_for('change_name') }}',
         data: JSON.stringify({name: $(this).val(), uid: uid}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'POST',
+
+        success: function () { mark_as_saved(card); },
+        error: function (resp) { show_error(card, resp, input); }
+    });
+});
+
+$('.dm-message').on('blur', function () {
+    let input = $(this);
+    let card = $(this).closest('.reminder-card');
+    mark_as_saving(card);
+
+    let uid = card.data('uid');
+
+    $.ajax({
+        url: '{{ url_for('change_message') }}',
+        data: JSON.stringify({message: $(this).val(), uid: uid}),
         contentType: 'application/json; charset=utf-8',
         method: 'POST',
 
