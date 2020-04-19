@@ -494,6 +494,7 @@ def dashboard():
                     if c.count() > 0:
                         ch = c.first()
                         ch.name = channel['name']
+                        ch.guild_id = accessing_guild.id
 
                     else:
                         ch = Channel(channel=channel['id'], name=channel['name'], guild=accessing_guild)

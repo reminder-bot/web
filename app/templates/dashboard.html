@@ -238,7 +238,7 @@ $('.channel-selector').on('change', function () {
         contentType: 'application/json; charset=utf-8',
         method: 'POST',
 
-        success: function (_d, _t, _j) {
+        success: function () {
             let current_name = option.html();
             option.html(`${current_name} (current)`);
             mark_as_saved(card);
@@ -371,7 +371,6 @@ $('input').keyup(function (e) {
 });
 
 $('.reminder-name').on('blur', function () {
-    let input = $(this);
     let card = $(this).closest('.reminder-card');
     mark_as_saving(card);
 
@@ -389,7 +388,6 @@ $('.reminder-name').on('blur', function () {
 });
 
 $('.dm-message').on('blur', function () {
-    let input = $(this);
     let card = $(this).closest('.reminder-card');
     mark_as_saving(card);
 
@@ -410,8 +408,6 @@ $('.reminder-username').on('blur', function () {
     let card = $(this).closest('.reminder-card');
     mark_as_saving(card);
 
-    let input = $(this);
-
     let uid = card.data('uid');
 
     $.ajax({
@@ -429,8 +425,6 @@ $('.reminder-username').on('blur', function () {
 $('.reminder-avatar').on('blur', function () {
     let card = $(this).closest('.reminder-card');
     mark_as_saving(card);
-
-    let input = $(this);
 
     let uid = $(this).closest('.reminder-card').data('uid');
 
