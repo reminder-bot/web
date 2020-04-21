@@ -1,6 +1,6 @@
 from app import db
 import secrets
-from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INTEGER as INT
+from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INTEGER as INT, MEDIUMBLOB
 
 
 class User(db.Model):
@@ -34,6 +34,9 @@ class Message(db.Model):
     tts = db.Column(db.Boolean, nullable=False, default=False)
     embed_id = db.Column(INT(unsigned=True), db.ForeignKey(Embed.id))
     embed = db.relationship(Embed)
+
+    attachment = db.Column(MEDIUMBLOB, nullable=True)
+    attachment_name = db.Column(db.String(32), nullable=True)
 
 
 guild_users = db.Table('guild_users',

@@ -1,5 +1,5 @@
 import typing
-from flask import redirect, render_template, request, url_for, session, flash, abort, jsonify
+from flask import redirect, render_template, request, url_for, session, flash, abort, jsonify, send_file
 from app import app, discord, db
 from app.models import Guild, Reminder, User, Channel, Role, Message, Embed
 from app.markdown import markdown_parse
@@ -651,6 +651,17 @@ def update_message(guild_id: int, reminder_uid: str):
 
         reminder.message.embed = None
 
+    if field('attachment_provided') is not None:
+        file = request.files['file']
+
+        if file.content_length < 8 * 1024 * 1024:
+            reminder.message.attachment = file.read()
+            reminder.message.attachment_name = file.filename
+
+    else:
+        reminder.message.attachment = None
+        reminder.message.attachment_name = None
+
     reminder.message.tts = field('tts') is not None
 
     reminder.message.content = field('message_content')
@@ -658,3 +669,13 @@ def update_message(guild_id: int, reminder_uid: str):
     db.session.commit()
 
     return redirect(url_for('advanced_message_editor', guild_id=guild_id, reminder_uid=reminder_uid))
+
+
+@app.route('/download_attachment/<reminder_uid>')
+def download_attachment(reminder_uid):
+    reminder = Reminder.query.filter(Reminder.uid == reminder_uid).first_or_404()
+
+    if reminder.message.attachment is None:
+        abort(404)
+    else:
+        return send_file(io.BytesIO(reminder.message.attachment), attachment_filename=reminder.message.attachment_name)
