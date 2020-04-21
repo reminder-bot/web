@@ -31,6 +31,7 @@ class Message(db.Model):
     id = db.Column(INT(unsigned=True), primary_key=True)
 
     content = db.Column(db.String(2048), nullable=False, default='')
+    tts = db.Column(db.Boolean, nullable=False, default=False)
     embed_id = db.Column(INT(unsigned=True), db.ForeignKey(Embed.id))
     embed = db.relationship(Embed)
 

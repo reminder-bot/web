@@ -40,6 +40,28 @@
 
                             <div class="input-group">
                                 <div class="input-group-addon">
+                                    <i class="far fa-comment-alt"></i>
+                                    <label for="tts">Use Discord TTS?</label>
+                                </div>
+                                <div class="input-group-addon">
+                                    <input type="checkbox" name="tts" id="tts" {{ 'checked' if message.tts else '' }}/>
+                                </div>
+                            </div>
+                            <div {% if not message.tts %}
+                                 style="display: none;"
+                                 {% endif %} class="warning form-group">
+
+                                <i class="fa fa-exclamation-triangle"></i>
+                                Please Note: TTS does not work on all platforms. This is not to do with Reminder Bot, but to do with Discord and the computer itself.
+                                You can read more <a href="https://support.discordapp.com/hc/en-us/articles/212517297-Text-to-Speech-101">here</a>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <div class="input-group">
+                                <div class="input-group-addon">
                                     <i class="fa fa-code"></i>
                                     <label for="embedded">Attach Embed?</label>
                                 </div>
@@ -145,6 +167,17 @@ embed_options_display();
     <script>
 
 'use strict';
+
+$('#tts').change(function () {
+    let warning_message = $(this).closest('.form-group').find('.warning');
+
+    if ($(this).prop('checked')) {
+        warning_message.show();
+    }
+    else {
+        warning_message.hide();
+    }
+});
 
 function mention(id, prefix, element_id) {
     let $activeElement = $(`#${element_id}`);

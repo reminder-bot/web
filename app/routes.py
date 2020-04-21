@@ -651,6 +651,8 @@ def update_message(guild_id: int, reminder_uid: str):
 
         reminder.message.embed = None
 
+    reminder.message.tts = field('tts') is not None
+
     reminder.message.content = field('message_content')
 
     db.session.commit()
