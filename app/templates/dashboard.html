@@ -46,7 +46,7 @@ let channels = {
 };
 
 let members = {
-    {% for m in guild.partials %}
+    {% for m in guild.users %}
     "{{ m.name.replace('\\', '').lower()[:32] }}": "{{ m.user }}",
     {% endfor %}
 };
