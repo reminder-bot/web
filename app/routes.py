@@ -654,9 +654,14 @@ def update_message(guild_id: int, reminder_uid: str):
     if field('attachment_provided') is not None:
         file = request.files['file']
 
-        if file.content_length < 8 * 1024 * 1024:
+        if file.content_length < 8 * 1024 * 1024 and len(file.filename) <= 32:
             reminder.message.attachment = file.read()
             reminder.message.attachment_name = file.filename
+
+        else:
+            flash('File is too large or file name is too long. '
+                  'Please upload a maximum of 8MB, with 32 character filename')
+            return redirect(url_for('advanced_message_editor', guild_id=guild_id, reminder_uid=reminder_uid))
 
     else:
         reminder.message.attachment = None
@@ -675,7 +680,7 @@ def update_message(guild_id: int, reminder_uid: str):
 def download_attachment(reminder_uid):
     reminder = Reminder.query.filter(Reminder.uid == reminder_uid).first_or_404()
 
-    if reminder.message.attachment is None:
+    if reminder is None or reminder.message.attachment is None:
         abort(404)
     else:
         return send_file(io.BytesIO(reminder.message.attachment), attachment_filename=reminder.message.attachment_name)
