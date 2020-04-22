@@ -226,14 +226,15 @@ function mention(id, prefix, element_id) {
 
     console.log($activeElement);
 
-    let words = $activeElement.val().split(' ');
+    let val = $activeElement.val().slice(0, -1);
 
-    // remove the last word
-    words.pop();
+    if ( val.slice(-1) === '@' ) {
+        val = val.slice(0, -1);
+    }
 
-    words.push(`<${prefix}${id}>`);
+    val += `<${prefix}${id}>`;
 
-    $activeElement.val(words.join(' '));
+    $activeElement.val(val);
 }
 
 const channels = [
@@ -257,7 +258,7 @@ const roles = [
 
 $('textarea').on('keyup', function() {
     // split text into actual words
-    let all_words = $(this).val().split(' ');
+    let all_words = $(this).val().split(/\s+/);
 
     // remove final word
     let final_word = all_words.pop();
