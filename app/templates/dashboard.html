@@ -2,19 +2,25 @@
 {% block content %}
 
 {% if not out %}
-    <section class="content-header">
-        <h1>
-            Dashboard
-            <small>Reminders</small>
-        </h1>
-    </section>
-
     <section class="content">
 
         <div class="container" style="width: 100%">
-            <div class="row" style="width: 100%">
+            <div class="row">
+
                 {% include "create_card.html" %}
 
+            </div>
+
+            <br>
+
+            <div class="row btn-group" role="group" aria-label="Sort Options">
+                <span class="">Sort:</span>
+                <button class="btn btn-primary active">Time</button>
+                <button class="btn btn-primary">Name</button>
+                <button class="btn btn-primary">Channel</button>
+            </div>
+
+            <div class="row">
                 {% for reminder in reminders %}
 
                     {% include "card.html" %}
@@ -437,6 +443,26 @@ $('.reminder-avatar').on('blur', function () {
         success: function () { mark_as_saved(card); },
         error: function (error_message) { show_error(card, error_message) }
     })
+});
+
+$('.collapser').on('click', function () {
+    let $i = $(this).find('i');
+
+    if ($i.hasClass('fa-angle-down')) {
+
+        $i
+            .removeClass('fa-angle-down')
+            .addClass('fa-angle-up');
+
+    }
+    else {
+        console.log('fa-angle-up');
+
+        $i
+            .removeClass('fa-angle-up')
+            .addClass('fa-angle-down');
+
+    }
 });
 
         </script>
