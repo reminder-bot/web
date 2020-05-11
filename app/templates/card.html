@@ -16,6 +16,14 @@
                         data-initial-value="{{ reminder.name }}"
                         autocomplete="off" />
             </strong>
+
+            {% if reminder.interval != None %}
+                <i class="fas fa-history" data-toggle="tooltip" data-placement="top" title="Recurring"></i>
+            {% else %}
+                <i class="far fa-clock" data-toggle="tooltip" data-placement="top" title="One-Time"></i>
+            {% endif %}
+
+            <span class="pull-right time-remaining">Occurs in dd days, HH:MM:SS</span>
         </h4>
     </div>
     <div class="card-body collapse" id="{{ reminder.id }}-collapse">
