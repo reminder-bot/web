@@ -9,175 +9,181 @@
             </a>
         </div>
         <div class="card-body collapse" id="create-collapse">
-            <div id="modal">
-                <!-- This div is for writing error messages into DO NOT DELETE -->
-            </div>
-
-            <div class="form-group">
-                <label for="input-message">Message:</label>
-                <div class="input-group">
-                    <div class="input-group-addon">
-                        <i class="fa fa-envelope"></i>
-                    </div>
-
-                    <textarea name="message_new" class="form-control pull-right" maxlength="2048" id="input-message" required></textarea>
-
-                </div>
-                <div class="input-group" id="mention-input" style="display: none;">
-                    <div class="input-group-addon">
-                        <i class="fas fa-at"></i>
-                    </div>
-                    <div class="dropdown">
-                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            Mention... (tip: use a double @ to get roles)
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdown-mention" id="dropdown-mention" style="max-height: 40vh; overflow-y: scroll;">
-                        </ul>
-                    </div>
-                </div>
-                <!-- /.input group -->
-            </div>
-
-            <!-- CHANNEL -->
-            {% if guild != None %}
-                <div class="form-group">
-                    <label>Channel:</label>
-                    <div class="input-group">
-                        <div class="input-group-addon">
-                            <i class="fas fa-comment-alt"></i>
-                        </div>
-                        <div class="dropdown">
-                            <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;">
-                                {% for channel in guild.channels %}
-                                    {% if channel.name != None %}
-                                        <option value="{{ channel.channel }}">{{ channel.name }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <!-- /.input group -->
-                </div>
-
-                <div class="form-group">
-                    <label for="username">Username (optional):</label>
-                    <div class="input-group">
-                        <div class="input-group-addon">
-                            <i class="fas fa-file-signature"></i>
-                        </div>
-                        <input type="text" class="form-control pull-right" id="username" name="username" maxlength="32" value="" />
-                    </div>
-                </div>
-
-            {% else %}
-                <input type="text" name="channel_new" value="-1" id="input-channel" hidden required />
-            {% endif %}
-
-            <input name="time_new" value="0" id="time_new" hidden />
-
-            <!-- DATE -->
-            <label for="datepicker">Time:</label>
-
-            <div class="form-group">
-
-                <div class="col-5" style="display: inline-flex;">
-                    <div class="input-group date">
-                        <div class="input-group-addon">
-                            <i class="fa fa-calendar"></i>
-                        </div>
-
-                        <label for="datepicker" class="sr-only">New Reminder Date</label>
-
-                        <input type="text" class="form-control" id="datepicker" name="date" />
-                    </div>
-                </div>
-
-                <div class="bootstrap-timepicker col-5" style="display: inline-flex;">
-                    <div class="input-group">
-
-                        <label for="timepicker" class="sr-only">New Reminder Time</label>
-
-                        <input type="text" class="form-control" id="timepicker" name="time" />
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            {% if member.patreon %}
-                <div class="bootstrap-timepicker">
+            <div class="container row" style="width: 100%;">
+                <div class="col-lg-4 col-md-12">
                     <div class="form-group">
-                        <label>Interval:</label>
+                        <label for="input-message">Message:</label>
                         <div class="input-group">
                             <div class="input-group-addon">
-                                <i class="fas fa-clock"></i>
+                                <i class="fa fa-envelope"></i>
                             </div>
 
-                            <input type="number" class="form-control pull-left" name="interval_new" value="" style="width: 75%;" />
+                            <textarea name="message_new" class="form-control pull-right" maxlength="2048" id="input-message" required></textarea>
 
-                            <select name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
-                                <option value="1" selected>seconds</option>
-                                <option value="60">minutes</option>
-                                <option value="3600">hours</option>
-                                <option value="86400">days</option>
-                            </select>
+                        </div>
+                        <div class="input-group" id="mention-input" style="display: none;">
+                            <div class="input-group-addon">
+                                <i class="fas fa-at"></i>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    Mention... (tip: use a double @ to get roles)
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdown-mention" id="dropdown-mention" style="max-height: 40vh; overflow-y: scroll;">
+                                </ul>
+                            </div>
                         </div>
                         <!-- /.input group -->
                     </div>
-                    <!-- /.form group -->
+
+                    <!-- CHANNEL -->
+                    {% if guild != None %}
+                        <div class="form-group">
+                            <label>Channel:</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fas fa-comment-alt"></i>
+                                </div>
+                                <div class="dropdown">
+                                    <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;">
+                                        {% for channel in guild.channels %}
+                                            {% if channel.name != None %}
+                                                <option value="{{ channel.channel }}">{{ channel.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- /.input group -->
+                        </div>
+
+                    {% else %}
+                        <input type="text" name="channel_new" value="-1" id="input-channel" hidden required />
+                    {% endif %}
                 </div>
 
-                {% if guild != None %}
+                <div class="col-lg-4 col-md-12">
+                    <input name="time_new" value="0" id="time_new" hidden />
+
+                    <!-- DATE -->
+                    <label for="datepicker">Time:</label>
 
                     <div class="form-group">
-                        <label for="avatar">Avatar:</label>
-                        <div class="input-group">
-                            <div class="input-group-addon">
-                                <i class="fas fa-camera"></i>
+
+                        <div class="col-5" style="display: inline-flex;">
+                            <div class="input-group date">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+
+                                <label for="datepicker" class="sr-only">New Reminder Date</label>
+
+                                <input type="text" class="form-control" id="datepicker" name="date" />
                             </div>
-                            <input type="text" class="form-control pull-right" id="avatar" name="avatar" value="" />
                         </div>
+
+                        <div class="bootstrap-timepicker col-5" style="display: inline-flex;">
+                            <div class="input-group">
+
+                                <label for="timepicker" class="sr-only">New Reminder Time</label>
+
+                                <input type="text" class="form-control" id="timepicker" name="time" />
+
+                            </div>
+
+                        </div>
+
                     </div>
 
-                {% endif %}
-            {% endif %}
+                    {% if member.patreon %}
+                        <div class="form-group">
+                            <label>Interval:</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
 
-            <script>
+                                <input type="number" class="form-control pull-left" name="interval_new" value="" style="width: 75%;" />
 
-function update_time() {
-    let t_time = document.getElementById("timepicker");
-    let d_time = document.getElementById("datepicker");
+                                <select name="multiplier_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 25%; border: 1px solid #ccc; cursor: pointer;">
+                                    <option value="1" selected>seconds</option>
+                                    <option value="60">minutes</option>
+                                    <option value="3600">hours</option>
+                                    <option value="86400">days</option>
+                                </select>
+                            </div>
+                        </div>
 
-    let m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A');
+                    {% endif %}
 
-    document.getElementById("time_new").value = m.unix();
-}
+                </div>
 
-let current = moment();
+                <div class="col-lg-4 col-md-12">
 
-//Date picker
-$('#datepicker').datepicker({
-    format: 'yyyy/mm/dd',
-    autoclose: true,
-});
+                    {% if guild != None %}
+                        <div class="form-group">
+                            <label for="username">Username (optional):</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fas fa-file-signature"></i>
+                                </div>
+                                <input type="text" class="form-control pull-right" id="username" name="username" maxlength="32" value="" />
+                            </div>
+                        </div>
 
-$('#datepicker').datepicker('update', current.toDate());
-//Timepicker
-$('#timepicker').timepicker({
-    minuteStep: 1,
-    showInputs: false,
-    showSeconds: true,
-    defaultTime: current.format('hh:mm A'),
-});
+                        {% if member.patreon %}
 
-$("#datepicker").change(update_time);
-$("#timepicker").change(update_time);
+                            <div class="form-group">
+                                <label for="avatar">Avatar:</label>
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        <i class="fas fa-camera"></i>
+                                    </div>
+                                    <input type="text" class="form-control pull-right" id="avatar" name="avatar" value="" />
+                                </div>
+                            </div>
 
-update_time();
+                        {% endif %}
+                    {% endif %}
+                </div>
 
-            </script>
+                <script>
+
+    function update_time() {
+        let t_time = document.getElementById("timepicker");
+        let d_time = document.getElementById("datepicker");
+
+        let m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A');
+
+        document.getElementById("time_new").value = m.unix();
+    }
+
+    let current = moment();
+
+    //Date picker
+    $('#datepicker').datepicker({
+        format: 'yyyy/mm/dd',
+        autoclose: true,
+    });
+
+    $('#datepicker').datepicker('update', current.toDate());
+    //Timepicker
+    $('#timepicker').timepicker({
+        minuteStep: 1,
+        showInputs: false,
+        showSeconds: true,
+        defaultTime: current.format('hh:mm A'),
+    });
+
+    $("#datepicker").change(update_time);
+    $("#timepicker").change(update_time);
+
+    update_time();
+
+                </script>
+
+            </div>
 
             <div class="card-footer">
                 <button type="submit" class="btn btn-success">Create New</button>

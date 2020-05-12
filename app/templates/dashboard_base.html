@@ -37,29 +37,25 @@
     <body class="hold-transition skin-green sidebar-mini">
         <div class="wrapper">
             <header class="main-header">
-                <!-- Logo -->
-                <a href="{{ url_for('help_page') }}" class="logo">
+                <a href="{{ url_for('help_page') }}" class="logo hidden-xs">
                     <!-- logo for regular state and mobile devices -->
-                    <span class="logo-lg"><strong>Reminder</strong> Bot</span>
+                    <span class="logo-lg">
+                        Reminder Bot
+                    </span>
                 </a>
-                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-                    <i class="fas fa-bars"></i>
-                    <span class="sr-only">Toggle navigation.</span>
-                </a>
-                <!-- Header Navbar: style can be found in header.less -->
-                <nav class="navbar navbar-top hidden-xs">
-                    <div class="navbar-custom-menu">
-                        <ul class="nav navbar-nav">
 
-                        </ul>
-                    </div>
+                <!-- Header Navbar: style can be found in header.less -->
+                <nav class="navbar navbar-static-top">
+                    <a href="#" class="sidebar-toggle visible-xs" data-toggle="push-menu" role="button">
+                        <i class="fas fa-bars"></i>
+                        <span class="sr-only">Toggle navigation.</span>
+                    </a>
                 </nav>
             </header>
 
-            <aside class="main-sidebar">
+            <aside class="main-sidebar" style="padding-top: 60px;">
                 <section class="sidebar">
                     <ul class="sidebar-menu" data-widget="tree">
-                        <li class="header">GUILDS</li>
 
                         {% if guild != None %}
                             <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', id=guild.guild, refresh=1) }}"><i class="fas fa-sync-alt"></i> <i class="fab fa-discord"></i> Sync guild data</a></li>
@@ -67,6 +63,8 @@
                             <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', refresh=1) }}"><i class="fas fa-sync-alt"></i> <i class="fab fa-discord"></i> Sync member data</a></li>
                         {% endif %}
                         <li style="margin-left: 2rem; margin-bottom: 1rem;"><a href="{{ url_for('dashboard', id=0) }}">@{{ member.name }}</a></li>
+
+                        <li class="header">GUILDS</li>
                         {% for guild in guilds %}
                             <li style="margin-left: 2rem;"><a href="{{ url_for('dashboard', id=guild.guild) }}">{{ guild.name }}</a></li>
                         {% endfor %}
