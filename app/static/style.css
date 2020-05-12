@@ -6,12 +6,13 @@
     border: 1px solid black;
 }
 
-textarea {
-    resize: none;
+.sorter {
+    font-size: 1.2em;
+    margin-bottom: 6px;
 }
 
-.no-list-style {
-    list-style: none;
+textarea {
+    resize: none;
 }
 
 input[type="number"]::-webkit-outer-spin-button,

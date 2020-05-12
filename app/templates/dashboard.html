@@ -13,14 +13,18 @@
 
             <br>
 
-            <div class="row btn-group" role="group" aria-label="Sort Options">
-                <span class="">Sort:</span>
-                <button class="btn btn-primary active">Time</button>
-                <button class="btn btn-primary">Name</button>
-                <button class="btn btn-primary">Channel</button>
+            <div class="sorter">
+                <label for="sort">
+                    Sort by:
+                </label>
+                <select id="sort">
+                    <option value="time">Time</option>
+                    <option value="name">Name</option>
+                    <option value="channel">Channel</option>
+                </select>
             </div>
 
-            <div class="row">
+            <div class="row" id="all-reminders">
                 {% for reminder in reminders %}
 
                     {% include "card.html" %}
@@ -40,9 +44,9 @@
     </section>
 {% endif %}
 
-<script>
-
 {% if guild != None %}
+    <script>
+
 let channels = {
     {% for channel in guild.channels %}
         {% if channel.name != None %}
@@ -144,8 +148,11 @@ function m(e) {
 
 document.getElementById("input-message").addEventListener("input", m);
 
+    </script>
 {% endif %}
 {# end of guild-only code #}
+
+    <script>
 
 function mark_as_saving(card) {
     let save_button = card.find('.save-notice');
@@ -207,7 +214,11 @@ $(function () {
             contentType: 'application/json; charset=utf-8',
             method: 'POST',
 
-            success: function () { mark_as_saved(card); },
+            success: function () {
+                parent.data('start-time', m.unix());
+
+                mark_as_saved(card);
+            },
             error: function (resp) {
                 show_error(card, resp);
                 card.find('.time-selectors').each(reset_time_inputs);
@@ -246,7 +257,11 @@ $('.channel-selector').on('change', function () {
 
         success: function () {
             let current_name = option.html();
-            option.html(`${current_name} (current)`);
+            option.html(`${current_name}`);
+
+            card.find('.reminder-channel-indicator').html(`<strong>${current_name}</strong>`);
+            card.find('.reminder-channel-indicator-mob').prop('title', `Sends to ${current_name}`).tooltip('fixTitle');
+
             mark_as_saved(card);
         },
         error: function (resp) { show_error(card, resp) }
@@ -456,7 +471,6 @@ $('.collapser').on('click', function () {
 
     }
     else {
-        console.log('fa-angle-up');
 
         $i
             .removeClass('fa-angle-up')
@@ -469,6 +483,40 @@ $(function () {
     $('[data-toggle="tooltip"]').tooltip()
 });
 
-        </script>
+$(function () {
+    function sort_reminders(el) {
+        let row = $('#all-reminders');
+        let reminders = row.children('.reminder-card');
+
+        let sort = $(el).val();
+
+        if (sort === 'channel') {
+            reminders.detach().sort(function (a, b) {
+                return $(a).find('').val() > $(b).find().val();
+            });
+        }
+        else if (sort === 'name') {
+            reminders.detach().sort(function (a, b) {
+                return $(a).find('.reminder-name').val() > $(b).find('.reminder-name').val();
+            });
+        }
+        // default sort = time
+        else {
+            reminders.detach().sort(function (a, b) {
+                return $(a).find('.time-selectors').data('start-time') > $(b).find('.time-selectors').data('start-time');
+            });
+        }
+
+        row.append(reminders);
+    }
+
+    sort_reminders('#sort');
+
+    $('#sort').on('change', function () {
+        sort_reminders(this);
+    });
+});
+
+    </script>
 
 {% endblock %}

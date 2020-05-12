@@ -23,6 +23,9 @@
                 <i class="far fa-clock" data-toggle="tooltip" data-placement="top" title="One-Time"></i>
             {% endif %}
 
+            <i class="fas fa-hashtag reminder-channel-indicator-mob" data-toggle="tooltip" data-placement="top" title="Sends to #{{ reminder.channel.name }}"></i>
+            <span class="hidden-xs reminder-channel-indicator"><strong>{{ reminder.channel.name }}</strong></span>
+
             <span class="hidden-xs hidden-sm pull-right time-remaining">Occurs in dd days, HH:MM:SS</span>
         </h4>
     </div>
@@ -72,9 +75,9 @@
                             </div>
                             <div class="dropdown">
                                 <select id="channel-{{ reminder.uid }}" name="channel_new" class="channel-selector" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;" autocomplete="off">
-                                    <option value="{{ reminder.channel.channel }}" selected>{{ reminder.channel.name }} (current)</option>
+                                    <option value="{{ reminder.channel.channel }}" selected>{{ reminder.channel.name }}</option>
                                     {% for channel in guild.channels %}
-                                        {% if channel.name != None %}
+                                        {% if channel.name != None and channel.id != reminder.channel.id %}
                                             <option value="{{ channel.channel }}">{{ channel.name }}</option>
                                         {% endif %}
                                     {% endfor %}
