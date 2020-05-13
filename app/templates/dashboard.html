@@ -13,15 +13,26 @@
 
             <br>
 
-            <div class="sorter">
-                <label for="sort">
-                    Sort by:
-                </label>
-                <select id="sort">
-                    <option value="time">Time</option>
-                    <option value="name">Name</option>
-                    <option value="channel">Channel</option>
-                </select>
+            <div class="row controls">
+                <div class="col-xs-6">
+                    <label for="sort">
+                        Sort by:
+                    </label>
+                    <select id="sort">
+                        <option value="time">Time</option>
+                        <option value="name">Name</option>
+                        <option value="channel">Channel</option>
+                    </select>
+                </div>
+
+                <div class="col-xs-6">
+                    <div class="pull-right">
+                        <label for="expand-all">
+                            Expand all:
+                        </label>
+                        <input type="checkbox" id="expand-all">
+                    </div>
+                </div>
             </div>
 
             <div class="row" id="all-reminders">
@@ -188,8 +199,6 @@ function show_error(card, text) {
 function sort_reminders(el) {
     // remove the channel grouping headings
     $('.channel-groupings').remove();
-    // collapse all the collapses
-    $('.reminder-collapse').collapse('hide');
 
     let row = $('#all-reminders');
     let reminders = row.children('.reminder-card');
@@ -527,6 +536,14 @@ $('.reminder-avatar').on('blur', function () {
     })
 });
 
+$('#expand-all').on('change', function () {
+    let checked = $(this).prop('checked');
+
+    if (checked) {
+        $('.collapse').collapse('show');
+    }
+});
+
 let $collapse = $('.collapse');
 
 $collapse.on('hide.bs.collapse', function () {
@@ -565,6 +582,11 @@ $(function () {
     });
 });
 
+$(function () {
+    if ($('#expand-all').prop('checked')) {
+        $('.collapse').collapse('show');
+    }
+});
     </script>
 
 {% endblock %}
