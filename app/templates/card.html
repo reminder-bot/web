@@ -23,10 +23,12 @@
                 <i class="far fa-clock" data-toggle="tooltip" data-placement="top" title="One-Time"></i>
             {% endif %}
 
-            <i class="fas fa-hashtag reminder-channel-indicator-mob" data-toggle="tooltip" data-placement="top" title="Sends to #{{ reminder.channel.name }}"></i>
-            <span class="hidden-xs reminder-channel-indicator"><strong>{{ reminder.channel.name }}</strong></span>
+            {% if guild != None %}
+                <i class="fas fa-hashtag reminder-channel-indicator-mob" data-toggle="tooltip" data-placement="top" title="Sends to #{{ reminder.channel.name }}"></i>
+                <span class="hidden-xs reminder-channel-indicator"><strong>{{ reminder.channel.name }}</strong></span>
+            {% endif %}
 
-            <span class="hidden-xs hidden-sm pull-right time-remaining">Occurs in dd days, HH:MM:SS</span>
+            <span class="hidden-xs hidden-sm pull-right time-remaining"></span>
         </h4>
     </div>
     <div class="card-body collapse reminder-collapse" id="{{ reminder.id }}-collapse">

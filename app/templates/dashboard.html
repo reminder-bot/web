@@ -185,6 +185,66 @@ function show_error(card, text) {
     save_button.find('i').removeClass('fa-save fa-check').addClass('fa-exclamation-triangle');
 }
 
+function sort_reminders(el) {
+    // remove the channel grouping headings
+    $('.channel-groupings').remove();
+    // collapse all the collapses
+    $('.reminder-collapse').collapse('hide');
+
+    let row = $('#all-reminders');
+    let reminders = row.children('.reminder-card');
+
+    let sort = $(el).val();
+
+    if (sort === 'channel') {
+        reminders.detach().sort(function (a, b) {
+            return $(a).find('.channel-selector').val() > $(b).find('.channel-selector').val();
+        });
+    }
+    else if (sort === 'name') {
+        reminders.detach().sort(function (a, b) {
+            return $(a).find('.reminder-name').val().toLowerCase() > $(b).find('.reminder-name').val().toLowerCase();
+        });
+    }
+    // default sort = time
+    else {
+        reminders.detach().sort(function (a, b) {
+            return $(a).find('.time-selectors').data('start-time') > $(b).find('.time-selectors').data('start-time');
+        });
+    }
+
+    row.append(reminders);
+
+    // channel sort has some other stuff we need to do
+    if (sort === 'channel') {
+        let current_channel_group = null;
+
+        reminders.each(function () {
+            let this_channel = $(this).find('.channel-selector').val();
+
+            if (this_channel !== current_channel_group) {
+                let channel_name = $(this).find('.channel-selector').find(':selected').text();
+
+                current_channel_group = this_channel
+
+                $(this).before(`<span class="lead channel-groupings">#${channel_name}</span>`);
+            }
+        });
+    }
+}
+
+function update_reminder_times() {
+    $('.time-remaining').each(function () {
+        let $card = $(this).closest('.reminder-card');
+
+        let time = $card.find('.time-selectors').data('start-time');
+
+        let m = moment.unix(time);
+
+        $(this).text(`Occurs ${m.fromNow()}`);
+    });
+}
+
 $(function () {
     function reset_time_inputs() {
         let time = moment.unix($(this).data('start-time'));
@@ -216,6 +276,8 @@ $(function () {
 
             success: function () {
                 parent.data('start-time', m.unix());
+
+                update_reminder_times();
 
                 mark_as_saved(card);
             },
@@ -403,7 +465,12 @@ $('.reminder-name').on('blur', function () {
         contentType: 'application/json; charset=utf-8',
         method: 'POST',
 
-        success: function () { mark_as_saved(card); },
+        success: function () {
+            if ($('#sort').val() === 'name') {
+                sort_reminders('#sort');
+            }
+            mark_as_saved(card);
+        },
         error: function (resp) { show_error(card, resp); }
     });
 });
@@ -466,16 +533,24 @@ $collapse.on('hide.bs.collapse', function () {
     let $i = $(`#${$(this).attr('id')}r`).find('i');
 
     $i
-            .removeClass('fa-angle-up')
-            .addClass('fa-angle-down');
+        .removeClass('fa-angle-up')
+        .addClass('fa-angle-down');
 });
 
 $collapse.on('show.bs.collapse', function () {
     let $i = $(`#${$(this).attr('id')}r`).find('i');
 
     $i
-            .removeClass('fa-angle-down')
-            .addClass('fa-angle-up');
+        .removeClass('fa-angle-down')
+        .addClass('fa-angle-up');
+});
+
+$(function () {
+
+    update_reminder_times();
+
+    setInterval(update_reminder_times, 60000);
+
 });
 
 $(function () {
@@ -483,54 +558,6 @@ $(function () {
 });
 
 $(function () {
-    function sort_reminders(el) {
-        // remove the channel grouping headings
-        $('.channel-groupings').remove();
-        // collapse all the collapses
-        $('.reminder-collapse').collapse('hide');
-
-        let row = $('#all-reminders');
-        let reminders = row.children('.reminder-card');
-
-        let sort = $(el).val();
-
-        if (sort === 'channel') {
-            reminders.detach().sort(function (a, b) {
-                return $(a).find('.channel-selector').val() > $(b).find('.channel-selector').val();
-            });
-        }
-        else if (sort === 'name') {
-            reminders.detach().sort(function (a, b) {
-                return $(a).find('.reminder-name').val() > $(b).find('.reminder-name').val();
-            });
-        }
-        // default sort = time
-        else {
-            reminders.detach().sort(function (a, b) {
-                return $(a).find('.time-selectors').data('start-time') > $(b).find('.time-selectors').data('start-time');
-            });
-        }
-
-        row.append(reminders);
-
-        // channel sort has some other stuff we need to do
-        if (sort === 'channel') {
-            let current_channel_group = null;
-
-            reminders.each(function () {
-                let this_channel = $(this).find('.channel-selector').val();
-
-                if (this_channel !== current_channel_group) {
-                    let channel_name = $(this).find('.channel-selector').find(':selected').text();
-
-                    current_channel_group = this_channel
-
-                    $(this).before(`<span class="lead channel-groupings">#${channel_name}</span>`);
-                }
-            });
-        }
-    }
-
     sort_reminders('#sort');
 
     $('#sort').on('change', function () {
