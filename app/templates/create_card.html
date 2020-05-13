@@ -1,7 +1,7 @@
 <div class="card box box-body" style="margin: 0;">
     <form method="POST" action="{{ url_for('change_reminder', redirect=guild.guild or 0) }}" id="form" autocomplete="off">
         <div class="card-header">
-            <a data-toggle="collapse" href="#create-collapse" aria-expanded="false" aria-controls="#create-collapse" class="collapser">
+            <a data-toggle="collapse" id="create-collapser" href="#create-collapse" aria-expanded="false" aria-controls="#create-collapse" class="collapser">
                 <h4>
                     <i class="fas fa-angle-down icon-pad"></i>
                     <strong>Add Reminder</strong>

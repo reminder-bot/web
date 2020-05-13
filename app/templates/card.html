@@ -5,7 +5,7 @@
     {% endif %}>
     <div class="card-header">
         <h4>
-            <a data-toggle="collapse" href="#{{ reminder.id }}-collapse" aria-expanded="false" aria-controls="#{{ reminder.id }}-collapse" class="collapser">
+            <a data-toggle="collapse" id="{{ reminder.id }}-collapser" href="#{{ reminder.id }}-collapse" aria-expanded="false" aria-controls="#{{ reminder.id }}-collapse" class="collapser">
                 <i class="fas fa-angle-down icon-pad"></i>
             </a>
             <strong>
@@ -29,7 +29,7 @@
             <span class="hidden-xs hidden-sm pull-right time-remaining">Occurs in dd days, HH:MM:SS</span>
         </h4>
     </div>
-    <div class="card-body collapse" id="{{ reminder.id }}-collapse">
+    <div class="card-body collapse reminder-collapse" id="{{ reminder.id }}-collapse">
         <div class="error-area" style="color: red;">
 
         </div>

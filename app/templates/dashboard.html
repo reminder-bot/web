@@ -460,23 +460,22 @@ $('.reminder-avatar').on('blur', function () {
     })
 });
 
-$('.collapser').on('click', function () {
-    let $i = $(this).find('i');
+let $collapse = $('.collapse');
 
-    if ($i.hasClass('fa-angle-down')) {
+$collapse.on('hide.bs.collapse', function () {
+    let $i = $(`#${$(this).attr('id')}r`).find('i');
 
-        $i
-            .removeClass('fa-angle-down')
-            .addClass('fa-angle-up');
-
-    }
-    else {
-
-        $i
+    $i
             .removeClass('fa-angle-up')
             .addClass('fa-angle-down');
+});
 
-    }
+$collapse.on('show.bs.collapse', function () {
+    let $i = $(`#${$(this).attr('id')}r`).find('i');
+
+    $i
+            .removeClass('fa-angle-down')
+            .addClass('fa-angle-up');
 });
 
 $(function () {
@@ -485,6 +484,11 @@ $(function () {
 
 $(function () {
     function sort_reminders(el) {
+        // remove the channel grouping headings
+        $('.channel-groupings').remove();
+        // collapse all the collapses
+        $('.reminder-collapse').collapse('hide');
+
         let row = $('#all-reminders');
         let reminders = row.children('.reminder-card');
 
@@ -492,7 +496,7 @@ $(function () {
 
         if (sort === 'channel') {
             reminders.detach().sort(function (a, b) {
-                return $(a).find('').val() > $(b).find().val();
+                return $(a).find('.channel-selector').val() > $(b).find('.channel-selector').val();
             });
         }
         else if (sort === 'name') {
@@ -508,6 +512,23 @@ $(function () {
         }
 
         row.append(reminders);
+
+        // channel sort has some other stuff we need to do
+        if (sort === 'channel') {
+            let current_channel_group = null;
+
+            reminders.each(function () {
+                let this_channel = $(this).find('.channel-selector').val();
+
+                if (this_channel !== current_channel_group) {
+                    let channel_name = $(this).find('.channel-selector').find(':selected').text();
+
+                    current_channel_group = this_channel
+
+                    $(this).before(`<span class="lead channel-groupings">#${channel_name}</span>`);
+                }
+            });
+        }
     }
 
     sort_reminders('#sort');
