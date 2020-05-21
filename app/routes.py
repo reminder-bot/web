@@ -1,7 +1,7 @@
 import typing
 from flask import redirect, render_template, request, url_for, session, flash, abort, jsonify, send_file
 from app import app, discord, db
-from app.models import Guild, Reminder, User, Channel, Role, Message, Embed
+from app.models import Guild, Reminder, User, Channel, Role, Message, Embed, Event
 from app.markdown import markdown_parse
 import os
 import io
@@ -78,8 +78,14 @@ def updates(log):
 
 @app.route('/delete_reminder/', methods=['POST'])
 def delete_reminder():
-    reminder = Reminder.query.filter(Reminder.uid == request.json['uid'])
-    reminder.delete(synchronize_session='fetch')
+    reminder_q = Reminder.query.filter(Reminder.uid == request.json['uid'])
+    reminder = reminder_q.first()
+
+    if reminder.channel.guild_id is not None:
+        event = Event(event_name='delete', guild_id=reminder.channel.guild_id, user_id=session['internal_id'])
+        db.session.add(event)
+
+    reminder_q.delete(synchronize_session='fetch')
 
     db.session.commit()
 
@@ -88,10 +94,12 @@ def delete_reminder():
 
 @app.route('/delete_interval/', methods=['POST'])
 def delete_interval():
-    r = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
+    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
 
-    r.interval = None
-    r.enabled = True
+    reminder.interval = None
+    reminder.enabled = True
+
+    Event.new_edit_event(reminder, session['internal_id'])
 
     db.session.commit()
 
@@ -104,6 +112,13 @@ def toggle_enabled():
 
     if reminder is not None:
         reminder.enabled = not reminder.enabled
+
+        if reminder.channel.guild_id is not None:
+            name = 'enable' if reminder.enabled else 'disable'
+
+            event = Event(
+                event_name=name, guild_id=reminder.channel.guild_id, user_id=session['internal_id'], reminder=reminder)
+            db.session.add(event)
 
         db.session.commit()
 
@@ -121,6 +136,8 @@ def change_name():
     if reminder is not None:
         if len(name) <= 24:
             reminder.name = name
+
+            Event.new_edit_event(reminder, session['internal_id'])
 
             db.session.commit()
 
@@ -141,6 +158,8 @@ def change_username():
     if reminder is not None:
         if len(username) <= 32:
             reminder.username = username
+
+            Event.new_edit_event(reminder, session['internal_id'])
 
             db.session.commit()
 
@@ -185,6 +204,8 @@ def change_avatar():
         if len(avatar) <= 512:
             reminder.avatar = avatar
 
+            Event.new_edit_event(reminder, session['internal_id'])
+
             db.session.commit()
 
             return '', 200
@@ -205,6 +226,8 @@ def change_channel():
         if channel is not None:
             reminder.channel = channel
 
+            Event.new_edit_event(reminder, session['internal_id'])
+
             db.session.commit()
 
             return '', 200
@@ -224,6 +247,8 @@ def change_time():
     if reminder is not None:
         if new_time is not None and 0 < new_time < time.time() + MAX_TIME:
             reminder.time = new_time
+
+            Event.new_edit_event(reminder, session['internal_id'])
 
             db.session.commit()
 
@@ -266,12 +291,18 @@ def change_interval():
                 if interval is not None and MIN_INTERVAL <= interval < MAX_TIME:
                     reminder.interval = interval
 
+                    Event.new_edit_event(reminder, session['internal_id'])
+
                     db.session.commit()
 
                     return '', 200
 
                 elif interval is None:
                     reminder.interval = None
+
+                    Event.new_edit_event(reminder, session['internal_id'])
+
+                    db.session.commit()
 
                     return '', 200
 
@@ -446,7 +477,6 @@ def cache():
     if not discord.authorized:
         return render_template('dashboard_error.html', error_message='You must Authorize with Discord OAuth to '
                                                                      'use the web dashboard.')
-
     else:
         user: dict = discord.get('api/users/@me').json()
 
@@ -461,6 +491,8 @@ def cache():
                                                  'once within Discord before using the dashboard')
 
         else:
+            session['internal_id'] = cached_user.id
+
             cached_user.patreon = check_user_patreon(cached_user) > 0
 
             cached_user.guilds = get_user_guilds()
@@ -671,6 +703,8 @@ def update_message(guild_id: int, reminder_uid: str):
     reminder.message.tts = field('tts') is not None
 
     reminder.message.content = field('message_content')
+
+    Event.new_edit_event(reminder, session['internal_id'])
 
     db.session.commit()
 

@@ -1,7 +1,7 @@
 from app import db
 import secrets
-from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INTEGER as INT, MEDIUMBLOB, TIMESTAMP
-from datetime import datetime
+from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INTEGER as INT, MEDIUMBLOB, TIMESTAMP, ENUM
+from datetime import datetime, timedelta
 
 
 class User(db.Model):
@@ -136,7 +136,7 @@ class Reminder(db.Model):
 
     interval = db.Column(INT(unsigned=True))
 
-    method = db.Column(db.String(9))
+    method = db.Column(ENUM('remind', 'natural', 'dashboard'))
     set_by = db.Column(INT(unsigned=True), db.ForeignKey(User.id, ondelete='SET NULL'), nullable=True)
     set_at = db.Column(TIMESTAMP, nullable=True, default=datetime.now, server_default='CURRENT_TIMESTAMP')
 
@@ -162,3 +162,35 @@ class Reminder(db.Model):
             return self.message.embed.description
         else:
             return ''
+
+
+class Event(db.Model):
+    __tablename__ = 'events'
+
+    id = db.Column(INT(unsigned=True), primary_key=True)
+    time = db.Column(TIMESTAMP, default=datetime.now, server_default='CURRENT_TIMESTAMP()', nullable=False)
+
+    event_name = db.Column(ENUM('edit', 'enable', 'disable', 'delete'), nullable=False)
+    bulk_count = db.Column(INT(unsigned=True))
+
+    guild_id = db.Column(INT(unsigned=True), db.ForeignKey(Guild.id, ondelete='CASCADE'), nullable=False)
+    guild = db.relationship(Guild)
+
+    user_id = db.Column(INT(unsigned=True), db.ForeignKey(User.id, ondelete='SET NULL'))
+    user = db.relationship(User)
+
+    reminder_id = db.Column(INT(unsigned=True), db.ForeignKey(Reminder.id, ondelete='SET NULL'))
+    reminder = db.relationship(Reminder)
+
+    @classmethod
+    def new_edit_event(cls, reminder, user_id):
+
+        if reminder.channel.guild_id is not None:
+            q = cls.query\
+                .filter(cls.guild_id == reminder.channel.guild_id)\
+                .filter(cls.time > (datetime.now() - timedelta(hours=2)))\
+                .first()
+
+            if q is None or q.user_id != user_id:
+                event = cls(event_name='edit', guild_id=reminder.channel.guild_id, user_id=user_id, reminder=reminder)
+                db.session.add(event)
