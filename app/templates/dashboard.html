@@ -423,7 +423,7 @@ $('.delete-reminder').on('click', function (event) {
 
         success: function(_d, _t, _j) {
             card.fadeOut(500, function() {
-                card.parent().remove();
+                card.remove();
             });
         }
     })
