@@ -395,7 +395,8 @@ def change_reminder():
                         username=username,
                         avatar=avatar,
                         enabled=True,
-                        interval=new_interval)
+                        interval=new_interval,
+                        set_by=member.id)
 
                     db.session.add(reminder)
 

@@ -1,6 +1,7 @@
 from app import db
 import secrets
-from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INTEGER as INT, MEDIUMBLOB
+from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INTEGER as INT, MEDIUMBLOB, TIMESTAMP
+from datetime import datetime
 
 
 class User(db.Model):
@@ -133,9 +134,11 @@ class Reminder(db.Model):
                        nullable=False)
     username = db.Column(db.String(32), default='Reminder', nullable=False)
 
-    method = db.Column(db.String(9))
-
     interval = db.Column(INT(unsigned=True))
+
+    method = db.Column(db.String(9))
+    set_by = db.Column(INT(unsigned=True), db.ForeignKey(User.id, ondelete='SET NULL'), nullable=True)
+    set_at = db.Column(TIMESTAMP, nullable=True, default=datetime.now, server_default='CURRENT_TIMESTAMP')
 
     @staticmethod
     def create_uid():
