@@ -629,34 +629,27 @@ def dashboard():
 
 @app.route('/dashboard/ame/<int:guild_id>/<reminder_uid>', methods=['GET'])
 def advanced_message_editor(guild_id: int, reminder_uid: str):
-    try:
-        user = discord.get('api/users/@me').json()
 
-    except:
-        return redirect(url_for('oauth'))
+    user_id: int = session['user_id']
+
+    member = User.query.filter(User.user == user_id).first()
+    server = Guild.query.filter(Guild.guild == guild_id).first_or_404()
+
+    if member is None:
+        return redirect(url_for('cache'))
+
+    elif server not in member.guilds:
+        return abort(403)
 
     else:
+        reminder = Reminder.query.filter(Reminder.uid == reminder_uid).first()
 
-        user_id: int = user['id']  # get user id from oauth
-
-        member = User.query.filter(User.user == user_id).first()
-        server = Guild.query.filter(Guild.guild == guild_id).first_or_404()
-
-        if member is None:
-            return redirect(url_for('cache'))
-
-        elif server not in member.guilds:
-            return abort(403)
-
-        else:
-            reminder = Reminder.query.filter(Reminder.uid == reminder_uid).first()
-
-            return render_template('advanced_message_editor.html',
-                                   guilds=member.guilds,
-                                   guild=server,
-                                   member=member,
-                                   message=reminder.message,
-                                   reminder_uid=reminder_uid)
+        return render_template('advanced_message_editor.html',
+                               guilds=member.guilds,
+                               guild=server,
+                               member=member,
+                               message=reminder.message,
+                               reminder_uid=reminder_uid)
 
 
 @app.route('/dashboard/update_message/<int:guild_id>/<reminder_uid>', methods=['POST'])
