@@ -34,6 +34,22 @@ class Color:
                 return Color(failed=True)
 
 
+def get_internal_id():
+    internal_id = session.get('internal_id')
+
+    if internal_id is None:
+        user_id = session.get('user_id')
+        user_record = User.query.filter(User.user == user_id).first()
+
+        if user_record is not None:
+            session['internal_id'] = user_record.id
+
+            return user_record.id
+
+    else:
+        return internal_id
+
+
 @app.errorhandler(500)
 def internal_error(_error):
     session.clear()
@@ -82,7 +98,7 @@ def delete_reminder():
     reminder = reminder_q.first()
 
     if reminder.channel.guild_id is not None:
-        event = Event(event_name='delete', guild_id=reminder.channel.guild_id, user_id=session['internal_id'])
+        event = Event(event_name='delete', guild_id=reminder.channel.guild_id, user_id=get_internal_id())
         db.session.add(event)
 
     reminder_q.delete(synchronize_session='fetch')
@@ -99,7 +115,7 @@ def delete_interval():
     reminder.interval = None
     reminder.enabled = True
 
-    Event.new_edit_event(reminder, session['internal_id'])
+    Event.new_edit_event(reminder, get_internal_id())
 
     db.session.commit()
 
@@ -117,7 +133,7 @@ def toggle_enabled():
             name = 'enable' if reminder.enabled else 'disable'
 
             event = Event(
-                event_name=name, guild_id=reminder.channel.guild_id, user_id=session['internal_id'], reminder=reminder)
+                event_name=name, guild_id=reminder.channel.guild_id, user_id=get_internal_id(), reminder=reminder)
             db.session.add(event)
 
         db.session.commit()
@@ -137,7 +153,7 @@ def change_name():
         if len(name) <= 24:
             reminder.name = name
 
-            Event.new_edit_event(reminder, session['internal_id'])
+            Event.new_edit_event(reminder, get_internal_id())
 
             db.session.commit()
 
@@ -159,7 +175,7 @@ def change_username():
         if len(username) <= 32:
             reminder.username = username
 
-            Event.new_edit_event(reminder, session['internal_id'])
+            Event.new_edit_event(reminder, get_internal_id())
 
             db.session.commit()
 
@@ -204,7 +220,7 @@ def change_avatar():
         if len(avatar) <= 512:
             reminder.avatar = avatar
 
-            Event.new_edit_event(reminder, session['internal_id'])
+            Event.new_edit_event(reminder, get_internal_id())
 
             db.session.commit()
 
@@ -226,7 +242,7 @@ def change_channel():
         if channel is not None:
             reminder.channel = channel
 
-            Event.new_edit_event(reminder, session['internal_id'])
+            Event.new_edit_event(reminder, get_internal_id())
 
             db.session.commit()
 
@@ -248,7 +264,7 @@ def change_time():
         if new_time is not None and 0 < new_time < time.time() + MAX_TIME:
             reminder.time = new_time
 
-            Event.new_edit_event(reminder, session['internal_id'])
+            Event.new_edit_event(reminder, get_internal_id())
 
             db.session.commit()
 
@@ -291,7 +307,7 @@ def change_interval():
                 if interval is not None and MIN_INTERVAL <= interval < MAX_TIME:
                     reminder.interval = interval
 
-                    Event.new_edit_event(reminder, session['internal_id'])
+                    Event.new_edit_event(reminder, get_internal_id())
 
                     db.session.commit()
 
@@ -300,7 +316,7 @@ def change_interval():
                 elif interval is None:
                     reminder.interval = None
 
-                    Event.new_edit_event(reminder, session['internal_id'])
+                    Event.new_edit_event(reminder, get_internal_id())
 
                     db.session.commit()
 
@@ -697,7 +713,7 @@ def update_message(guild_id: int, reminder_uid: str):
 
     reminder.message.content = field('message_content')
 
-    Event.new_edit_event(reminder, session['internal_id'])
+    Event.new_edit_event(reminder, get_internal_id())
 
     db.session.commit()
 
