@@ -3,6 +3,12 @@ import secrets
 from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INTEGER as INT, MEDIUMBLOB, TIMESTAMP, ENUM
 from datetime import datetime, timedelta
 
+guild_users = db.Table('guild_users',
+                       db.Column('guild', INT(unsigned=True), db.ForeignKey('guilds.id')),
+                       db.Column('user', INT(unsigned=True), db.ForeignKey('users.id')),
+                       db.Column('can_access', db.Boolean, nullable=False, default=False),
+                       )
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -14,6 +20,38 @@ class User(db.Model):
     dm_channel = db.Column(BIGINT(unsigned=True))
     language = db.Column(db.String(2), nullable=False, default='EN')
     name = db.Column(db.String(37))
+
+    def permitted_guilds(self):
+        joins = db.session.query(guild_users) \
+            .filter(guild_users.c.user == self.id) \
+            .filter(guild_users.c.can_access) \
+            .all()
+
+        return Guild.query.filter(Guild.id.in_([row.guild for row in joins])).all()
+
+    def set_permitted_guilds(self, guilds):
+        stmt = guild_users.update().where(guild_users.c.user == self.id).values(can_access=False)
+        db.engine.execute(stmt)
+
+        current_guilds = set(
+            x.guild for x in db.session.query(guild_users)
+                .filter(guild_users.c.user == self.id)
+        )
+
+        insert_stmt = guild_users.insert()
+
+        for guild in guilds:
+
+            if guild.id in current_guilds:
+                stmt = guild_users.update()\
+                    .where((guild_users.c.user == self.id) & (guild_users.c.guild == guild.id))\
+                    .values(can_access=True)
+                db.engine.execute(stmt)
+
+            else:
+                insert_stmt.values(guild=guild.id, user=self.id, can_access=True)
+
+        db.engine.execute(insert_stmt)
 
 
 class Embed(db.Model):
@@ -40,12 +78,6 @@ class Message(db.Model):
     attachment_name = db.Column(db.String(32), nullable=True)
 
 
-guild_users = db.Table('guild_users',
-                       db.Column('guild', INT(unsigned=True), db.ForeignKey('guilds.id')),
-                       db.Column('user', INT(unsigned=True), db.ForeignKey('users.id')),
-                       )
-
-
 class Guild(db.Model):
     __tablename__ = 'guilds'
 
@@ -58,13 +90,6 @@ class Guild(db.Model):
 
     channels = db.relationship('Channel', backref='guild', lazy='dynamic')
     roles = db.relationship('Role', backref='guild', lazy='dynamic')
-
-    users = db.relationship(
-        'User', secondary=guild_users,
-        primaryjoin=(guild_users.c.guild == id),
-        secondaryjoin=(guild_users.c.user == User.id),
-        backref=db.backref('guilds', lazy='dynamic'), lazy='dynamic'
-    )
 
 
 class Channel(db.Model):
@@ -113,7 +138,7 @@ class Role(db.Model):
 class Reminder(db.Model):
     __tablename__ = 'reminders'
 
-    __table_args__ = (db.UniqueConstraint('name', 'channel_id'), )
+    __table_args__ = (db.UniqueConstraint('name', 'channel_id'),)
 
     id = db.Column(INT(unsigned=True), primary_key=True, unique=True)
     uid = db.Column(db.String(64), unique=True, default=lambda: Reminder.create_uid())
@@ -124,7 +149,7 @@ class Reminder(db.Model):
     message = db.relationship(Message)
 
     channel_id = db.Column(INT(unsigned=True), db.ForeignKey(Channel.id), nullable=True)
-    channel = db.relationship(Channel)
+    channel = db.relationship(Channel, backref='reminders')
 
     time = db.Column(INT(unsigned=True))
     enabled = db.Column(db.Boolean, nullable=False, default=True)
@@ -186,9 +211,9 @@ class Event(db.Model):
     def new_edit_event(cls, reminder, user_id):
 
         if reminder.channel.guild_id is not None:
-            q = cls.query\
-                .filter(cls.guild_id == reminder.channel.guild_id)\
-                .filter(cls.time > (datetime.now() - timedelta(hours=2)))\
+            q = cls.query \
+                .filter(cls.guild_id == reminder.channel.guild_id) \
+                .filter(cls.time > (datetime.now() - timedelta(hours=2))) \
                 .first()
 
             if q is None or q.user_id != user_id:

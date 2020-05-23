@@ -1,7 +1,8 @@
 <div class="card box box-body reminder-card" data-uid="{{ reminder.uid }}"
-    style="margin: 0"
     {% if not reminder.enabled %}
-        style="opacity: 0.5"
+        style="opacity: 0.5; margin: 0;"
+    {% else %}
+        style="margin: 0;"
     {% endif %}>
     <div class="card-header">
         <h4>

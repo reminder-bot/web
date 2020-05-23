@@ -1,13 +1,18 @@
 {% extends "dashboard_base.html" %}
 {% block content %}
 
-{% if not out %}
+    <section class="content-header">
+        <h1>
+            <strong>{{ guild.name }}</strong>: Reminders
+        </h1>
+    </section>
+
     <section class="content">
 
         <div class="container" style="width: 100%">
             <div class="row">
 
-                {% include "create_card.html" %}
+                {% include "reminder_dashboard/create_card.html" %}
 
             </div>
 
@@ -38,7 +43,7 @@
             <div class="row" id="all-reminders">
                 {% for reminder in reminders %}
 
-                    {% include "card.html" %}
+                    {% include "reminder_dashboard/card.html" %}
 
                 {% endfor %}
             </div>
@@ -46,15 +51,6 @@
         </div>
 
     </section>
-
-{% else %}
-    <section class="content-header">
-        <h1>
-            Please select a guild.
-        </h1>
-        <p class="text-muted">This website is tested on Firefox. Some features require default JavaScript settings. Please report any issues in my Discord guild.</p>
-    </section>
-{% endif %}
 
 {% if guild != None %}
     <script>

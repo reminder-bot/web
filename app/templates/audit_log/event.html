@@ -1,0 +1,33 @@
+<li class="list-group-item">
+    <div class="container row" style="width: 100%;">
+        <div class="col-md-6">
+            <strong>{{ event.user.name }}</strong>:
+
+            {{ past_tense(event.event_name) }}
+
+            {% if event.reminder %}
+                reminder "<strong>{{ event.reminder.name }}</strong>"
+            {% elif event.bulk_count != None and event.bulk_count >= 2 %}
+                {{ event.bulk_count }} reminders
+            {% else %}
+                a reminder
+            {% endif %}
+        </div>
+
+        <div class="col-md-2">
+            {% if event.event_name in ('enable', 'disable') %}
+                <i class="fas fa-power-off pull-right"></i>
+            {% elif event.event_name == 'delete' %}
+                <i class="fas fa-eraser pull-right"></i>
+            {% elif event.event_name == 'edit' %}
+                <i class="fas fa-edit pull-right"></i>
+            {% elif event.event_name == 'create' %}
+                <i class="fas fa-plus pull-right"></i>
+            {% endif %}
+        </div>
+
+        <div class="timestamp col-md-4" data-time="{{ event.time.timestamp() }}">
+            {{ event.time }} Server-Time
+        </div>
+    </div>
+</li>

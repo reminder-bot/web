@@ -7,6 +7,7 @@ import os
 import io
 import requests
 import time
+import itertools
 
 MAX_TIME = 1576800000
 MIN_INTERVAL = 800
@@ -35,15 +36,17 @@ class Color:
 
 
 def get_internal_id():
-    internal_id = session.get('internal_id')
+    if (internal_id := session.get('internal_id')) is not None:
+        return internal_id
 
-    if internal_id is None:
+    else:
         user_id = session.get('user_id')
 
         if user_id is None:
             user = discord.get('api/users/@me').json()
 
-            user_id = session['user_id'] = int( user['id'] )
+            user_id = int( user['id'] )
+            session['user_id'] = user_id
 
         user_record = User.query.filter(User.user == user_id).first()
 
@@ -54,9 +57,6 @@ def get_internal_id():
 
         else:
             raise Exception('No user record')
-
-    else:
-        return internal_id
 
 
 @app.errorhandler(500)
@@ -133,9 +133,8 @@ def delete_interval():
 
 @app.route('/toggle_enabled/', methods=['POST'])
 def toggle_enabled():
-    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
 
-    if reminder is not None:
+    if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
         reminder.enabled = not reminder.enabled
 
         if reminder.channel.guild_id is not None:
@@ -155,10 +154,9 @@ def toggle_enabled():
 
 @app.route('/change_name/', methods=['POST'])
 def change_name():
-    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
-    name = request.json['name']
+    if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
+        name = request.json['name']
 
-    if reminder is not None:
         if len(name) <= 24:
             reminder.name = name
 
@@ -177,10 +175,9 @@ def change_name():
 
 @app.route('/change_username/', methods=['POST'])
 def change_username():
-    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
-    username = request.json['username']
+    if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
+        username = request.json['username']
 
-    if reminder is not None:
         if len(username) <= 32:
             reminder.username = username
 
@@ -199,10 +196,9 @@ def change_username():
 
 @app.route('/change_message/', methods=['POST'])
 def change_message():
-    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
-    message = request.json['message']
+    if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
+        message = request.json['message']
 
-    if reminder is not None:
         if 0 < len(message) <= 2048:
             reminder.message.content = message
 
@@ -222,10 +218,9 @@ def change_message():
 
 @app.route('/change_avatar/', methods=['POST'])
 def change_avatar():
-    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
-    avatar = request.json['avatar']
+    if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
+        avatar = request.json['avatar']
 
-    if reminder is not None:
         if len(avatar) <= 512:
             reminder.avatar = avatar
 
@@ -244,11 +239,9 @@ def change_avatar():
 
 @app.route('/change_channel/', methods=['POST'])
 def change_channel():
-    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
-    channel = Channel.query.filter(Channel.channel == int(request.json['channel'])).first()
+    if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
 
-    if reminder is not None:
-        if channel is not None:
+        if (channel := Channel.query.filter(Channel.channel == int(request.json['channel'])).first()) is not None:
             reminder.channel = channel
 
             Event.new_edit_event(reminder, get_internal_id())
@@ -266,10 +259,9 @@ def change_channel():
 
 @app.route('/change_time/', methods=['POST'])
 def change_time():
-    reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
-    new_time = request.json['time']
+    if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
+        new_time = request.json['time']
 
-    if reminder is not None:
         if new_time is not None and 0 < new_time < time.time() + MAX_TIME:
             reminder.time = new_time
 
@@ -297,54 +289,45 @@ def change_time():
 
 @app.route('/change_interval/', methods=['POST'])
 def change_interval():
-    user = discord.get('api/users/@me').json()
-    try:
-        user_id = int(user['id'])
+    member = User.query.get(get_internal_id())
 
-    except KeyError:
-        flash('Discord verification failed. Please refresh the page')
-        return 'Discord verification failed. Please refresh the page', 403
+    if member.patreon:
+        reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
+        interval = request.json['interval']
 
-    else:
-        member = User.query.filter(User.user == user_id).first()
+        if reminder is not None:
+            if interval is not None and MIN_INTERVAL <= interval < MAX_TIME:
+                reminder.interval = interval
 
-        if member.patreon:
-            reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
-            interval = request.json['interval']
+                Event.new_edit_event(reminder, get_internal_id())
 
-            if reminder is not None:
-                if interval is not None and MIN_INTERVAL <= interval < MAX_TIME:
-                    reminder.interval = interval
+                db.session.commit()
 
-                    Event.new_edit_event(reminder, get_internal_id())
+                return '', 200
 
-                    db.session.commit()
+            elif interval is None:
+                reminder.interval = None
 
-                    return '', 200
+                Event.new_edit_event(reminder, get_internal_id())
 
-                elif interval is None:
-                    reminder.interval = None
+                db.session.commit()
 
-                    Event.new_edit_event(reminder, get_internal_id())
+                return '', 200
 
-                    db.session.commit()
+            elif MIN_INTERVAL > interval:
+                return 'Interval too short (must be longer than {} seconds'.format(MIN_INTERVAL), 400
 
-                    return '', 200
-
-                elif MIN_INTERVAL > interval:
-                    return 'Interval too short (must be longer than {} seconds'.format(MIN_INTERVAL), 400
-
-                elif interval > MAX_TIME:
-                    return 'Interval too long (must be shorter than {} seconds'.format(MAX_TIME), 400
-
-                else:
-                    return 'This error should never appear, but something went wrong', 400
+            elif interval > MAX_TIME:
+                return 'Interval too long (must be shorter than {} seconds'.format(MAX_TIME), 400
 
             else:
-                return 'Reminder not found', 404
+                return 'This error should never appear, but something went wrong', 400
 
         else:
-            return 'Patreon required', 403
+            return 'Reminder not found', 404
+
+    else:
+        return 'Patreon required', 403
 
 
 @app.route('/oauth/')
@@ -416,7 +399,7 @@ def change_reminder():
                     new_interval = None
 
                 avatar = request.form.get('avatar')
-                if not avatar or not avatar.startswith('http'):
+                if not isinstance(avatar, str) or not avatar.startswith('http'):
                     avatar = None
 
             if not (0 < new_time < time.time() + MAX_TIME):
@@ -518,9 +501,11 @@ def cache():
         else:
             session['internal_id'] = cached_user.id
 
+            cached_user.name = user['username']
+
             cached_user.patreon = check_user_patreon(cached_user) > 0
 
-            cached_user.guilds = get_user_guilds()
+            cached_user.set_permitted_guilds(get_user_guilds())
 
             db.session.commit()
 
@@ -582,9 +567,8 @@ def dashboard():
 
         if request.args.get('refresh') is None:
 
-            return render_template('dashboard.html',
-                                   out=False,
-                                   guilds=member.guilds,
+            return render_template('reminder_dashboard/reminder_dashboard.html',
+                                   guilds=member.permitted_guilds(),
                                    reminders=guild_reminders,
                                    guild=accessing_guild,
                                    member=member)
@@ -607,7 +591,7 @@ def dashboard():
                 guild_id = int(request.args.get('id'))
 
             except:  # Guild ID is invalid
-                flash('Guild not found')
+                flash('Guild ID invalid')
                 return redirect(url_for('dashboard'))
 
             else:
@@ -615,15 +599,14 @@ def dashboard():
                     reminders = Reminder.query.filter(Reminder.channel_id == member.dm_channel).order_by(
                         Reminder.time).all()  # fetch reminders
 
-                    return render_template('dashboard.html',
-                                           out=False,
-                                           guilds=member.guilds,
+                    return render_template('reminder_dashboard/reminder_dashboard.html',
+                                           guilds=member.permitted_guilds(),
                                            reminders=reminders,
                                            guild=None,
                                            member=member)
 
                 else:
-                    for guild in member.guilds:
+                    for guild in member.permitted_guilds():
                         if guild.guild == guild_id:
                             return permitted_access(guild)
 
@@ -633,9 +616,8 @@ def dashboard():
 
         elif request.args.get('refresh') is None:
 
-            return render_template('dashboard.html',
-                                   out=True,
-                                   guilds=member.guilds,
+            return render_template('empty_dashboard.html',
+                                   guilds=member.permitted_guilds(),
                                    guild=None,
                                    member=member)
 
@@ -646,26 +628,78 @@ def dashboard():
 @app.route('/dashboard/ame/<int:guild_id>/<reminder_uid>', methods=['GET'])
 def advanced_message_editor(guild_id: int, reminder_uid: str):
 
-    user_id: int = session['user_id']
-
-    member = User.query.filter(User.user == user_id).first()
-    server = Guild.query.filter(Guild.guild == guild_id).first_or_404()
+    member = User.query.get(get_internal_id())
+    guild = Guild.query.filter(Guild.guild == guild_id).first_or_404()
 
     if member is None:
         return redirect(url_for('cache'))
 
-    elif server not in member.guilds:
+    elif guild not in member.permitted_guilds():
         return abort(403)
 
     else:
         reminder = Reminder.query.filter(Reminder.uid == reminder_uid).first()
 
-        return render_template('advanced_message_editor.html',
-                               guilds=member.guilds,
-                               guild=server,
+        return render_template('reminder_dashboard/advanced_message_editor.html',
+                               guilds=member.permitted_guilds(),
+                               guild=guild,
                                member=member,
                                message=reminder.message,
                                reminder_uid=reminder_uid)
+
+
+@app.route('/dashboard/audit_log')
+def audit_log():
+
+    class PseudoEvent:
+        def __init__(self, reminder):
+            self.event_name = 'create'
+            self.bulk_count = None
+            self.user = User.query.get(reminder.set_by)
+            self.time = reminder.set_at
+            self.reminder = reminder
+
+    def combine(a, b):
+        out = []
+
+        while len(a) * len(b) > 0:
+            if a[0].time > b[0].time:
+                out.append(a.pop(0))
+            else:
+                out.append(b.pop(0))
+
+        if len(a) > 0:
+            out.extend(a)
+
+        else:
+            out.extend(b)
+
+        return out
+
+    if (guild_id := request.args.get('id')) is not None:
+        member = User.query.get(get_internal_id())
+        guild = Guild.query.filter(Guild.guild == guild_id).first_or_404()
+
+        if member is None:
+            return redirect(url_for('cache'))
+
+        elif guild not in member.permitted_guilds():
+            return abort(403)
+
+        else:
+            events = Event.query.filter(Event.guild_id == guild.id).order_by(Event.time.desc())
+            pseudo_events = [PseudoEvent(r) for r in itertools.chain(*[c.reminders for c in guild.channels])]
+
+            all_events = combine(events.all(), pseudo_events)
+
+            return render_template('audit_log/audit_log.html',
+                                   guilds=member.permitted_guilds(),
+                                   guild=guild,
+                                   member=member,
+                                   events=all_events)
+
+    else:
+        return redirect(url_for('dashboard'))
 
 
 @app.route('/dashboard/update_message/<int:guild_id>/<reminder_uid>', methods=['POST'])

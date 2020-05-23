@@ -1,0 +1,34 @@
+{% extends "dashboard_base.html" %}
+{% block content %}
+
+    <section class="content-header">
+        <h1>
+            <strong>{{ guild.name }}</strong>: Audit Log
+        </h1>
+    </section>
+
+    <section class="content">
+
+        <ul class="list-group" style="width: 100%">
+            {% for event in events %}
+
+                {% include "audit_log/event.html" %}
+
+            {% endfor %}
+        </ul>
+
+    </section>
+
+    <script>
+
+$('.timestamp').each(function() {
+    let ts = $(this).data('time');
+
+    let m = moment.unix(ts);
+
+    $(this).text(m.format('LLLL'));
+});
+
+    </script>
+
+{% endblock %}

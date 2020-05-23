@@ -48,14 +48,14 @@
                 <nav class="navbar navbar-static-top">
                     <a href="#" class="sidebar-toggle visible-xs" data-toggle="push-menu" role="button">
                         <i class="fas fa-bars"></i>
-                        <span class="sr-only">Toggle navigation.</span>
+                        <span class="sr-only">Toggle navigation</span>
                     </a>
                 </nav>
             </header>
 
             <aside class="main-sidebar" style="padding-top: 60px;">
                 <section class="sidebar">
-                    <ul class="sidebar-menu" data-widget="tree">
+                    <ul class="sidebar-menu" data-widget="tree" data-animation-speed="0">
 
                         {% if guild != None %}
                             <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', id=guild.guild, refresh=1) }}"><i class="fas fa-sync-alt"></i> <i class="fab fa-discord"></i> Sync guild data</a></li>
@@ -66,7 +66,13 @@
 
                         <li class="header">GUILDS</li>
                         {% for guild in guilds %}
-                            <li style="margin-left: 2rem;"><a href="{{ url_for('dashboard', id=guild.guild) }}">{{ guild.name }}</a></li>
+                            <li class="treeview" style="margin-left: 2rem;">
+                                <a href="#">{{ guild.name }}</a>
+                                <ul class="treeview-menu">
+                                    <li><a href="{{ url_for('dashboard', id=guild.guild) }}">Reminders</a></li>
+                                    <li><a href="{{ url_for('audit_log', id=guild.guild) }}">Reminder Audit Log</a></li>
+                                </ul>
+                            </li>
                         {% endfor %}
                     </ul>
                 </section>
