@@ -39,12 +39,21 @@ def get_internal_id():
 
     if internal_id is None:
         user_id = session.get('user_id')
+
+        if user_id is None:
+            user = discord.get('api/users/@me').json()
+
+            user_id = session['user_id'] = int( user['id'] )
+
         user_record = User.query.filter(User.user == user_id).first()
 
         if user_record is not None:
             session['internal_id'] = user_record.id
 
             return user_record.id
+
+        else:
+            raise Exception('No user record')
 
     else:
         return internal_id
@@ -496,9 +505,9 @@ def cache():
     else:
         user: dict = discord.get('api/users/@me').json()
 
-        session['user_id'] = user['id']
+        session['user_id'] = int( user['id'] )
 
-        user_query = User.query.filter(User.user == user['id'])
+        user_query = User.query.filter(User.user == int( user['id'] ))
         cached_user: typing.Optional[User] = user_query.first()
 
         if cached_user is None:
@@ -588,59 +597,50 @@ def dashboard():
         return redirect(url_for('oauth'))
 
     else:
-        try:
-            user = discord.get('api/users/@me').json()
+        member = User.query.get(get_internal_id())
 
-        except:
-            return redirect(url_for('oauth'))
+        if member is None:
+            return redirect(url_for('cache'))
 
-        else:
-            user_id: int = user['id']  # get user id from oauth
+        elif request.args.get('id') is not None:
+            try:
+                guild_id = int(request.args.get('id'))
 
-            member = User.query.filter(User.user == user_id).first()
-
-            if member is None:
-                return redirect(url_for('cache'))
-
-            elif request.args.get('id') is not None:
-                try:
-                    guild_id = int(request.args.get('id'))
-
-                except:  # Guild ID is invalid
-                    flash('Guild not found')
-                    return redirect(url_for('dashboard'))
-
-                else:
-                    if guild_id == 0:
-                        reminders = Reminder.query.filter(Reminder.channel_id == member.dm_channel).order_by(
-                            Reminder.time).all()  # fetch reminders
-
-                        return render_template('dashboard.html',
-                                               out=False,
-                                               guilds=member.guilds,
-                                               reminders=reminders,
-                                               guild=None,
-                                               member=member)
-
-                    else:
-                        for guild in member.guilds:
-                            if guild.guild == guild_id:
-                                return permitted_access(guild)
-
-                        else:
-                            flash('No permissions to view guild')
-                            return redirect(url_for('dashboard'))
-
-            elif request.args.get('refresh') is None:
-
-                return render_template('dashboard.html',
-                                       out=True,
-                                       guilds=member.guilds,
-                                       guild=None,
-                                       member=member)
+            except:  # Guild ID is invalid
+                flash('Guild not found')
+                return redirect(url_for('dashboard'))
 
             else:
-                return redirect(url_for('cache'))
+                if guild_id == 0:
+                    reminders = Reminder.query.filter(Reminder.channel_id == member.dm_channel).order_by(
+                        Reminder.time).all()  # fetch reminders
+
+                    return render_template('dashboard.html',
+                                           out=False,
+                                           guilds=member.guilds,
+                                           reminders=reminders,
+                                           guild=None,
+                                           member=member)
+
+                else:
+                    for guild in member.guilds:
+                        if guild.guild == guild_id:
+                            return permitted_access(guild)
+
+                    else:
+                        flash('No permissions to view guild')
+                        return redirect(url_for('dashboard'))
+
+        elif request.args.get('refresh') is None:
+
+            return render_template('dashboard.html',
+                                   out=True,
+                                   guilds=member.guilds,
+                                   guild=None,
+                                   member=member)
+
+        else:
+            return redirect(url_for('cache'))
 
 
 @app.route('/dashboard/ame/<int:guild_id>/<reminder_uid>', methods=['GET'])
