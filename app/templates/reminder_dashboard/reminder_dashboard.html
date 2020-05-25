@@ -3,7 +3,11 @@
 
     <section class="content-header">
         <h1>
-            <strong>{{ guild.name }}</strong>: Reminders
+            {% if guild != None %}
+                <strong>{{ guild.name }}</strong>: Reminders
+            {% else %}
+                <strong>{{ member.name }}</strong>: Reminders
+            {% endif %}
         </h1>
     </section>
 
