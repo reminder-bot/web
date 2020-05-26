@@ -75,7 +75,7 @@ let members = {
 
 let roles = {
     {% for role in guild.roles %}
-    "@{{ role.name.replace('\\', '').lower()[:32] }}": "&{{ role.role }}",
+    "@{{ (role.name or str(role.role)).replace('\\', '').lower()[:32] }}": "&{{ role.role }}",
     {% endfor %}
 };
 

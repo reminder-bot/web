@@ -39,6 +39,7 @@ class User(db.Model):
         )
 
         insert_stmt = guild_users.insert()
+        inserting = False
 
         for guild in guilds:
 
@@ -49,9 +50,11 @@ class User(db.Model):
                 db.engine.execute(stmt)
 
             else:
+                inserting = True
                 insert_stmt.values(guild=guild.id, user=self.id, can_access=True)
 
-        db.engine.execute(insert_stmt)
+        if inserting:
+            db.engine.execute(insert_stmt)
 
 
 class Embed(db.Model):
@@ -92,6 +95,29 @@ class Guild(db.Model):
     roles = db.relationship('Role', backref='guild', lazy='dynamic')
 
 
+class Role(db.Model):
+    __tablename__ = 'roles'
+
+    id = db.Column(INT(unsigned=True), primary_key=True)
+    role = db.Column(BIGINT(unsigned=True), unique=True, nullable=False)
+    guild_id = db.Column(INT(unsigned=True), db.ForeignKey(Guild.id), nullable=False)
+
+    name = db.Column(db.String(100))
+
+
+class CommandRestriction(db.Model):
+    __tablename__ = 'command_restrictions'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    guild_id = db.Column(INT(unsigned=True), db.ForeignKey(Guild.id, ondelete='CASCADE'), nullable=False)
+    guild = db.relationship(Guild, backref='command_restrictions')
+    role_id = db.Column(INT(unsigned=True), db.ForeignKey(Role.id, ondelete='CASCADE'), nullable=False)
+    command = db.Column(ENUM('todos', 'natural', 'remind', 'interval', 'timer', 'del', 'look'))
+
+    db.UniqueConstraint('role', 'command')
+
+
 class Channel(db.Model):
     __tablename__ = 'channels'
 
@@ -123,16 +149,6 @@ class Channel(db.Model):
             else:
                 self.webhook_id = existing[0]['id']
                 self.webhook_token = existing[0]['token']
-
-
-class Role(db.Model):
-    __tablename__ = 'roles'
-
-    id = db.Column(INT(unsigned=True), primary_key=True)
-    role = db.Column(BIGINT(unsigned=True), unique=True, nullable=False)
-    guild_id = db.Column(INT(unsigned=True), db.ForeignKey(Guild.id), nullable=False)
-
-    name = db.Column(db.String(100))
 
 
 class Reminder(db.Model):

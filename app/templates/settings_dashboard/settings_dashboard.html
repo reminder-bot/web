@@ -1,0 +1,29 @@
+{% extends "dashboard_base.html" %}
+{% block content %}
+
+    <section class="content-header">
+        <h1>
+            <strong>{{ guild.name }}</strong>: Audit Log
+        </h1>
+    </section>
+
+    <section class="content">
+
+        <ul class="list-group" style="width: 100%">
+            {% for command in ('todos', 'natural', 'remind', 'interval', 'timer', 'del', 'look') %}
+                <li class="list-group-item">
+                    <span class="pull-left">{{ command }}</span>
+
+                    <span class="pull-right">
+                        {% for role in command_restrictions.filter_by(command=command) %}
+                            <a href="#">{{ shrink(role.name or str(role.role)) }}</a>
+                        {% endfor %}
+                        <a href="#"><i class="fas fa-plus-circle"></i></a>
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+
+    </section>
+
+{% endblock %}
