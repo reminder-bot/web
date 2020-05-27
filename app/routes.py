@@ -489,11 +489,19 @@ def cache():
         def form_cached_guild(data: dict) -> Guild:
             guild_query = Guild.query.filter(Guild.guild == data['id'])
 
-            guild_data = guild_query.first() or Guild(guild=data['id'])
+            if (guild_data := guild_query.first()) is not None:
+                guild_data.name = data['name']
 
-            guild_data.name = data['name']
+                return guild_data
 
-            return guild_data
+            else:
+                guild_data = Guild(guild=data['id'])
+                db.session.add(guild_data)
+                db.session.flush()
+
+                guild_data.name = data['name']
+
+                return guild_data
 
         guilds: list = discord.get('api/users/@me/guilds').json()
         cached_guilds: list = []

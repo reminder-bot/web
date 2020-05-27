@@ -41,15 +41,16 @@ class User(db.Model):
 
         for guild in guilds:
 
+            print(guild.id)
+
             if guild.id in current_guilds:
                 stmt = guild_users.update()\
                     .where((guild_users.c.user == self.id) & (guild_users.c.guild == guild.id))\
                     .values(can_access=True)
-                db.engine.execute(stmt)
+                db.session.execute(stmt)
 
-            else:
-                insert_stmt = guild_users.insert().values(guild=guild.id, user=self.id, can_access=True)
-                db.engine.execute(insert_stmt)
+            elif guild.id is not None:
+                db.session.execute(guild_users.insert().values(guild=guild.id, user=self.id, can_access=True))
 
 
 class Embed(db.Model):
