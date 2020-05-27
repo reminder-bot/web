@@ -39,9 +39,6 @@ class User(db.Model):
                 .filter(guild_users.c.user == self.id)
         )
 
-        insert_stmt = guild_users.insert()
-        inserting = False
-
         for guild in guilds:
 
             if guild.id in current_guilds:
@@ -51,11 +48,8 @@ class User(db.Model):
                 db.engine.execute(stmt)
 
             else:
-                inserting = True
-                insert_stmt.values(guild=guild.id, user=self.id, can_access=True)
-
-        if inserting:
-            db.engine.execute(insert_stmt)
+                insert_stmt = guild_users.insert().values(guild=guild.id, user=self.id, can_access=True)
+                db.engine.execute(insert_stmt)
 
 
 class Embed(db.Model):
