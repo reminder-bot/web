@@ -1,7 +1,7 @@
 import typing
 from flask import redirect, render_template, request, url_for, session, flash, abort, jsonify, send_file
 from app import app, discord, db
-from app.models import Guild, Reminder, User, Channel, Role, Message, Embed, Event
+from app.models import Guild, Reminder, User, Channel, Role, Message, Embed, Event, CommandRestriction
 from app.markdown import markdown_parse
 import os
 import io
@@ -45,7 +45,7 @@ def get_internal_id():
         if user_id is None:
             user = discord.get('api/users/@me').json()
 
-            user_id = int( user['id'] )
+            user_id = int(user['id'])
             session['user_id'] = user_id
 
         user_record = User.query.filter(User.user == user_id).first()
@@ -133,7 +133,6 @@ def delete_interval():
 
 @app.route('/toggle_enabled/', methods=['POST'])
 def toggle_enabled():
-
     if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
         reminder.enabled = not reminder.enabled
 
@@ -330,6 +329,32 @@ def change_interval():
         return 'Patreon required', 403
 
 
+@app.route('/change_restrictions/', methods=['PATCH'])
+def change_restrictions():
+    if (guild_id := request.json.get('guild_id')) and \
+            (command := request.json.get('command')) and \
+            (roles := request.json.get('roles')) is not None:
+
+        member = User.query.get(get_internal_id())
+
+        if guild_id in [x.id for x in member.permitted_guilds()]:
+            guild = Guild.query.get(guild_id)
+
+            guild.command_restrictions.filter(CommandRestriction.command == command).delete(synchronize_session='fetch')
+
+            valid_ids = [r.id for r in guild.roles]
+
+            for role in filter(lambda r: int(r) in valid_ids, roles):
+                c = CommandRestriction(role_id=role, guild_id=guild_id, command=command)
+                db.session.add(c)
+
+            db.session.commit()
+
+            return '', 201
+    else:
+        abort(400)
+
+
 @app.route('/oauth/')
 def oauth():
     session.clear()
@@ -488,9 +513,9 @@ def cache():
     else:
         user: dict = discord.get('api/users/@me').json()
 
-        session['user_id'] = int( user['id'] )
+        session['user_id'] = int(user['id'])
 
-        user_query = User.query.filter(User.user == int( user['id'] ))
+        user_query = User.query.filter(User.user == int(user['id']))
         cached_user: typing.Optional[User] = user_query.first()
 
         if cached_user is None:
@@ -627,7 +652,6 @@ def dashboard():
 
 @app.route('/dashboard/ame/<int:guild_id>/<reminder_uid>', methods=['GET'])
 def advanced_message_editor(guild_id: int, reminder_uid: str):
-
     member = User.query.get(get_internal_id())
     guild = Guild.query.filter(Guild.guild == guild_id).first_or_404()
 
@@ -650,7 +674,6 @@ def advanced_message_editor(guild_id: int, reminder_uid: str):
 
 @app.route('/dashboard/audit_log')
 def audit_log():
-
     class PseudoEvent:
         def __init__(self, reminder):
             self.event_name = 'create'
@@ -704,7 +727,6 @@ def audit_log():
 
 @app.route('/dashboard/settings')
 def settings_dashboard():
-
     if (guild_id := request.args.get('id')) is not None:
         member = User.query.get(get_internal_id())
         guild = Guild.query.filter(Guild.guild == guild_id).first_or_404()

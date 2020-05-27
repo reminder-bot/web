@@ -17,13 +17,12 @@
 
                     <span class="pull-right restrictions-container">
                         {% for restriction in command_restrictions.filter_by(command=command) %}
-                            <a href="#" class="badge role-permitted" data-role-id="{{ restriction.role_id }}">
+                            <span class="badge role-permitted" data-role-id="{{ restriction.role_id }}">
                                 {{ restriction.role.display_name() }}
-                                <i class="fas fa-times-circle"></i>
-                            </a>
+                            </span>
                         {% endfor %}
 
-                        <a class="badge add-role" style="background-color: #007bff;" href="#role-modal" data-toggle="modal">
+                        <a class="badge add-role" id="add-roles-{{ command }}" style="background-color: #007bff;" href="#role-modal" data-toggle="modal">
                             Add Role
                             <i class="fas fa-plus-circle"></i>
                         </a>
@@ -39,11 +38,21 @@
                         <h4 class="modal-title">Add Roles</h4>
                     </div>
                     <div class="modal-body">
-                        <ul class="list-group role-controller" data-command="">
+                        <div class="role-controller" data-command="">
                             {% for role in guild.roles %}
-                                <li class="list-group-item"><a class="role-selector" data-role-id="{{ role.id }}">{{ role.display_name() }}</a></li>
+                                <div class="input-group">
+                                    <div class="input-group-addon" style="width: 80%; max-width: 80%; overflow: hidden;">
+                                        <label for="role-selector-{{ role.id }}">{{ role.display_name() }}</label>
+                                    </div>
+                                    <div class="input-group-addon">
+                                        <input type="checkbox" class="role-selector" id="role-selector-{{ role.id }}" data-role-id="{{ role.id }}">
+                                    </div>
+                                </div>
                             {% endfor %}
-                        </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="save-restrictions">Save</button>
                     </div>
                 </div>
             </div>
@@ -53,24 +62,61 @@
 
     <script>
 
+const ROLES = {
+    {% for role in guild.roles %}
+        "{{ role.id }}": "{{ role.display_name() }}",
+    {% endfor %}
+}
+
 'use strict';
 
 $('#role-modal').on('show.bs.modal', function (event) {
     let $trigger = $(event.relatedTarget);
-    let $role_controller = $(this).find('ul.role-controller');
+    let $role_controller = $(this).find('div.role-controller');
 
     let current_roles = $trigger.closest('.restrictions-container').find('.role-permitted').toArray().map(function (i) {
         return Number(i.dataset.roleId);
     });
 
-    console.log(current_roles);
-
     $role_controller.data('command', $trigger.closest('li').data('command'));
-    $role_controller.find('a.role-selector').each(function () {
+
+    $role_controller.find('input.role-selector').each(function () {
         if (current_roles.includes($(this).data('role-id'))) {
-            $(this).disable();
+            $(this).prop('checked', true);
+        }
+        else {
+            $(this).prop('checked', false);
         }
     });
+});
+
+$('#save-restrictions').on('click', function () {
+    let command = $(this).closest('.modal-content').find('.role-controller').data('command');
+
+    let active_roles = $(this).closest('.modal-content').find('.role-selector:checked').toArray().map(
+        function (item) {
+            return item.dataset.roleId;
+        });
+
+    $.ajax({
+        url: "{{ url_for('change_restrictions') }}",
+        data: JSON.stringify({guild_id: {{ guild.id }}, command: command, roles: active_roles}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'PATCH',
+
+        success: function () {
+            $('#role-modal').modal('hide');
+
+            let $add_button = $(`#add-roles-${command}`);
+
+            $add_button.siblings().remove()
+
+            let role;
+            for (role of active_roles) {
+                $add_button.before(`<span class="badge role-permitted" data-role-id="${role}">${ROLES[role]}</span> `);
+            }
+        }
+    })
 });
 
     </script>
