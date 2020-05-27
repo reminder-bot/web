@@ -23,7 +23,7 @@
                         {% endfor %}
 
                         <a class="badge add-role" id="add-roles-{{ command }}" style="background-color: #007bff;" href="#role-modal" data-toggle="modal">
-                            Add Role
+                            Edit Roles
                             <i class="fas fa-plus-circle"></i>
                         </a>
                     </span>
@@ -35,7 +35,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Add Roles</h4>
+                        <h4 class="modal-title">Add Roles for <strong id="command-name"></strong></h4>
                     </div>
                     <div class="modal-body">
                         <div class="role-controller" data-command="">
@@ -78,7 +78,10 @@ $('#role-modal').on('show.bs.modal', function (event) {
         return Number(i.dataset.roleId);
     });
 
-    $role_controller.data('command', $trigger.closest('li').data('command'));
+    let command = $trigger.closest('li').data('command');
+
+    $role_controller.data('command', command);
+    $('#command-name').text(command)
 
     $role_controller.find('input.role-selector').each(function () {
         if (current_roles.includes($(this).data('role-id'))) {

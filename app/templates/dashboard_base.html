@@ -71,6 +71,7 @@
                                 <ul class="treeview-menu">
                                     <li><a href="{{ url_for('dashboard', id=guild.guild) }}">Reminders</a></li>
                                     <li><a href="{{ url_for('audit_log', id=guild.guild) }}">Reminder Audit Log</a></li>
+                                    <li><a href="{{ url_for('settings_dashboard', id=guild.guild) }}">Settings</a></li>
                                 </ul>
                             </li>
                         {% endfor %}
