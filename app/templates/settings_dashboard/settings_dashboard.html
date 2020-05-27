@@ -3,27 +3,76 @@
 
     <section class="content-header">
         <h1>
-            <strong>{{ guild.name }}</strong>: Audit Log
+            <strong>{{ guild.name }}</strong>: Settings
         </h1>
     </section>
 
     <section class="content">
 
-        <ul class="list-group" style="width: 100%">
+        <h2>Command Permissions</h2>
+        <ul class="list-group" style="width: 100%;">
             {% for command in ('todos', 'natural', 'remind', 'interval', 'timer', 'del', 'look') %}
-                <li class="list-group-item">
-                    <span class="pull-left">{{ command }}</span>
+                <li class="list-group-item" data-command="{{ command }}">
+                    {{ command }}
 
-                    <span class="pull-right">
-                        {% for role in command_restrictions.filter_by(command=command) %}
-                            <a href="#">{{ shrink(role.name or str(role.role)) }}</a>
+                    <span class="pull-right restrictions-container">
+                        {% for restriction in command_restrictions.filter_by(command=command) %}
+                            <a href="#" class="badge role-permitted" data-role-id="{{ restriction.role_id }}">
+                                {{ restriction.role.display_name() }}
+                                <i class="fas fa-times-circle"></i>
+                            </a>
                         {% endfor %}
-                        <a href="#"><i class="fas fa-plus-circle"></i></a>
+
+                        <a class="badge add-role" style="background-color: #007bff;" href="#role-modal" data-toggle="modal">
+                            Add Role
+                            <i class="fas fa-plus-circle"></i>
+                        </a>
                     </span>
                 </li>
             {% endfor %}
         </ul>
 
+        <div class="modal fade" id="role-modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add Roles</h4>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group role-controller" data-command="">
+                            {% for role in guild.roles %}
+                                <li class="list-group-item"><a class="role-selector" data-role-id="{{ role.id }}">{{ role.display_name() }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </section>
+
+    <script>
+
+'use strict';
+
+$('#role-modal').on('show.bs.modal', function (event) {
+    let $trigger = $(event.relatedTarget);
+    let $role_controller = $(this).find('ul.role-controller');
+
+    let current_roles = $trigger.closest('.restrictions-container').find('.role-permitted').toArray().map(function (i) {
+        return Number(i.dataset.roleId);
+    });
+
+    console.log(current_roles);
+
+    $role_controller.data('command', $trigger.closest('li').data('command'));
+    $role_controller.find('a.role-selector').each(function () {
+        if (current_roles.includes($(this).data('role-id'))) {
+            $(this).disable();
+        }
+    });
+});
+
+    </script>
 
 {% endblock %}

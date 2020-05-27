@@ -4,9 +4,10 @@ from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INTEGER as INT, MEDIUMB
 from datetime import datetime, timedelta
 
 guild_users = db.Table('guild_users',
-                       db.Column('guild', INT(unsigned=True), db.ForeignKey('guilds.id')),
-                       db.Column('user', INT(unsigned=True), db.ForeignKey('users.id')),
+                       db.Column('guild', INT(unsigned=True), db.ForeignKey('guilds.id'), nullable=False),
+                       db.Column('user', INT(unsigned=True), db.ForeignKey('users.id'), nullable=False),
                        db.Column('can_access', db.Boolean, nullable=False, default=False),
+                       db.UniqueConstraint('guild', 'user'),
                        )
 
 
@@ -93,6 +94,7 @@ class Guild(db.Model):
 
     channels = db.relationship('Channel', backref='guild', lazy='dynamic')
     roles = db.relationship('Role', backref='guild', lazy='dynamic')
+    command_restrictions = db.relationship('CommandRestriction', backref='guild', lazy='dynamic')
 
 
 class Role(db.Model):
@@ -104,6 +106,9 @@ class Role(db.Model):
 
     name = db.Column(db.String(100))
 
+    def display_name(self):
+        return self.name or str(self.id)
+
 
 class CommandRestriction(db.Model):
     __tablename__ = 'command_restrictions'
@@ -111,8 +116,8 @@ class CommandRestriction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     guild_id = db.Column(INT(unsigned=True), db.ForeignKey(Guild.id, ondelete='CASCADE'), nullable=False)
-    guild = db.relationship(Guild, backref='command_restrictions')
     role_id = db.Column(INT(unsigned=True), db.ForeignKey(Role.id, ondelete='CASCADE'), nullable=False)
+    role = db.relationship(Role)
     command = db.Column(ENUM('todos', 'natural', 'remind', 'interval', 'timer', 'del', 'look'))
 
     db.UniqueConstraint('role', 'command')

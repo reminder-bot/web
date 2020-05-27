@@ -16,17 +16,9 @@ def past_tense(n):
         return n + 'ed'
 
 
-def shrink(s: str):
-    if len(s) <= 12:
-        return s
-
-    else:
-        return s[:9] + '...'
-
-
 app = Flask(__name__)
 app.config.from_object(Config)
-app.jinja_env.globals.update(hex=to_hex, past_tense=past_tense, shrink=shrink, str=str)
+app.jinja_env.globals.update(hex=to_hex, past_tense=past_tense)
 discord_blueprint = make_discord_blueprint(scope=['identify', 'guilds'], redirect_url='/cache/')
 app.register_blueprint(discord_blueprint, url_prefix='/login')
 db = SQLAlchemy(app)
