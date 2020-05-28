@@ -37,6 +37,7 @@ class User(db.Model):
         current_guilds = set(
             x.guild for x in db.session.query(guild_users)
                 .filter(guild_users.c.user == self.id)
+
         )
 
         for guild in guilds:
@@ -60,6 +61,9 @@ class Embed(db.Model):
 
     title = db.Column(db.String(256), nullable=False, default='')
     description = db.Column(db.String(2048), nullable=False, default='')
+    footer = db.Column(db.String(2048), nullable=False, default='')
+    footer_icon = db.Column(db.String(512), nullable=True)
+
     color = db.Column(MEDIUMINT(unsigned=True), nullable=False, default=0x0)
 
 
@@ -153,8 +157,6 @@ class Channel(db.Model):
 
 class Reminder(db.Model):
     __tablename__ = 'reminders'
-
-    __table_args__ = (db.UniqueConstraint('name', 'channel_id'),)
 
     id = db.Column(INT(unsigned=True), primary_key=True, unique=True)
     uid = db.Column(db.String(64), unique=True, default=lambda: Reminder.create_uid())

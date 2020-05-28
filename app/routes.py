@@ -771,9 +771,13 @@ def update_message(guild_id: int, reminder_uid: str):
             return redirect(url_for('advanced_message_editor', guild_id=guild_id, reminder_uid=reminder_uid))
 
         else:
+            footer_icon = icon if (icon := field('embed_footer_icon')).startswith('https://') else None
+
             reminder.message.embed = Embed(
                 title=field('embed_title'),
                 description=field('embed_description'),
+                footer=field('embed_footer'),
+                footer_icon=footer_icon,
                 color=color.color)
 
     else:
