@@ -1,7 +1,7 @@
 import typing
 from flask import redirect, render_template, request, url_for, session, flash, abort, jsonify, send_file
 from app import app, discord, db
-from app.models import Guild, Reminder, User, Channel, Role, Message, Embed, Event, CommandRestriction
+from app.models import Guild, Reminder, User, Channel, Role, Message, Embed, Event, CommandRestriction, CommandAlias
 from app.markdown import markdown_parse
 import os
 import io
@@ -351,6 +351,69 @@ def change_restrictions():
             db.session.commit()
 
             return '', 201
+
+        else:
+            abort(403)
+
+    else:
+        abort(400)
+
+
+@app.route('/change_aliases/', methods=['POST', 'DELETE'])
+def change_aliases():
+    if (guild_id := request.json.get('guild_id')) is not None:
+
+        member = User.query.get(get_internal_id())
+
+        if guild_id in [x.id for x in member.permitted_guilds()]:
+
+            if request.method == 'POST':
+                if (command := request.json.get('command')) is not None and \
+                        (name := request.json.get('name')) is not None:
+
+                    if 1 < len(command) < 2048 and len(name) < 12:
+                        if (alias_id := request.json.get('id')) is not None and \
+                                (alias := CommandAlias.query.filter_by(guild_id=guild_id, id=alias_id).first()) is not None:
+
+                            if name != alias.name and CommandAlias.query.filter_by(guild_id=guild_id, name=name).first() is not None:
+                                return 'Name must be unique', 400
+
+                            else:
+                                alias.name = name
+                                alias.command = command
+
+                        else:
+                            if CommandAlias.query.filter_by(guild_id=guild_id, name=name).first() is not None:
+                                return 'Name must be unique', 400
+
+                            else:
+                                alias = CommandAlias(name=name, command=command, guild_id=guild_id)
+
+                                db.session.add(alias)
+                                db.session.commit()
+
+                                return jsonify({'id': alias.id, 'name': alias.name, 'command': alias.command})
+
+                    else:
+                        return 'Invalid input lengths', 400
+
+                else:
+                    abort(400)
+
+            else:  # method is delete
+                if (alias_id := request.json.get('id')) is not None:
+                    CommandAlias.query.filter_by(guild_id=guild_id, id=alias_id).delete(synchronize_session='fetch')
+
+                else:
+                    abort(400)
+
+            db.session.commit()
+
+            return '', 201
+
+        else:
+            abort(400)
+
     else:
         abort(400)
 

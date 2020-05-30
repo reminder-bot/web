@@ -155,6 +155,21 @@ class Channel(db.Model):
                 self.webhook_token = existing[0]['token']
 
 
+class CommandAlias(db.Model):
+    __tablename__ = 'command_aliases'
+
+    id = db.Column(INT(unsigned=True), primary_key=True)
+
+    guild_id = db.Column(
+        INT(unsigned=True), db.ForeignKey(Guild.id, ondelete='CASCADE'), nullable=False)
+    guild = db.relationship(Guild, backref='aliases')
+    name = db.Column(db.String(12), nullable=False)
+
+    command = db.Column(db.String(2048), nullable=False)
+
+    db.UniqueConstraint('guild_id', 'name')
+
+
 class Reminder(db.Model):
     __tablename__ = 'reminders'
 
