@@ -117,7 +117,7 @@ class CommandRestriction(db.Model):
     guild_id = db.Column(INT(unsigned=True), db.ForeignKey(Guild.id, ondelete='CASCADE'), nullable=False)
     role_id = db.Column(INT(unsigned=True), db.ForeignKey(Role.id, ondelete='CASCADE'), nullable=False)
     role = db.relationship(Role)
-    command = db.Column(ENUM('todos', 'natural', 'remind', 'interval', 'timer', 'del', 'look'))
+    command = db.Column(ENUM('todos', 'natural', 'remind', 'interval', 'timer', 'del', 'look', 'alias'))
 
     db.UniqueConstraint('role', 'command')
 
