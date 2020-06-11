@@ -93,7 +93,9 @@ class Guild(db.Model):
 
     channels = db.relationship('Channel', backref='guild', lazy='dynamic')
     roles = db.relationship('Role', backref='guild', lazy='dynamic')
+
     command_restrictions = db.relationship('CommandRestriction', backref='guild', lazy='dynamic')
+    todo_list = db.relationship('Todo', backref='guild', lazy='dynamic')
 
 
 class Role(db.Model):
@@ -137,6 +139,9 @@ class Channel(db.Model):
     def __repr__(self):
         return '{}.{}'.format(self.name, self.channel)
 
+    def __hash__(self):
+        return self.id.__hash__()
+
     def update_webhook(self, api_get, api_post, client_id):
         # get existing webhooks
         webhooks = api_get('channels/{}/webhooks'.format(self.channel)).json()
@@ -153,6 +158,19 @@ class Channel(db.Model):
             else:
                 self.webhook_id = existing[0]['id']
                 self.webhook_token = existing[0]['token']
+
+
+class Todo(db.Model):
+    __tablename__ = 'todos'
+
+    id = db.Column(INT(unsigned=True), primary_key=True)
+
+    user_id = db.Column(INT(unsigned=True), db.ForeignKey(User.id, ondelete='CASCADE'))
+    guild_id = db.Column(INT(unsigned=True), db.ForeignKey(Guild.id, ondelete='CASCADE'))
+    channel_id = db.Column(INT(unsigned=True), db.ForeignKey(Channel.id, ondelete='SET NULL'))
+    channel = db.relationship(Channel, backref='todo_list')
+
+    value = db.Column(db.String(2000), nullable=False)
 
 
 class CommandAlias(db.Model):

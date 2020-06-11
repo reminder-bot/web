@@ -796,7 +796,7 @@ def audit_log():
         return redirect(url_for('dashboard'))
 
 
-@app.route('/dashboard/settings')
+@app.route('/dashboard/settings/')
 def settings_dashboard():
     if (guild_id := request.args.get('id')) is not None:
         member = User.query.get(get_internal_id())
@@ -809,7 +809,6 @@ def settings_dashboard():
             return abort(403)
 
         else:
-
             return render_template('settings_dashboard/settings_dashboard.html',
                                    guilds=member.permitted_guilds(),
                                    guild=guild,
@@ -819,6 +818,43 @@ def settings_dashboard():
     else:
         return redirect(url_for('dashboard'))
 
+
+@app.route('/dashboard/todo/')
+def todo_dashboard():
+    if (guild_id := request.args.get('id')) is not None:
+        member = User.query.get(get_internal_id())
+        guild = Guild.query.filter(Guild.guild == guild_id).first_or_404()
+
+        if member is None:
+            return redirect(url_for('cache'))
+
+        elif guild not in member.permitted_guilds():
+            return abort(403)
+
+        else:
+            todos = {}
+            global_todos = []
+
+            for todo in guild.todo_list:
+                if todo.channel_id is None:
+                    global_todos.append(todo)
+
+                else:
+                    if todos.get(todo.channel_id) is None:
+                        todos[todo.channel] = [todo]
+
+                    else:
+                        todos[todo.channel].append(todo)
+
+            return render_template('todo_dashboard/todo_dashboard.html',
+                                   guilds=member.permitted_guilds(),
+                                   guild=guild,
+                                   member=member,
+                                   todos=todos,
+                                   global_todos=global_todos)
+
+    else:
+        return redirect(url_for('dashboard'))
 
 @app.route('/dashboard/update_message/<int:guild_id>/<reminder_uid>', methods=['POST'])
 def update_message(guild_id: int, reminder_uid: str):

@@ -1,0 +1,29 @@
+{% extends "dashboard_base.html" %}
+{% block content %}
+
+    <section class="content-header">
+        <h1>
+            <strong>{{ guild.name }}</strong>: Todo Lists
+        </h1>
+    </section>
+
+    <section class="content">
+
+    <h2>Server Todo</h2>
+    {% for todo_item in global_todos %}
+        <p>{{ todo_item.value }}</p>
+    {% endfor %}
+
+    {% for channel, todo_list in todos.items() %}
+        <h2>#{{ channel.name }} Todo</h2>
+        {% for todo_item in todo_list %}
+            <p>{{ todo_item.value }}</p>
+        {% endfor %}
+    {% endfor %}
+
+    </section>
+
+    <script>
+    </script>
+
+{% endblock %}
