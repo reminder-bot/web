@@ -1,7 +1,8 @@
 import typing
 from flask import redirect, render_template, request, url_for, session, flash, abort, jsonify, send_file
 from app import app, discord, db
-from app.models import Guild, Reminder, User, Channel, Role, Message, Embed, Event, CommandRestriction, CommandAlias
+from app.models import Guild, Reminder, User, Channel, \
+    Role, Message, Embed, Event, CommandRestriction, CommandAlias, Todo
 from app.markdown import markdown_parse
 import os
 import io
@@ -373,9 +374,11 @@ def change_aliases():
 
                     if 1 < len(command) < 2048 and len(name) < 12:
                         if (alias_id := request.json.get('id')) is not None and \
-                                (alias := CommandAlias.query.filter_by(guild_id=guild_id, id=alias_id).first()) is not None:
+                                (alias := CommandAlias.query.filter_by(guild_id=guild_id,
+                                                                       id=alias_id).first()) is not None:
 
-                            if name != alias.name and CommandAlias.query.filter_by(guild_id=guild_id, name=name).first() is not None:
+                            if name != alias.name and CommandAlias.query.filter_by(guild_id=guild_id,
+                                                                                   name=name).first() is not None:
                                 return 'Name must be unique', 400
 
                             else:
@@ -855,6 +858,56 @@ def todo_dashboard():
 
     else:
         return redirect(url_for('dashboard'))
+
+
+@app.route('/alter_todo/', methods=['DELETE', 'POST', 'PATCH'])
+def alter_todo():
+    if (guild_id := request.json.get('guild_id')) is not None:
+
+        member = User.query.get(get_internal_id())
+
+        if guild_id in [x.id for x in member.permitted_guilds()]:
+
+            if request.method == 'POST':
+                if (channel_id := request.json.get('channel_id')) is not None and \
+                        (value := request.json.get('value')) is not None and \
+                        0 < len(value) <= 2000:
+
+                    if channel_id == '-1':
+                        todo = Todo(guild_id=guild_id, channel_id=None, user_id=member.id, value=value)
+
+                        db.session.add(todo)
+
+                    else:
+                        guild = Guild.query.get(guild_id)
+
+                        if guild.channels.filter(Channel.id == channel_id).first() is not None:
+                            todo = Todo(guild_id=guild_id, channel_id=channel_id, user_id=member.id, value=value)
+
+                            db.session.add(todo)
+
+                        else:
+                            abort(404)
+
+                else:
+                    abort(400)
+
+            elif request.method == 'DELETE':
+                if (channel_id := request.json.get('channel_id')) is not None and \
+                        (todo_id := request.json.get('todo_id')) is not None:
+                    Todo.query \
+                        .filter(Todo.id == todo_id) \
+                        .filter(Todo.channel_id == channel_id) \
+                        .filter(Todo.guild_id == guild_id) \
+                        .delete(synchronize_session='fetch')
+
+            db.session.commit()
+
+            return '', 201
+
+    else:
+        abort(400)
+
 
 @app.route('/dashboard/update_message/<int:guild_id>/<reminder_uid>', methods=['POST'])
 def update_message(guild_id: int, reminder_uid: str):

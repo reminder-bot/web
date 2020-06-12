@@ -9,21 +9,69 @@
 
     <section class="content">
 
-    <h2>Server Todo</h2>
-    {% for todo_item in global_todos %}
-        <p>{{ todo_item.value }}</p>
-    {% endfor %}
+        <div class="input-group" style="width: 35%;">
+            <div class="input-group-addon">
+                <label for="show-empty">Show Empty Channels</label>
+            </div>
+            <div class="input-group-addon">
+                <input type="checkbox" id="show-empty">
+            </div>
+        </div>
 
-    {% for channel, todo_list in todos.items() %}
-        <h2>#{{ channel.name }} Todo</h2>
-        {% for todo_item in todo_list %}
-            <p>{{ todo_item.value }}</p>
+        <h2>Server Todo</h2>
+        <ul class="list-group" style="width: 100%;" data-channel="-1">
+        {% for todo_item in global_todos %}
+            {% include "todo_dashboard/todo_item.html" %}
         {% endfor %}
-    {% endfor %}
+
+        {% include "todo_dashboard/todo_create.html" %}
+        </ul>
+
+        {% for channel in guild.channels %}
+            <h2>#{{ channel.name }} Todo</h2>
+            <ul class="list-group" style="width: 100%" data-channel="{{ channel.id }}">
+            {% for todo_item in channel.todo_list %}
+                {% include "todo_dashboard/todo_item.html" %}
+            {% endfor %}
+
+            {% include "todo_dashboard/todo_create.html" %}
+            </ul>
+        {% endfor %}
 
     </section>
 
     <script>
+
+'use strict';
+
+$('.delete-todo').on('click', function (event) {
+    event.preventDefault();
+
+    let channel_id = $(this).closest('ul').data('channel');
+    let todo_id = $(this).closest('li').data('todo');
+
+    $.ajax({
+        url: {{ url_for('alter_todo') }},
+        data: JSON.stringify({guild_id: {{ guild.id }}, channel_id: channel_id, todo_id: todo_id}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'DELETE',
+    });
+});
+
+$('.create-todo').on('click', function (event) {
+    event.preventDefault();
+
+    let channel_id = $(this).closest('ul').data('channel');
+    let value = $(this).closest('ul').find('input.todo-new').val();
+
+    $.ajax({
+        url: {{ url_for('alter_todo') }},
+        data: JSON.stringify({guild_id: {{ guild.id }}, channel_id: channel_id, value: value}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'POST',
+    });
+});
+
     </script>
 
 {% endblock %}
