@@ -873,7 +873,7 @@ def alter_todo():
                         (value := request.json.get('value')) is not None and \
                         0 < len(value) <= 2000:
 
-                    if channel_id == '-1':
+                    if channel_id == -1:
                         todo = Todo(guild_id=guild_id, channel_id=None, user_id=member.id, value=value)
 
                         db.session.add(todo)
@@ -901,6 +901,10 @@ def alter_todo():
             elif request.method == 'DELETE':
                 if (channel_id := request.json.get('channel_id')) is not None and \
                         (todo_id := request.json.get('todo_id')) is not None:
+
+                    if channel_id == -1:
+                        channel_id = None
+
                     Todo.query \
                         .filter(Todo.id == todo_id) \
                         .filter(Todo.channel_id == channel_id) \
