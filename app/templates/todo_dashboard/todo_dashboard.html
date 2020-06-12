@@ -18,21 +18,10 @@
             </div>
         </div>
 
-        <h2>Server Todo</h2>
-        <ul class="list-group" style="width: 100%;" data-channel="-1">
-        {% for todo_item in global_todos %}
-            {% set todo_id = todo_item.id %}
-            {% set todo_value = todo_item.value %}
-            {% include "todo_dashboard/todo_item.html" %}
-        {% endfor %}
-
-        {% include "todo_dashboard/todo_create.html" %}
-        </ul>
-
-        {% for channel in guild.channels %}
-            <h2>#{{ channel.name }} Todo</h2>
-            <ul class="list-group" style="width: 100%" data-channel="{{ channel.id }}">
-            {% for todo_item in channel.todo_list %}
+        <div class="todo-group">
+            <h2>Server Todo</h2>
+            <ul class="list-group" style="width: 100%;" data-channel="-1">
+            {% for todo_item in global_todos %}
                 {% set todo_id = todo_item.id %}
                 {% set todo_value = todo_item.value %}
                 {% include "todo_dashboard/todo_item.html" %}
@@ -40,6 +29,21 @@
 
             {% include "todo_dashboard/todo_create.html" %}
             </ul>
+        </div>
+
+        {% for channel in guild.channels %}
+            <div class="todo-group">
+                <h2>#{{ channel.name }} Todo</h2>
+                <ul class="list-group" style="width: 100%" data-channel="{{ channel.id }}">
+                {% for todo_item in channel.todo_list %}
+                    {% set todo_id = todo_item.id %}
+                    {% set todo_value = todo_item.value %}
+                    {% include "todo_dashboard/todo_item.html" %}
+                {% endfor %}
+
+                {% include "todo_dashboard/todo_create.html" %}
+                </ul>
+            </div>
         {% endfor %}
 
     </section>
@@ -48,7 +52,29 @@
 
 'use strict';
 
-$('.delete-todo').on('click', function (event) {
+function display_empty(element) {
+    let checked = element.prop('checked');
+
+    if (checked) {
+        $('div.todo-group').show();
+    } else {
+        $('ul').each(function () {
+            if ($(this).find('.todo-item').length === 0) {
+                $(this).closest('div.todo-group').hide()
+            }
+        });
+    }
+}
+
+$('#show-empty').on('change', function () {
+    display_empty($(this));
+});
+
+$(function () {
+    display_empty($('#show-empty'));
+});
+
+$(document).on('click', '.delete-todo', function (event) {
     event.preventDefault();
 
     let $li = $(this).closest('li');
@@ -97,7 +123,7 @@ $('.create-todo').on('click', function (event) {
     });
 });
 
-$('.save-todo').on('click', function (event) {
+$(document).on('click', '.save-todo', function (event) {
     event.preventDefault();
 
     let channel_id = $(this).closest('ul').data('channel');
