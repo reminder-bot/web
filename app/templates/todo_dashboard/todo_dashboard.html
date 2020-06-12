@@ -21,6 +21,8 @@
         <h2>Server Todo</h2>
         <ul class="list-group" style="width: 100%;" data-channel="-1">
         {% for todo_item in global_todos %}
+            {% set todo_id = todo_item.id %}
+            {% set todo_value = todo_item.value %}
             {% include "todo_dashboard/todo_item.html" %}
         {% endfor %}
 
@@ -31,6 +33,8 @@
             <h2>#{{ channel.name }} Todo</h2>
             <ul class="list-group" style="width: 100%" data-channel="{{ channel.id }}">
             {% for todo_item in channel.todo_list %}
+                {% set todo_id = todo_item.id %}
+                {% set todo_value = todo_item.value %}
                 {% include "todo_dashboard/todo_item.html" %}
             {% endfor %}
 
@@ -47,19 +51,27 @@
 $('.delete-todo').on('click', function (event) {
     event.preventDefault();
 
+    let $li = $(this).closest('li');
+
     let channel_id = $(this).closest('ul').data('channel');
-    let todo_id = $(this).closest('li').data('todo');
+    let todo_id = $li.data('todo');
 
     $.ajax({
         url: {{ url_for('alter_todo') }},
         data: JSON.stringify({guild_id: {{ guild.id }}, channel_id: channel_id, todo_id: todo_id}),
         contentType: 'application/json; charset=utf-8',
         method: 'DELETE',
+
+        success: function () {
+            $li.remove();
+        }
     });
 });
 
 $('.create-todo').on('click', function (event) {
     event.preventDefault();
+
+    let $li = $(this).closest('li');
 
     let channel_id = $(this).closest('ul').data('channel');
     let value = $(this).closest('ul').find('input.todo-new').val();
@@ -69,6 +81,34 @@ $('.create-todo').on('click', function (event) {
         data: JSON.stringify({guild_id: {{ guild.id }}, channel_id: channel_id, value: value}),
         contentType: 'application/json; charset=utf-8',
         method: 'POST',
+
+        success: function (response) {
+            let todo_id = response.id;
+            let todo_value = value;
+
+            $li.before(
+                {% set todo_id = '${todo_id}' %}
+                {% set todo_value = '${todo_value}' %}
+                `{% include "todo_dashboard/todo_item.html" %}`
+            )
+
+            $li.find('input').val('');
+        }
+    });
+});
+
+$('.save-todo').on('click', function (event) {
+    event.preventDefault();
+
+    let channel_id = $(this).closest('ul').data('channel');
+    let todo_id = $(this).closest('li').data('todo');
+    let value = $(this).closest('li').find('input.todo-value').val();
+
+    $.ajax({
+        url: {{ url_for('alter_todo') }},
+        data: JSON.stringify({guild_id: {{ guild.id }}, channel_id: channel_id, todo_id: todo_id, value: value}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'PATCH',
     });
 });
 

@@ -1,19 +1,20 @@
-<li class="list-group-item" data-todo="{{ todo_item.id }}">
+<li class="list-group-item" data-todo="{{ todo_id }}">
     <form class="form-inline" style="display: flex; flex-flow: row;" >
         <div class="form-group" style="flex: 1 1 auto;">
-            <label for="todo-{{ todo_item.id }}" class="sr-only">Todo item</label>
+            <label for="todo-{{ todo_id }}" class="sr-only">Todo item</label>
             <input
                     type="text"
-                    class="todo-{{ todo_item.id }}"
-                    id="todo-{{ todo_item.id }}"
-                    value="{{ todo_item.value }}"
+                    class="todo-value"
+                    id="todo-{{ todo_id }}"
+                    value="{{ todo_value }}"
                     style="width: 100%;"
                     maxlength="2000"
                     autocomplete="off">
         </div>
 
         <div class="form-group" style="flex: 0 0 auto;">
-            <button class="btn btn-danger delete-todo">Delete</button>
+            <button class="btn btn-success save-todo"><i class="fas fa-save"></i></button>
+            <button class="btn btn-danger delete-todo"><i class="fas fa-times"></i></button>
         </div>
     </form>
 </li>

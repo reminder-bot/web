@@ -877,6 +877,9 @@ def alter_todo():
                         todo = Todo(guild_id=guild_id, channel_id=None, user_id=member.id, value=value)
 
                         db.session.add(todo)
+                        db.session.commit()
+
+                        return jsonify({'id': todo.id})
 
                     else:
                         guild = Guild.query.get(guild_id)
@@ -885,6 +888,9 @@ def alter_todo():
                             todo = Todo(guild_id=guild_id, channel_id=channel_id, user_id=member.id, value=value)
 
                             db.session.add(todo)
+                            db.session.commit()
+
+                            return jsonify({'id': todo.id})
 
                         else:
                             abort(404)
@@ -900,6 +906,22 @@ def alter_todo():
                         .filter(Todo.channel_id == channel_id) \
                         .filter(Todo.guild_id == guild_id) \
                         .delete(synchronize_session='fetch')
+
+            else:  # request method is patch
+                if (channel_id := request.json.get('channel_id')) is not None and \
+                        (todo_id := request.json.get('todo_id')) is not None and \
+                        (value := request.json.get('value')) is not None:
+
+                    query = Todo.query \
+                        .filter(Todo.id == todo_id) \
+                        .filter(Todo.channel_id == channel_id) \
+                        .filter(Todo.guild_id == guild_id)
+
+                    if (todo := query.first()) is not None:
+                        todo.value = value
+
+                    else:
+                        abort(404)
 
             db.session.commit()
 
