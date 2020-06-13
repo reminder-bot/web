@@ -1,0 +1,26 @@
+<div class="modal fade" id="role-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Roles for <strong id="command-name"></strong></h4>
+            </div>
+            <div class="modal-body">
+                <div class="role-controller" data-command="">
+                    {% for role in guild.roles %}
+                        <div class="input-group" style="display: flex; flex-flow: row; justify-content: space-between; max-width: 100%; width: 100%;">
+                            <div class="input-group-addon" style="flex: 1 1 auto; overflow: hidden;">
+                                <label for="role-selector-{{ role.id }}">{{ role.display_name() }}</label>
+                            </div>
+                            <div class="input-group-addon" style="flex: 0 0 initial;">
+                                <input type="checkbox" class="role-selector" id="role-selector-{{ role.id }}" data-role-id="{{ role.id }}">
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="save-restrictions">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -17,7 +17,7 @@
                         {{ command }}
                     </div>
 
-                    <div class="restrictions-container hidden-xs" style="flex: 1 1 auto; white-space: nowrap; overflow-x: scroll;">
+                    <div class="restrictions-container hidden-xs" style="flex: 1 1 auto; white-space: nowrap; overflow-x: auto;">
                         {% for restriction in command_restrictions.filter_by(command=command) %}
                             <span class="badge role-permitted" data-role-id="{{ restriction.role_id }}">
                                 {{ restriction.role.display_name() }}
@@ -39,71 +39,16 @@
         <div id="error" style="color: red;"></div>
         <ul class="list-group" style="width: 100%;">
             {% for alias in guild.aliases %}
-                <li class="list-group-item" data-id="{{ alias.id }}">
-                    <form class="form-inline" style="display: flex; flex-flow: row;">
-                        <div class="form-group" style="flex: 0 4 auto;">
-                            <label for="name-{{ alias.id }}" class="sr-only">Alias name</label>
-                            <input type="text" class="name-input" id="name-{{ alias.id }}" value="{{ alias.name }}" style="width: 100%;" maxlength="12" autocomplete="off">
-                        </div>
-
-                        <div class="form-group" style="flex: 1 1 auto;">
-                            <label for="command-{{ alias.id }}" class="sr-only">Aliased command</label>
-                            <input type="text" class="command-input" id="command-{{ alias.id }}" value="{{ alias.command }}" style="width: 100%;" maxlength="2048" autocomplete="off">
-                        </div>
-
-                        <div class="form-group" style="flex: 0 0 auto;">
-                            <button class="btn btn-danger delete-alias">Delete</button>
-                            <button class="btn btn-success save-alias">Save</button>
-                        </div>
-                    </form>
-                </li>
+                {% set alias_id = alias.id %}
+                {% set alias_name = alias.name %}
+                {% set alias_command = alias.command %}
+                {% include "settings_dashboard/alias_item.html" %}
             {% endfor %}
 
-            <li class="list-group-item">
-                <form class="form-inline" style="display: flex; flex-flow: row;" >
-                    <div class="form-group" style="flex: 0 4 auto;">
-                        <label for="name" class="sr-only">Alias name</label>
-                        <input type="text" class="name-input" id="name" value="" style="width: 100%;" maxlength="12" placeholder="Alias" autocomplete="off">
-                    </div>
-
-                    <div class="form-group" style="flex: 1 1 auto;">
-                        <label for="command" class="sr-only">Aliased command</label>
-                        <input type="text" class="command-input" id="command" value="" style="width: 100%;" placeholder="Command..." autocomplete="off">
-                    </div>
-
-                    <div class="form-group" style="flex: 0 0 auto;">
-                        <button class="btn btn-success create-alias">Create</button>
-                    </div>
-                </form>
-            </li>
+            {% include "settings_dashboard/alias_create.html" %}
         </ul>
 
-        <div class="modal fade" id="role-modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Add Roles for <strong id="command-name"></strong></h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="role-controller" data-command="">
-                            {% for role in guild.roles %}
-                                <div class="input-group" style="display: flex; flex-flow: row; justify-content: space-between; max-width: 100%; width: 100%;">
-                                    <div class="input-group-addon" style="flex: 1 1 auto; overflow: hidden;">
-                                        <label for="role-selector-{{ role.id }}">{{ role.display_name() }}</label>
-                                    </div>
-                                    <div class="input-group-addon" style="flex: 0 0 initial;">
-                                        <input type="checkbox" class="role-selector" id="role-selector-{{ role.id }}" data-role-id="{{ role.id }}">
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="save-restrictions">Save</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% include "settings_dashboard/role_modal.html" %}
 
     </section>
 
@@ -121,9 +66,11 @@ $('#role-modal').on('show.bs.modal', function (event) {
     let $trigger = $(event.relatedTarget);
     let $role_controller = $(this).find('div.role-controller');
 
-    let current_roles = $trigger.closest('.restrictions-container').find('.role-permitted').toArray().map(function (i) {
+    let current_roles = $trigger.closest('li').find('.role-permitted').toArray().map(function (i) {
         return Number(i.dataset.roleId);
     });
+
+    console.log(current_roles);
 
     let command = $trigger.closest('li').data('command');
 
@@ -159,11 +106,13 @@ $('#save-restrictions').on('click', function () {
 
             let $add_button = $(`#add-roles-${command}`);
 
-            $add_button.siblings().remove()
+            $add_button.closest('li').find('.role-permitted').remove();
+
+            let $role_container = $add_button.closest('li').find('.restrictions-container');
 
             let role;
             for (role of active_roles) {
-                $add_button.before(`<span class="badge role-permitted" data-role-id="${role}">${ROLES[role]}</span> `);
+                $role_container.append(`<span class="badge role-permitted" data-role-id="${role}">${ROLES[role]}</span> `);
             }
         }
     })
@@ -223,24 +172,11 @@ $('.create-alias').on('click', function (event) {
         success: function (response, _a, _b) {
             let id = response.id;
 
-            $li.before(`<li class="list-group-item" data-id="${id}">
-    <form class="form-inline" style="display: flex; flex-flow: row;">
-        <div class="form-group" style="flex: 0 1 auto;">
-            <label for="name-${id}" class="sr-only">Alias name</label>
-            <input type="text" class="name-input" id="name-${id}" value="${response.name}" maxlength="12" autocomplete="off">
-        </div>
+            {% set alias_id = '${id}' %}
+            {% set alias_name = '${response.name}' %}
+            {% set alias_command = '${response.command}' %}
 
-        <div class="form-group" style="flex: 1 1 auto;">
-            <label for="command-${id}" class="sr-only">Aliased command</label>
-            <input type="text" class="command-input" id="command-${id}" value="${response.command}" style="width: 100%" maxlength="2048" autocomplete="off">
-        </div>
-
-        <div class="form-group" style="flex: 0 1 auto;">
-            <button class="btn btn-danger delete-alias">Delete</button>
-            <button class="btn btn-success save-alias">Save</button>
-        </div>
-    </form>
-</li>`);
+            $li.before(`{% include "settings_dashboard/alias_item.html" %}`);
 
             name.val('');
             command.val('');
