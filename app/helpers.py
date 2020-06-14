@@ -1,0 +1,40 @@
+import requests
+
+from flask import session
+
+from app import app, discord
+from app.models import User
+
+
+def get_internal_id():
+    if (internal_id := session.get('internal_id')) is not None:
+        return internal_id
+
+    else:
+        user_id = session.get('user_id')
+
+        if user_id is None:
+            user = discord.get('api/users/@me').json()
+
+            user_id = int(user['id'])
+            session['user_id'] = user_id
+
+        user_record = User.query.filter(User.user == user_id).first()
+
+        if user_record is not None:
+            session['internal_id'] = user_record.id
+
+            return user_record.id
+
+        else:
+            raise Exception('No user record')
+
+
+def api_get(endpoint):
+    return requests.get('https://discordapp.com/api/{}'.format(endpoint),
+                        headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})
+
+
+def api_post(endpoint, data):
+    return requests.post('https://discordapp.com/api/{}'.format(endpoint), json=data,
+                         headers={'Authorization': 'Bot {}'.format(app.config['BOT_TOKEN'])})

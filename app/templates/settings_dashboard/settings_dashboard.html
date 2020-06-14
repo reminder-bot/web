@@ -54,13 +54,13 @@
 
     <script>
 
+'use strict';
+
 const ROLES = {
     {% for role in guild.roles %}
         "{{ role.id }}": "{{ role.display_name() }}",
     {% endfor %}
-}
-
-'use strict';
+};
 
 $('#role-modal').on('show.bs.modal', function (event) {
     let $trigger = $(event.relatedTarget);
@@ -169,10 +169,8 @@ $('.create-alias').on('click', function (event) {
         contentType: 'application/json; charset=utf-8',
         method: 'POST',
 
-        success: function (response, _a, _b) {
-            let id = response.id;
-
-            {% set alias_id = '${id}' %}
+        success: function (response) {
+            {% set alias_id = '${response.id}' %}
             {% set alias_name = '${response.name}' %}
             {% set alias_command = '${response.command}' %}
 
