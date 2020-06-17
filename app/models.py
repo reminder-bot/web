@@ -212,7 +212,7 @@ class Reminder(db.Model):
 
     interval = db.Column(INT(unsigned=True))
 
-    method = db.Column(ENUM('remind', 'natural', 'dashboard'))
+    method = db.Column(ENUM('remind', 'natural', 'dashboard', 'todo'))
     set_by = db.Column(INT(unsigned=True), db.ForeignKey(User.id, ondelete='SET NULL'), nullable=True)
     set_at = db.Column(TIMESTAMP, nullable=True, default=datetime.now, server_default='CURRENT_TIMESTAMP')
 

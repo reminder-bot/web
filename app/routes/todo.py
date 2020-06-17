@@ -1,7 +1,9 @@
+from time import time as unix_time
+
 from flask import request, redirect, url_for, abort, jsonify, render_template
 
 from app import app, db
-from app.models import Guild, Todo, User, Channel
+from app.models import Guild, Todo, User, Channel, Reminder, Message, Embed
 from app.helpers import get_internal_id
 
 
@@ -116,3 +118,41 @@ def alter_todo():
 
     else:
         abort(400)
+
+
+@app.route('/create_todo_reminder/', methods=['POST'])
+def create_todo_reminder():
+    if (guild_id := request.json.get('guild_id')) is not None:
+
+        member = User.query.get(get_internal_id())
+
+        if guild_id in [x.id for x in member.permitted_guilds()]:
+
+            if (time_diff := request.json.get('time')) is not None and \
+                    (todo_id := request.json.get('todo_id')) is not None:
+
+                if (todo := Todo.query.get(todo_id)) is not None and \
+                        todo.guild_id == guild_id:
+
+                    reminder = Reminder(
+                        message=Message(
+                            embed=Embed(
+                                title='Todo Reminder!',
+                                description='You have stuff to do. More specifically, **{}**'.format(todo.value),
+                                color=0xFFFFFF
+                            )
+                        ),
+                        time=unix_time() + time_diff,
+                        channel_id=todo.channel_id,
+                        username='Todo',
+                        method='todo',
+                        set_by=get_internal_id(),
+                        name='Todo Reminder')
+
+                    db.session.add(reminder)
+                    db.session.commit()
+
+                else:
+                    abort(400)
+
+    return '', 200

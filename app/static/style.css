@@ -23,3 +23,18 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
     -moz-appearance: textfield;
 }
+
+.remind-todo select {
+    display: initial;
+    background-color: transparent;
+    color: white;
+}
+
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    color: black;
+}

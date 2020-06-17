@@ -123,6 +123,33 @@ $('.create-todo').on('click', function (event) {
     });
 });
 
+$('.todo-reminder-time').on('change', function (event) {
+    event.preventDefault();
+
+    let time = Number($(this).val());
+
+    if (!isNaN(time)) {
+        let select = $(this);
+
+        let todo_id = $(this).closest('.todo-item').data('todo');
+
+        $.ajax({
+            url: {{ url_for('create_todo_reminder') }},
+            data: JSON.stringify({guild_id: {{ guild.id }}, todo_id: todo_id, time: time}),
+            contentType: 'application/json; charset=utf-8;',
+            method: 'POST',
+
+            success: function () {
+                select.val('created');
+
+                setTimeout(function () {
+                    select.val('default');
+                }, 4000);
+            }
+        })
+    }
+});
+
 $(document).on('click', '.save-todo', function (event) {
     event.preventDefault();
 
