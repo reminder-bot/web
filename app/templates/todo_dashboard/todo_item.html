@@ -1,7 +1,7 @@
 <li class="list-group-item todo-item" data-todo="{{ todo_id }}">
     <form class="form-inline" style="display: flex; flex-flow: row;" >
         <div class="form-group" style="flex: 1 1 auto;">
-            <label for="todo-{{ todo_id }}" class="sr-only">Todo item</label>
+            <label for="todo-{{ todo_id }}" class="sr-only">Todo value</label>
             <input
                     type="text"
                     class="todo-value"
@@ -15,13 +15,15 @@
         <div class="form-group" style="flex: 0 0 auto;">
             <button class="btn btn-success save-todo"><i class="fas fa-save"></i><p class="sr-only">Save Todo</p></button>
             <div class="remind-todo btn btn-primary hidden-sm" style="display: inline; position: relative;">
-                <i class="fas fa-bell"></i><p class="sr-only">Set Reminder</p>
-                <select autocomplete="off" class="todo-reminder-time">
+                <i class="fas fa-bell"></i>
+                <label for="todo-r-{{ todo_id }}" class="sr-only">Set Reminder</label>
+                <select autocomplete="off" class="todo-reminder-time" id="todo-r-{{ todo_id }}">
                     <option value="default" selected="selected" disabled hidden>Remind in...</option>
                     <option value="created" disabled hidden>Reminder Created</option>
                     <option value="3600">1 hour</option>
                     <option value="28800">8 hours</option>
                     <option value="86400">1 day</option>
+                    <option value="259200">3 days</option>
                     <option value="604800">1 week</option>
                 </select>
             </div>
