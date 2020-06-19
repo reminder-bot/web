@@ -42,6 +42,7 @@
                 {% set alias_id = alias.id %}
                 {% set alias_name = alias.name %}
                 {% set alias_command = alias.command %}
+
                 {% include "settings_dashboard/alias_item.html" %}
             {% endfor %}
 
@@ -50,11 +51,78 @@
 
         {% include "settings_dashboard/role_modal.html" %}
 
+        <h2>Reminder Default Settings for Dashboard</h2>
+
+        <div class="container row" style="width: 100%;">
+            <div class="col-lg-3 col-md-12">
+                <div class="form-group">
+                    <label for="default-channel">Default Reminder Channel</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fas fa-comment-alt"></i>
+                        </div>
+                        <div class="dropdown">
+                            <select id="default-channel" style="width: 100%; height: 34px;" autocomplete="off">
+                                {% if guild.default_channel == None %}
+                                    <option value="null" selected hidden disabled>Not Set</option>
+                                {% endif %}
+                                {% for channel in guild.channels %}
+                                    {% if channel.name != None %}
+                                        {% if channel == guild.default_channel %}
+                                            <option value="{{ channel.id }}" selected>{{ channel.name }}</option>
+                                        {% else %}
+                                            <option value="{{ channel.id }}">{{ channel.name }}</option>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-12">
+                <div class="form-group">
+                    <label for="default-username">Default Reminder Username</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fas fa-file-signature"></i>
+                        </div>
+                        <input type="text"
+                                        class="form-control pull-right reminder-username"
+                                        id="default-username"
+                                        value="{{ guild.default_username }}"
+                                        autocomplete="off"
+                                        maxlength="32" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-md-12">
+                <div class="form-group">
+                    <label for="default-avatar">Default Reminder Avatar</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <input type="text"
+                                        class="form-control pull-right reminder-username"
+                                        id="default-avatar"
+                                        value="{{ guild.default_avatar }}"
+                                        autocomplete="off"
+                                        maxlength="512" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </section>
 
     <script>
 
 'use strict';
+
+const $default_channel = $('#default-channel');
 
 const ROLES = {
     {% for role in guild.roles %}
@@ -184,6 +252,28 @@ $('.create-alias').on('click', function (event) {
             $('#error').text(resp.responseText);
         },
     })
+});
+
+function update_defaults() {
+    $.ajax({
+        url: "{{ url_for('default_values') }}",
+        data: JSON.stringify({
+            guild_id: {{ guild.id }},
+            channel: $default_channel.val(),
+            username: $('#default-username').val(),
+            avatar: $('#default-avatar').val()
+        }),
+        contentType: 'application/json; charset=utf-8',
+        method: 'POST'
+    })
+}
+
+$('#default-avatar, #default-username').on('blur', function () {
+    update_defaults();
+});
+
+$default_channel.on('change', function () {
+    update_defaults();
 });
 
     </script>

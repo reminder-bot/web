@@ -91,7 +91,13 @@ class Guild(db.Model):
     prefix = db.Column(db.String(5), default="$", nullable=False)
     timezone = db.Column(db.String(30), default="UTC", nullable=False)
 
-    channels = db.relationship('Channel', backref='guild', lazy='dynamic')
+    default_channel_id = db.Column(INT(unsigned=True), db.ForeignKey('channels.id', ondelete='SET NULL'))
+    default_username = db.Column(db.String(32))
+    default_avatar = db.Column(db.String(512))
+
+    default_channel = db.relationship('Channel', foreign_keys=[default_channel_id])
+
+    channels = db.relationship('Channel', backref='guild', lazy='dynamic', foreign_keys='[Channel.guild_id]')
     roles = db.relationship('Role', backref='guild', lazy='dynamic')
 
     command_restrictions = db.relationship('CommandRestriction', backref='guild', lazy='dynamic')
@@ -134,7 +140,7 @@ class Channel(db.Model):
     webhook_id = db.Column(BIGINT(unsigned=True), unique=True)
     webhook_token = db.Column(db.Text)
 
-    guild_id = db.Column(INT(unsigned=True), db.ForeignKey(Guild.id, ondelete='CASCADE'), nullable=False)
+    guild_id = db.Column(INT(unsigned=True), db.ForeignKey('guilds.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):
         return '{}.{}'.format(self.name, self.channel)

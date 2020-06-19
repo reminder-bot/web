@@ -40,22 +40,26 @@
                     <!-- CHANNEL -->
                     {% if guild != None %}
                         <div class="form-group">
-                            <label>Channel:</label>
+                            <label for="input-channel">Channel:</label>
                             <div class="input-group">
                                 <div class="input-group-addon">
                                     <i class="fas fa-comment-alt"></i>
                                 </div>
+
                                 <div class="dropdown">
-                                    <select name="channel_new" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; height: 34px; width: 100%; border: 1px solid #ccc; cursor: pointer;">
+                                    <select name="channel_new" id="input-channel" style="height: 34px; width: 100%;">
                                         {% for channel in guild.channels %}
                                             {% if channel.name != None %}
-                                                <option value="{{ channel.channel }}">{{ channel.name }}</option>
+                                                {% if channel == guild.default_channel %}
+                                                    <option value="{{ channel.channel }}" selected>{{ channel.name }}</option>
+                                                {% else %}
+                                                    <option value="{{ channel.channel }}">{{ channel.name }}</option>
+                                                {% endif %}
                                             {% endif %}
                                         {% endfor %}
                                     </select>
                                 </div>
                             </div>
-                            <!-- /.input group -->
                         </div>
 
                     {% else %}
@@ -97,6 +101,7 @@
                     </div>
 
                     {% if member.patreon %}
+
                         <div class="form-group">
                             <label>Interval:</label>
                             <div class="input-group">
@@ -123,63 +128,59 @@
 
                     {% if guild != None %}
                         <div class="form-group">
-                            <label for="username">Username (optional):</label>
+                            <label for="username">Username:</label>
                             <div class="input-group">
                                 <div class="input-group-addon">
                                     <i class="fas fa-file-signature"></i>
                                 </div>
-                                <input type="text" class="form-control pull-right" id="username" name="username" maxlength="32" value="" />
+                                <input type="text" class="form-control pull-right" id="username" name="username" maxlength="32" value="{{ guild.default_username }}" />
                             </div>
                         </div>
 
-                        {% if member.patreon %}
-
-                            <div class="form-group">
-                                <label for="avatar">Avatar:</label>
-                                <div class="input-group">
-                                    <div class="input-group-addon">
-                                        <i class="fas fa-camera"></i>
-                                    </div>
-                                    <input type="text" class="form-control pull-right" id="avatar" name="avatar" value="" />
+                        <div class="form-group">
+                            <label for="avatar">Avatar:</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fas fa-camera"></i>
                                 </div>
+                                <input type="text" class="form-control pull-right" id="avatar" name="avatar" value="{{ guild.default_avatar }}" />
                             </div>
-
-                        {% endif %}
+                        </div>
                     {% endif %}
                 </div>
 
                 <script>
 
-    function update_time() {
-        let t_time = document.getElementById("timepicker");
-        let d_time = document.getElementById("datepicker");
+function update_time() {
+    let t_time = document.getElementById("timepicker");
+    let d_time = document.getElementById("datepicker");
 
-        let m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A');
+    let m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A');
 
-        document.getElementById("time_new").value = m.unix();
-    }
+    document.getElementById("time_new").value = m.unix();
+}
 
-    let current = moment();
+let current = moment();
 
-    //Date picker
-    $('#datepicker').datepicker({
-        format: 'yyyy/mm/dd',
-        autoclose: true,
-    });
+//Date picker
+$('#datepicker').datepicker({
+    format: 'yyyy/mm/dd',
+    autoclose: true,
+});
 
-    $('#datepicker').datepicker('update', current.toDate());
-    //Timepicker
-    $('#timepicker').timepicker({
-        minuteStep: 1,
-        showInputs: false,
-        showSeconds: true,
-        defaultTime: current.format('hh:mm A'),
-    });
+$('#datepicker').datepicker('update', current.toDate());
+//Timepicker
+$('#timepicker').timepicker({
+    minuteStep: 1,
+    showInputs: false,
+    showSeconds: true,
+    defaultTime: current.format('hh:mm A'),
+});
 
-    $("#datepicker").change(update_time);
-    $("#timepicker").change(update_time);
+$("#datepicker").change(update_time);
+$("#timepicker").change(update_time);
 
-    update_time();
+update_time();
 
                 </script>
 
