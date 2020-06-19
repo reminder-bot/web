@@ -21,9 +21,11 @@
         <div class="todo-group">
             <h2>Server Todo</h2>
             <ul class="list-group" style="width: 100%;" data-channel="-1">
+            {% set in_channel = false %}
             {% for todo_item in global_todos %}
                 {% set todo_id = todo_item.id %}
                 {% set todo_value = todo_item.value %}
+
                 {% include "todo_dashboard/todo_item.html" %}
             {% endfor %}
 
@@ -35,9 +37,11 @@
             <div class="todo-group">
                 <h2>#{{ channel.name }} Todo</h2>
                 <ul class="list-group" style="width: 100%" data-channel="{{ channel.id }}">
+                {% set in_channel = true %}
                 {% for todo_item in channel.todo_list %}
                     {% set todo_id = todo_item.id %}
                     {% set todo_value = todo_item.value %}
+
                     {% include "todo_dashboard/todo_item.html" %}
                 {% endfor %}
 
@@ -112,11 +116,24 @@ $('.create-todo').on('click', function (event) {
             let todo_id = response.id;
             let todo_value = value;
 
-            $li.before(
-                {% set todo_id = '${todo_id}' %}
-                {% set todo_value = '${todo_value}' %}
-                `{% include "todo_dashboard/todo_item.html" %}`
-            )
+            if (channel_id > 0) {
+                $li.before(
+                    {% set in_channel = true %}
+                    {% set todo_id = '${todo_id}' %}
+                    {% set todo_value = '${todo_value}' %}
+
+                    `{% include "todo_dashboard/todo_item.html" %}`
+                );
+            }
+            else {
+                $li.before(
+                    {% set in_channel = false %}
+                    {% set todo_id = '${todo_id}' %}
+                    {% set todo_value = '${todo_value}' %}
+
+                    `{% include "todo_dashboard/todo_item.html" %}`
+                );
+            }
 
             $li.find('input').val('');
         }
