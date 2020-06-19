@@ -5,7 +5,8 @@ from flask import redirect, url_for, request, render_template
 
 from app import app
 
-from . import LOGO_URL
+
+LOGO_URL = 'https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg'
 
 
 @app.route('/')

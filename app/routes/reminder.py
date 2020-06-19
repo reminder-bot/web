@@ -1,18 +1,18 @@
 from time import time as unix_time
 
-from flask import request, jsonify, redirect, url_for, flash, render_template
+from flask import request, jsonify, redirect, url_for, flash, render_template, abort
 
 from app import app, db, discord
 from app.models import Reminder, Event, Channel, Message, Guild, User, Role
 from app.helpers import get_internal_id, api_post, api_get
 
-from . import MIN_INTERVAL, MAX_TIME, LOGO_URL
+from . import MIN_INTERVAL, MAX_TIME
 
 
 @app.route('/dashboard/', methods=['GET'])
 def dashboard():
     def permitted_access(accessing_guild: Guild):
-        # if user wants to refresh the guild's data (syncing members and shit)
+        # if user wants to refresh the guild's data
         if request.args.get('refresh') is not None:
             print('Refreshing guild data for {}'.format(accessing_guild.guild))
 
@@ -261,7 +261,7 @@ def change_avatar():
 def change_channel():
     if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
 
-        if (channel := Channel.query.filter(Channel.channel == int(request.json['channel'])).first()) is not None:
+        if (channel := Channel.query.get(int(request.json['channel']))) is not None:
             reminder.channel = channel
 
             Event.new_edit_event(reminder, get_internal_id())
@@ -359,15 +359,7 @@ def change_reminder():
         else:
             return redirect(url_for('dashboard'))
 
-    user = discord.get('api/users/@me').json()
-    try:
-        user_id = int(user['id'])
-
-    except KeyError:
-        flash('Discord verification failed. Please retry')
-        return end()
-
-    member = User.query.filter(User.user == user_id).first()
+    member = User.query.get(get_internal_id())
     guild = Guild.query.filter(Guild.guild == int(request.args.get('redirect'))).first()
 
     new_msg = request.form.get('message_new')
@@ -376,6 +368,7 @@ def change_reminder():
         flash('Error setting reminder (no message provided')
 
         return end()
+
     else:
         try:
             new_channel = int(request.form.get('channel_new'))
@@ -387,13 +380,15 @@ def change_reminder():
             return end()
 
         else:
-            new_interval = None
-            avatar = LOGO_URL
-
             username = request.form.get('username') or 'Reminder'
             if not (0 < len(username) <= 32):
                 username = 'Reminder'
 
+            avatar = request.form.get('avatar')
+            if not isinstance(avatar, str) or not avatar.startswith('http'):
+                avatar = None
+
+            new_interval = None
             if member.patreon:
                 try:
                     new_interval = int(request.form.get('interval_new')) * int(request.form.get('multiplier_new'))
@@ -401,14 +396,10 @@ def change_reminder():
                 except:
                     new_interval = None
 
-                avatar = request.form.get('avatar')
-                if not isinstance(avatar, str) or not avatar.startswith('http'):
-                    avatar = None
-
             if not (0 < new_time < unix_time() + MAX_TIME):
                 flash('Error setting reminder (time is too long)')
 
-            elif new_channel == -1 or new_channel in [x.channel for x in guild.channels]:
+            elif new_channel == -1 or new_channel in [x.id for x in guild.channels]:
 
                 if new_msg is not None and not 0 < len(new_msg) < 2048:
                     flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
@@ -418,12 +409,16 @@ def change_reminder():
 
                 else:
                     if new_channel != -1:
-                        channel = Channel.query.filter(Channel.channel == new_channel).first_or_404()
+                        channel = Channel.query.get(new_channel)
 
-                        if (channel.webhook_id or channel.webhook_token) is None:
+                        if channel is None:
+                            abort(404)
+
+                        elif (channel.webhook_id or channel.webhook_token) is None:
                             channel.update_webhook(api_get, api_post, app.config['DISCORD_OAUTH_CLIENT_ID'])
 
                         channel_id = channel.id
+
                     else:
                         channel_id = member.dm_channel
 

@@ -6,7 +6,6 @@ from app import app
 
 MAX_TIME = 1576800000
 MIN_INTERVAL = 800
-LOGO_URL = 'https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg'
 
 
 @app.errorhandler(500)
@@ -45,24 +44,16 @@ def cache():
 
                 return guild_data
 
-            else:
-                guild_data = Guild(guild=data['id'])
-                db.session.add(guild_data)
-                db.session.flush()
-
-                guild_data.name = data['name']
-
-                return guild_data
-
         guilds: list = discord.get('api/users/@me/guilds').json()
         cached_guilds: list = []
 
         for guild in guilds:
 
-            if guild['permissions'] & 0x00002028 or guild['owner']:
-                cached_guild: Guild = form_cached_guild(guild)
+            if guild['owner'] or guild['permissions'] & 0x00002028:
+                cached_guild: typing.Optional[Guild] = form_cached_guild(guild)
 
-                cached_guilds.append(cached_guild)
+                if cached_guild is not None:
+                    cached_guilds.append(cached_guild)
 
         return cached_guilds
 

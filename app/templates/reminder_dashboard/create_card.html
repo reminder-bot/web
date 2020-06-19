@@ -51,9 +51,9 @@
                                         {% for channel in guild.channels %}
                                             {% if channel.name != None %}
                                                 {% if channel == guild.default_channel %}
-                                                    <option value="{{ channel.channel }}" selected>{{ channel.name }}</option>
+                                                    <option value="{{ channel.id }}" selected>{{ channel.name }}</option>
                                                 {% else %}
-                                                    <option value="{{ channel.channel }}">{{ channel.name }}</option>
+                                                    <option value="{{ channel.id }}">{{ channel.name }}</option>
                                                 {% endif %}
                                             {% endif %}
                                         {% endfor %}
@@ -63,7 +63,9 @@
                         </div>
 
                     {% else %}
+
                         <input type="text" name="channel_new" value="-1" id="input-channel" hidden required />
+
                     {% endif %}
                 </div>
 

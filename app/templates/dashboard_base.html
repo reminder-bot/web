@@ -65,14 +65,14 @@
                         <li style="margin-left: 2rem; margin-bottom: 1rem;"><a href="{{ url_for('dashboard', id=0) }}">@{{ member.name }}</a></li>
 
                         <li class="header">GUILDS</li>
-                        {% for guild in guilds %}
-                            <li class="treeview" style="margin-left: 2rem;">
-                                <a href="#">{{ guild.name }}</a>
+                        {% for display_guild in guilds %}
+                            <li class="treeview {{ 'active menu-open' if display_guild == guild else '' }}" style="margin-left: 2rem;">
+                                <a href="#">{{ display_guild.name }}</a>
                                 <ul class="treeview-menu">
-                                    <li><a href="{{ url_for('dashboard', id=guild.guild) }}">Reminders</a></li>
-                                    <li><a href="{{ url_for('todo_dashboard', id=guild.guild) }}">Todo Lists</a></li>
-                                    <li><a href="{{ url_for('settings_dashboard', id=guild.guild) }}">Settings</a></li>
-                                    <li><a href="{{ url_for('audit_log', id=guild.guild) }}">Reminder Audit Log</a></li>
+                                    <li><a href="{{ url_for('dashboard', id=display_guild.guild) }}">Reminders</a></li>
+                                    <li><a href="{{ url_for('todo_dashboard', id=display_guild.guild) }}">Todo Lists</a></li>
+                                    <li><a href="{{ url_for('settings_dashboard', id=display_guild.guild) }}">Settings</a></li>
+                                    <li><a href="{{ url_for('audit_log', id=display_guild.guild) }}">Reminder Audit Log</a></li>
                                 </ul>
                             </li>
                         {% endfor %}
