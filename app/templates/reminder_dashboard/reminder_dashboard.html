@@ -59,7 +59,7 @@
 {% if guild != None %}
     <script>
 
-let channels = {
+const channels = {
     {% for channel in guild.channels %}
         {% if channel.name != None %}
             "{{ channel.name.replace('\\', '')[:32] }}": "{{ channel.channel }}",
@@ -67,13 +67,13 @@ let channels = {
     {% endfor %}
 };
 
-let members = {
+const members = {
     {% for m in guild.users %}
     "{{ m.name.replace('\\', '').lower()[:32] }}": "{{ m.user }}",
     {% endfor %}
 };
 
-let roles = {
+const roles = {
     {% for role in guild.roles %}
     "@{{ role.display_name().replace('\\', '').lower()[:32] }}": "&{{ role.role }}",
     {% endfor %}
@@ -166,6 +166,14 @@ document.getElementById("input-message").addEventListener("input", m);
 
     <script>
 
+const channel_pauses = {
+    {% for channel in guild.channels %}
+        {% if channel.name != None %}
+            {{ channel.id }}: {{ 'true' if channel.paused else 'false' }},
+        {% endif %}
+    {% endfor %}
+}
+
 function mark_as_saving(card) {
     let save_button = card.find('.save-notice');
 
@@ -234,14 +242,57 @@ function sort_reminders(el) {
 
             if (this_channel !== current_channel_group) {
                 let channel_name = $(this).find('.channel-selector').find(':selected').text();
+                let channel_id = $(this).find('.channel-selector').find(':selected').val();
+
+                let btn_style = 'btn-danger';
+                let btn_content = 'Pause Channel';
+                let paused = false;
 
                 current_channel_group = this_channel
 
-                $(this).before(`<span class="lead channel-groupings">#${channel_name}</span>`);
+                if (channel_pauses[channel_id]) {
+                    btn_style = 'btn-success';
+                    btn_content = 'Unpause Channel';
+                    paused = true;
+                }
+
+                $(this).before(`<div style="display: flex; flex-flow: row; justify-content: space-between;" class="channel-header" data-channel="${channel_id}" data-paused="${paused}">
+    <h3 class="channel-groupings" style="flex: 1 1 auto;">#${channel_name}</h3>
+    <button class="btn ${btn_style} pause-channel" style="flex: 0 1 auto; margin: 10px; font-weight: bold;">${btn_content}</button>
+</div>`);
             }
         });
     }
 }
+
+$(document).on('click', '.pause-channel', function () {
+    let header = $(this).closest('.channel-header');
+
+    let paused = !header.data('paused');
+    let channel = header.data('channel');
+
+    $.ajax({
+        url: '{{ url_for('change_paused') }}',
+        data: JSON.stringify({guild_id: {{ guild.id }}, channel_id: channel, paused: paused}),
+        contentType: 'application/json; charset=utf-8;',
+        method: 'POST',
+
+        success: function () {
+            header.data('paused', paused);
+
+            if (paused) {
+                header.find('.pause-channel').text('Unpause Channel')
+                    .removeClass('btn-danger')
+                    .addClass('btn-success');
+            }
+            else {
+                header.find('.pause-channel').text('Pause Channel')
+                    .removeClass('btn-success')
+                    .addClass('btn-danger');
+            }
+        }
+    });
+});
 
 function update_reminder_times() {
     $('.time-remaining').each(function () {

@@ -1,6 +1,6 @@
 import requests
 
-from flask import session
+from flask import session, abort
 
 from app import app, discord
 from app.models import User
@@ -16,8 +16,14 @@ def get_internal_id():
         if user_id is None:
             user = discord.get('api/users/@me').json()
 
-            user_id = int(user['id'])
-            session['user_id'] = user_id
+            try:
+                user_id = int(user['id'])
+
+            except KeyError:
+                return abort(403)
+
+            else:
+                session['user_id'] = user_id
 
         user_record = User.query.filter(User.user == user_id).first()
 

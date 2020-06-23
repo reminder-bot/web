@@ -140,6 +140,9 @@ class Channel(db.Model):
     webhook_id = db.Column(BIGINT(unsigned=True), unique=True)
     webhook_token = db.Column(db.Text)
 
+    paused = db.Column(db.Boolean, nullable=False, default=False)
+    paused_until = db.Column(TIMESTAMP)
+
     guild_id = db.Column(INT(unsigned=True), db.ForeignKey('guilds.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):

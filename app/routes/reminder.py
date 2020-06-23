@@ -307,6 +307,33 @@ def change_time():
         return 'Reminder not found', 404
 
 
+@app.route('/change_paused/', methods=['POST'])
+def change_paused():
+    if (guild_id := request.json.get('guild_id')) is not None and \
+            (channel_id := request.json.get('channel_id')) is not None and \
+            (pause := request.json.get('paused')) is not None:
+
+        member = User.query.get(get_internal_id())
+
+        if guild_id in [x.id for x in member.permitted_guilds()]:
+            channel = Channel.query.get(channel_id)
+
+            if channel is not None and channel.guild_id == guild_id:
+                channel.paused = pause
+                db.session.commit()
+
+                return '', 201
+
+            else:
+                abort(404)
+
+        else:
+            abort(403)
+
+    else:
+        abort(400)
+
+
 @app.route('/change_interval/', methods=['POST'])
 def change_interval():
     member = User.query.get(get_internal_id())
