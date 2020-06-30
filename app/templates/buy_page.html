@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="container-fluid">
+
+        <div class="row">
+
+            <div class="col-md-1 col-lg-3 d-none d-md-block">
+                <!-- padding block -->
+            </div>
+
+            <div class="col-sm-12 col-md-10 col-lg-6">
+
+                <h1 class="display-5 text-dark text-center" style="margin-top: 6rem;">Subscribe</h1>
+
+                <div class="row">
+                    <div class="col-6">
+                        <div class="purchase-item-l purchase-item">
+                            <img src="{{ logo }}" class="rounded-circle float-left" style="width: 60px; height: 60px;" alt="Reminder Bot Logo">
+
+                            <div class="float-right" style="margin-right: 12px;">
+                                <span style="line-height: 60px; font-size: 2rem; font-weight: bold;">Reminder Bot</span>
+                                <br>
+                                Subscribe for:
+                                <ul>
+                                    <li>Repeating reminders</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="purchase-item-r purchase-item">
+                            <img src="https://raw.githubusercontent.com/JellyWX/soundfx-bot/master/sound_fx_bot_logo.png" class="rounded-circle float-right" style="width: 60px; height: 60px;" alt="SoundFX Bot Logo">
+                            <div class="float-left" style="margin-left: 12px;">
+
+                                <span style="line-height: 60px; font-size: 2rem; font-weight: bold;">SoundFX</span>
+                                <br>
+                                Subscribe for:
+                                <ul>
+                                    <li>Unlimited uploads</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <br>
+
+                <div style="width: 100%; text-align: center;">
+                    <form id="subscription-form" style="width: 65%; margin-left: 17.5%;">
+                        <div id="card-element" class="MyCardElement">
+                          <!-- Elements will create input elements here -->
+                        </div>
+
+                        <!-- We'll put the error messages in this element -->
+                        <div id="card-errors" role="alert"></div>
+                        <br>
+
+                        <button type="submit" class="btn btn-outline-primary" style="font-weight: bold; width: 85%; border-radius: 12px;">Subscribe</button>
+                    </form>
+                </div>
+
+                <br>
+                <p class="lead" style="font-weight: bold; color: gray; text-align: center;">Secure payments powered by <a href="https://stripe.com/">Stripe</a></p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+var stripe = Stripe('pk_test_jD6GiLogEamMAvjWFNDPpwkV00q2b5ZQ0c');
+var elements = stripe.elements();
+
+var style = {
+    base: {
+        color: "#32325d",
+        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+        fontSmoothing: "antialiased",
+        fontSize: "16px",
+        "::placeholder": {
+            color: "#aab7c4"
+        }
+    },
+    invalid: {
+        color: "#fa755a",
+        iconColor: "#fa755a"
+    }
+};
+
+var cardElement = elements.create("card", { style: style });
+cardElement.mount("#card-element");
+
+function createCustomer() {
+    let billingEmail = document.querySelector('#email').value;
+
+    return fetch('{{ url_for('create_customer') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            email: billingEmail
+        })
+    })
+        .then(response => {
+            return response.json();
+        })
+        .then(result => {
+            return result;
+        });
+}
+
+    </script>
+
+{% endblock %}

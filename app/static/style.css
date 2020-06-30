@@ -38,3 +38,32 @@ select {
     cursor: pointer;
     color: black;
 }
+
+.purchase-item {
+    padding: 0;
+    border-radius: 8px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: darkgray;
+    overflow: hidden;
+}
+
+.purchase-item-l {
+    border-top-left-radius: 30px;
+}
+
+.purchase-item-r {
+    border-top-right-radius: 30px;
+}
+
+.purchase-item-l:hover {
+    -webkit-box-shadow: 0 0 10px 1px rgba(143,182,119,1);
+    -moz-box-shadow: 0 0 10px 1px rgba(143,182,119,1);
+    box-shadow: 0 0 10px 1px rgba(143,182,119,1);
+}
+
+.purchase-item-r:hover {
+    -webkit-box-shadow: 0 0 10px 1px rgba(0,224,243,1);
+    -moz-box-shadow: 0 0 10px 1px rgba(0,224,243,1);
+    box-shadow: 0 0 10px 1px rgba(0,224,243,1);
+}

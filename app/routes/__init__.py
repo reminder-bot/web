@@ -6,6 +6,7 @@ from app import app
 
 MAX_TIME = 1576800000
 MIN_INTERVAL = 800
+LOGO_URL = 'https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg'
 
 
 @app.errorhandler(500)
@@ -93,3 +94,4 @@ from .settings import *
 from .todo import *
 from .advanced_message_editor import *
 from .audit_log import *
+from .purchase import *
