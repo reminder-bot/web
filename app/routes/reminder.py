@@ -127,15 +127,19 @@ def delete_reminder():
     reminder_q = Reminder.query.filter(Reminder.uid == request.json['uid'])
     reminder = reminder_q.first()
 
-    if reminder.channel.guild_id is not None:
-        event = Event(event_name='delete', guild_id=reminder.channel.guild_id, user_id=get_internal_id())
-        db.session.add(event)
+    if reminder is not None:
+        if reminder.channel.guild_id is not None:
+            event = Event(event_name='delete', guild_id=reminder.channel.guild_id, user_id=get_internal_id())
+            db.session.add(event)
 
-    reminder_q.delete(synchronize_session='fetch')
+        reminder_q.delete(synchronize_session='fetch')
 
-    db.session.commit()
+        db.session.commit()
 
-    return '', 200
+        return '', 200
+
+    else:
+        abort(404)
 
 
 @app.route('/delete_interval/', methods=['POST'])

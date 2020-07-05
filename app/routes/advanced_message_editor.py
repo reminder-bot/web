@@ -22,12 +22,16 @@ def advanced_message_editor(guild_id: int, reminder_uid: str):
     else:
         reminder = Reminder.query.filter(Reminder.uid == reminder_uid).first()
 
-        return render_template('reminder_dashboard/advanced_message_editor.html',
-                               guilds=member.permitted_guilds(),
-                               guild=guild,
-                               member=member,
-                               message=reminder.message,
-                               reminder_uid=reminder_uid)
+        if reminder is None:
+            return abort(404)
+
+        else:
+            return render_template('reminder_dashboard/advanced_message_editor.html',
+                                   guilds=member.permitted_guilds(),
+                                   guild=guild,
+                                   member=member,
+                                   message=reminder.message,
+                                   reminder_uid=reminder_uid)
 
 
 @app.route('/dashboard/update_message/<int:guild_id>/<reminder_uid>', methods=['POST'])
