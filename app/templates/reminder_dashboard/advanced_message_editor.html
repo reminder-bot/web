@@ -275,7 +275,7 @@ const members = [
 
 const roles = [
     {% for role in guild.roles %}
-        {name: "@{{ role.name.replace('\\', '').lower()[:32] }}", id: "{{ role.role }}"},
+        {name: "@{{ role.display_name().replace('\\', '').lower()[:32] }}", id: "{{ role.role }}"},
     {% endfor %}
 ];
 

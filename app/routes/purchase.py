@@ -6,6 +6,7 @@ from app import app
 
 from . import LOGO_URL
 
+
 @app.route('/buy/')
 def buy_page():
     return render_template('buy_page.html', title='Purchase', logo=LOGO_URL)
