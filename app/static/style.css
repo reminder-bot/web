@@ -67,3 +67,22 @@ select {
     -moz-box-shadow: 0 0 10px 1px rgba(0,224,243,1);
     box-shadow: 0 0 10px 1px rgba(0,224,243,1);
 }
+
+.cookie-alert {
+    border-radius: 10px;
+    border-style: solid;
+    z-index: 9999;
+    position: fixed;
+    color: #fff;
+    font-size: 2rem;
+    background-color: #222;
+    width: 95%;
+    left: 2.5%;
+    bottom: 5px;
+    padding: 10px;
+}
+
+.vertical-divider {
+    margin-left: 10px;
+    margin-right: 10px;
+}

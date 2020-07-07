@@ -7,6 +7,11 @@ from app import app
 from . import LOGO_URL
 
 
+@app.route('/cookies/')
+def cookies():
+    return render_template('cookies.html')
+
+
 @app.route('/')
 def index():
     return redirect(url_for('help_page'))
@@ -27,3 +32,8 @@ def help_page():
 
     return render_template('help.html', help=s['help_raw'], languages=all_langs, title='Help', language=lang,
                            logo=LOGO_URL)
+
+
+@app.route('/user-settings/')
+def user_settings():
+    return render_template('user_settings.html')

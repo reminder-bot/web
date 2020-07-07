@@ -22,6 +22,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
         <script src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/js.cookie.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
         <script src="{{ url_for('static', filename='js/adminlte.min.js') }}"></script>
@@ -44,11 +45,15 @@
                     </span>
                 </a>
 
-                <!-- Header Navbar: style can be found in header.less -->
                 <nav class="navbar navbar-static-top">
                     <a href="#" class="sidebar-toggle visible-xs" data-toggle="push-menu" role="button">
                         <i class="fas fa-bars"></i>
                         <span class="sr-only">Toggle navigation</span>
+                    </a>
+
+                    <a href="{{ url_for('user_settings') }}" class="pull-right sidebar-toggle">
+                        <i class="fas fa-cog"></i>
+                        <span class="sr-only">User settings</span>
                     </a>
                 </nav>
             </header>
@@ -98,5 +103,26 @@
 
             </div>
         </div>
+
+        <div class="cookie-alert">
+            This website uses some cookies and session data to operate.
+            <span class="vertical-divider">|</span> <a href="{{ url_for('cookies') }}">Learn more</a>
+            <span class="vertical-divider">|</span> <a href="https://www.i-dont-care-about-cookies.eu/">I don't care</a>
+            <a href="javascript:close_cookie_notice()" class="pull-right" style="color: white;">&times;</a>
+        </div>
+
+    <script>
+
+if (Cookies.get('asked-cookies') === "true") {
+    close_cookie_notice();
+}
+
+function close_cookie_notice() {
+    Cookies.set('asked-cookies', true, { sameSite: 'strict' });
+    $('.cookie-alert').hide();
+}
+
+    </script>
+
     </body>
 </html>

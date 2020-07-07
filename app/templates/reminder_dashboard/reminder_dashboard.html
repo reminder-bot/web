@@ -307,6 +307,10 @@ function update_reminder_times() {
 }
 
 $(function () {
+    if (Cookies.get('meridian') === undefined) {
+        Cookies.set('meridian', true, { sameSite: 'strict' });
+    }
+
     function reset_time_inputs() {
         let time = moment.unix($(this).data('start-time'));
 
@@ -353,15 +357,16 @@ $(function () {
     $('.datepicker').on('change', update_time);
 });
 
-$('.datepicker').datepicker({
+$('.datepicker').add('#datepicker').datepicker({
     format: 'yyyy/mm/dd',
     autoclose: true,
 });
 
-$('.timepicker').timepicker({
+$('.timepicker').add('#timepicker').timepicker({
     minuteStep: 1,
     showInputs: false,
     showSeconds: true,
+    showMeridian: Cookies.get('meridian') === "true",
 });
 
 $('.channel-selector').on('change', function () {

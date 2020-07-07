@@ -164,20 +164,7 @@ function update_time() {
 
 let current = moment();
 
-//Date picker
-$('#datepicker').datepicker({
-    format: 'yyyy/mm/dd',
-    autoclose: true,
-});
-
 $('#datepicker').datepicker('update', current.toDate());
-//Timepicker
-$('#timepicker').timepicker({
-    minuteStep: 1,
-    showInputs: false,
-    showSeconds: true,
-    defaultTime: current.format('hh:mm A'),
-});
 
 $("#datepicker").change(update_time);
 $("#timepicker").change(update_time);
