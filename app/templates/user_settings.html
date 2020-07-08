@@ -9,6 +9,33 @@
 
     <section class="content">
 
+        <div class="form-group">
+            <label for="meridian">Time Format</label>
+            <div class="input-group">
+                <div class="input-group-addon">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+                <div class="dropdown">
+                    <select id="meridian" style="width: 100%; height: 34px;" autocomplete="off">
+                        <option value="false">24 hour (00:00 to 23:59)</option>
+                        <option value="true">12 hour (AM/PM)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
     </section>
+
+    <script>
+
+$(document).ready(function () {
+    $('#meridian').val(Cookies.get('meridian'));
+});
+
+$('#meridian').on('change', function () {
+    Cookies.set('meridian', $(this).val(), { sameSite: 'strict' });
+});
+
+    </script>
 
 {% endblock %}

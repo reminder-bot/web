@@ -9,25 +9,27 @@
         <meta name="theme-color" content="#ffffff">
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Reminder Bot - Dashboard</title>
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+        <title>Reminder Bot - Dashboard</title>
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/AdminLTE.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/_all-skins.min.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-datepicker.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-timepicker.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-colorpicker.min.css') }}">
 
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
         <script src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/js.cookie.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
         <script src="{{ url_for('static', filename='js/adminlte.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/bootstrap-timepicker.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/bootstrap-colorpicker.min.js') }}"></script>
 
@@ -60,7 +62,7 @@
 
             <aside class="main-sidebar" style="padding-top: 60px;">
                 <section class="sidebar">
-                    <ul class="sidebar-menu" data-widget="tree" data-animation-speed="0">
+                    <ul class="sidebar-menu" data-widget="tree">
 
                         {% if guild != None %}
                             <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', id=guild.guild, refresh=1) }}"><i class="fas fa-sync-alt"></i> <i class="fab fa-discord"></i> Sync guild data</a></li>
@@ -70,8 +72,10 @@
                         <li style="margin-left: 2rem; margin-bottom: 1rem;"><a href="{{ url_for('dashboard', id=0) }}">@{{ member.name }}</a></li>
 
                         <li class="header">GUILDS</li>
+                    </ul>
+                    <ul class="sidebar-menu" id="sortable" data-widget="tree" data-animation-speed="0">
                         {% for display_guild in guilds %}
-                            <li class="treeview {{ 'active menu-open' if display_guild == guild else '' }}" style="margin-left: 2rem;">
+                            <li class="treeview {{ 'active menu-open' if display_guild == guild else '' }} guild-item" style="margin-left: 2rem;" data-id="{{ display_guild.id }}">
                                 <a href="#">{{ display_guild.name }}</a>
                                 <ul class="treeview-menu">
                                     <li><a href="{{ url_for('dashboard', id=display_guild.guild) }}">Reminders</a></li>
@@ -121,6 +125,31 @@ function close_cookie_notice() {
     Cookies.set('asked-cookies', true, { sameSite: 'strict' });
     $('.cookie-alert').hide();
 }
+
+let $sortable = $('ul#sortable');
+
+if (Cookies.get('guild-order') !== undefined) {
+    let guild_order = JSON.parse(Cookies.get('guild-order'));
+    let list_items = $sortable.find('li.guild-item');
+
+    list_items.detach().sort(function (a, b) {
+        return guild_order.indexOf($(a).data('id')) > guild_order.indexOf($(b).data('id'))
+    });
+
+    $sortable.append(list_items);
+}
+
+$sortable.sortable({
+    stop: function () {
+        let order = [];
+
+        $('#sortable').find('li.guild-item').each(function (index, item) {
+            order.push($(item).data('id'));
+        });
+
+        Cookies.set('guild-order', JSON.stringify(order), { sameSite: 'strict' });
+    }
+});
 
     </script>
 

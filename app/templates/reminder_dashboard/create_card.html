@@ -164,8 +164,6 @@ function update_time() {
 
 let current = moment();
 
-$('#datepicker').datepicker('update', current.toDate());
-
 $("#datepicker").change(update_time);
 $("#timepicker").change(update_time);
 

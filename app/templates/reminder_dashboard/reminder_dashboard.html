@@ -256,8 +256,8 @@ function sort_reminders(el) {
                     paused = true;
                 }
 
-                $(this).before(`<div style="display: flex; flex-flow: row; justify-content: space-between;" class="channel-header" data-channel="${channel_id}" data-paused="${paused}">
-    <h3 class="channel-groupings" style="flex: 1 1 auto;">#${channel_name}</h3>
+                $(this).before(`<div style="display: flex; flex-flow: row; justify-content: space-between;" class="channel-header channel-groupings" data-channel="${channel_id}" data-paused="${paused}">
+    <h3 style="flex: 1 1 auto;">#${channel_name}</h3>
     <button class="btn ${btn_style} pause-channel" style="flex: 0 1 auto; margin: 10px; font-weight: bold;">${btn_content}</button>
 </div>`);
             }
@@ -308,14 +308,14 @@ function update_reminder_times() {
 
 $(function () {
     if (Cookies.get('meridian') === undefined) {
-        Cookies.set('meridian', true, { sameSite: 'strict' });
+        Cookies.set('meridian', 'true', { sameSite: 'strict' });
     }
 
     function reset_time_inputs() {
         let time = moment.unix($(this).data('start-time'));
 
         $(this).find('.timepicker').timepicker('setTime', time.format('hh:mm:ss A'));
-        $(this).find('.datepicker').datepicker('update', time.format('YYYY/MM/DD'));
+        $(this).find('.datepicker').datepicker('setDate', time.format('YYYY/MM/DD'));
     }
 
     $('.time-selectors').each(reset_time_inputs);
@@ -357,10 +357,14 @@ $(function () {
     $('.datepicker').on('change', update_time);
 });
 
-$('.datepicker').add('#datepicker').datepicker({
-    format: 'yyyy/mm/dd',
-    autoclose: true,
+$.datepicker.setDefaults({
+    maxDate: '+50y',
+    dateFormat: 'yy/mm/dd',
+    minDate: '0',
 });
+
+$('.datepicker').add('#datepicker').datepicker();
+$('#datepicker').datepicker('setDate', moment().toDate());
 
 $('.timepicker').add('#timepicker').timepicker({
     minuteStep: 1,
