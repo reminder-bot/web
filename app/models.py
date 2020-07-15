@@ -78,7 +78,7 @@ class Message(db.Model):
     embed = db.relationship(Embed)
 
     attachment = db.Column(MEDIUMBLOB, nullable=True)
-    attachment_name = db.Column(db.String(32), nullable=True)
+    attachment_name = db.Column(db.String(260), nullable=True)
 
 
 class Guild(db.Model):
