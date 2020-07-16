@@ -49,11 +49,13 @@ def update_message(guild_id: int, reminder_uid: str):
 
         else:
             footer_icon = icon if (icon := field('embed_footer_icon')).startswith('https://') else None
+            image_url = icon if (icon := field('embed_image')).startswith('https://') else None
 
             reminder.message.embed = Embed(
                 title=field('embed_title'),
                 description=field('embed_description'),
                 footer=field('embed_footer'),
+                image_url=image_url,
                 footer_icon=footer_icon,
                 color=color.color)
 

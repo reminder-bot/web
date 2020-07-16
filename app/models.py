@@ -61,6 +61,9 @@ class Embed(db.Model):
 
     title = db.Column(db.String(256), nullable=False, default='')
     description = db.Column(db.String(2048), nullable=False, default='')
+
+    image_url = db.Column(db.String(512), nullable=True)
+
     footer = db.Column(db.String(2048), nullable=False, default='')
     footer_icon = db.Column(db.String(512), nullable=True)
 

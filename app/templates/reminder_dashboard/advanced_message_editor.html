@@ -171,6 +171,18 @@ embed_options_display();
                             </div>
 
                             <div class="form-group">
+                                <label for="embed_image">Embed Image</label>
+
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-image"></i>
+                                    </div>
+
+                                    <input name="embed_image" maxlength="512" id="embed_image" class="form-control" value="{{ message.embed.image_url or '' }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <label for="embed_footer">Embed Footer</label>
 
                                 <div class="input-group">
@@ -190,7 +202,7 @@ embed_options_display();
                                         <i class="fa fa-code"></i>
                                     </div>
 
-                                    <input name="embed_footer_icon" maxlength="512" id="embed_footer_icon" class="form-control" value="{{ message.embed.footer_icon }}">
+                                    <input name="embed_footer_icon" maxlength="512" id="embed_footer_icon" class="form-control" value="{{ message.embed.footer_icon or '' }}">
                                 </div>
                             </div>
                         </div>
