@@ -119,6 +119,35 @@ def change_aliases():
         abort(400)
 
 
+@app.route('/change_blacklist/', methods=['POST', 'DELETE'])
+def change_blacklist():
+    if (guild_id := request.json.get('guild_id')) is not None and \
+            (channel_id := request.json.get('channel_id')) is not None:
+
+        member = User.query.get(get_internal_id())
+        guild = Guild.query.get(guild_id)
+        channel = Channel.query.get(channel_id)
+
+        if guild in member.permitted_guilds() and channel in guild.channels:
+
+            if request.method == 'POST':
+                channel.blacklisted = True
+
+            else:  # method is delete
+                channel.blacklisted = False
+
+            db.session.commit()
+
+            return '', 201
+
+        else:
+            abort(400)
+
+    else:
+        abort(400)
+
+
+
 @app.route('/default_values/', methods=['POST'])
 def default_values():
     if (guild_id := request.json.get('guild_id')) is not None:

@@ -1,0 +1,18 @@
+<li class="list-group-item">
+    <form class="form-inline" style="display: flex; flex-flow: row;" >
+        <div class="form-group" style="flex: 1 0 auto;">
+            <label for="add-blacklist" class="sr-only">Channel</label>
+            <select id="add-blacklist" class="form-control" style="width: 100%;">
+                {% for channel in channels %}
+                    {% if not channel.blacklisted %}
+                        <option value="{{ channel.id }}">{{ channel.name or channel.channel }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group" style="flex: 0 0 auto;">
+            <button class="btn btn-success create-blacklist"><i class="fas fa-ban"></i></button>
+        </div>
+    </form>
+</li>

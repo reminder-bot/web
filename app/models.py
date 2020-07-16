@@ -140,6 +140,8 @@ class Channel(db.Model):
     channel = db.Column(BIGINT(unsigned=True), unique=True)
     name = db.Column(db.String(100))
 
+    blacklisted = db.Column(db.Boolean, nullable=False, default=False)
+
     webhook_id = db.Column(BIGINT(unsigned=True), unique=True)
     webhook_token = db.Column(db.Text)
 

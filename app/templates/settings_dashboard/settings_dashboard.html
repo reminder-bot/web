@@ -35,6 +35,22 @@
             {% endfor %}
         </ul>
 
+        <h2>Blacklist Management</h2>
+        <ul class="list-group" style="width: 100%;">
+            {% for channel in guild.channels %}
+                {% if channel.blacklisted %}
+                    {% set channel_id = channel.id %}
+                    {% set channel_name = channel.name or channel.channel %}
+
+                    {% include "settings_dashboard/blacklist_item.html" %}
+                {% endif %}
+            {% endfor %}
+
+            {% set channels = guild.channels %}
+
+            {% include "settings_dashboard/blacklist_create.html" %}
+        </ul>
+
         <h2>Command Aliases</h2>
         <div id="error" style="color: red;"></div>
         <ul class="list-group" style="width: 100%;">
@@ -184,6 +200,50 @@ $('#save-restrictions').on('click', function () {
             }
         }
     })
+});
+
+$('.create-blacklist').on('click', function (event) {
+    event.preventDefault();
+
+    let $li = $(this).closest('li');
+    let $select = $li.find('select');
+
+    let channel_id = $select.val();
+    let channel_name = $select.find('option:selected').text();
+
+    $.ajax({
+        url: "{{ url_for('change_blacklist') }}",
+        data: JSON.stringify({guild_id: {{ guild.id }}, channel_id: channel_id}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'POST',
+
+        success: function () {
+            {% set channel_id = '${channel_id}' %}
+            {% set channel_channel = None %}
+            {% set channel_name = '${channel_name}' %}
+
+            $li.before(`{% include "settings_dashboard/blacklist_item.html" %}`);
+
+            $select.find('option:selected').remove();
+        }
+    });
+});
+
+$(document).on('click', '.delete-blacklist', function (event) {
+    event.preventDefault();
+
+    let $li = $(this).closest('li');
+
+    $.ajax({
+        url: "{{ url_for('change_blacklist') }}",
+        data: JSON.stringify({guild_id: {{ guild.id }}, channel_id: $li.data('id')}),
+        contentType: 'application/json; charset=utf-8',
+        method: 'DELETE',
+
+        success: function () {
+            $li.remove();
+        }
+    });
 });
 
 $(document).on('click', '.delete-alias', function (event) {
