@@ -103,6 +103,13 @@ class Guild(db.Model):
     channels = db.relationship('Channel', backref='guild', lazy='dynamic', foreign_keys='[Channel.guild_id]')
     roles = db.relationship('Role', backref='guild', lazy='dynamic')
 
+    users = db.relationship(
+        'User', secondary=guild_users,
+        primaryjoin=(guild_users.c.guild == id),
+        secondaryjoin='(guild_users.c.user == User.id)',
+        backref=db.backref('guilds', lazy='dynamic'), lazy='dynamic'
+    )
+
     command_restrictions = db.relationship('CommandRestriction', backref='guild', lazy='dynamic')
     todo_list = db.relationship('Todo', backref='guild', lazy='dynamic')
 

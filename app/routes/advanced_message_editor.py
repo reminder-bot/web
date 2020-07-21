@@ -74,7 +74,7 @@ def update_message(guild_id: int, reminder_uid: str):
 
         else:
             flash('File is too large or file name is too long. '
-                  'Please upload a maximum of 8MB, with 32 character filename')
+                  'Please upload a maximum of 8MB, with up to 260 character filename')
             return redirect(url_for('advanced_message_editor', guild_id=guild_id, reminder_uid=reminder_uid))
 
     else:
