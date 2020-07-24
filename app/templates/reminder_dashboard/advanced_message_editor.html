@@ -178,7 +178,7 @@ embed_options_display();
                                         <i class="fa fa-image"></i>
                                     </div>
 
-                                    <input name="embed_image" maxlength="512" id="embed_image" class="form-control" value="{{ message.embed.image_url or '' }}">
+                                    <input name="embed_image" maxlength="512" id="embed_image" class="form-control no-spaces" value="{{ message.embed.image_url or '' }}">
                                 </div>
                             </div>
 
@@ -202,7 +202,7 @@ embed_options_display();
                                         <i class="fa fa-code"></i>
                                     </div>
 
-                                    <input name="embed_footer_icon" maxlength="512" id="embed_footer_icon" class="form-control" value="{{ message.embed.footer_icon or '' }}">
+                                    <input name="embed_footer_icon" maxlength="512" id="embed_footer_icon" class="form-control no-spaces" value="{{ message.embed.footer_icon or '' }}">
                                 </div>
                             </div>
                         </div>

@@ -2,12 +2,12 @@
     <form class="form-inline" style="display: flex; flex-flow: row;">
         <div class="form-group" style="flex: 0 4 auto;">
             <label for="name-{{ alias_id }}" class="sr-only">Alias name</label>
-            <input type="text" class="name-input" id="name-{{ alias_id }}" value="{{ alias_name }}" style="width: 100%;" maxlength="12" autocomplete="off">
+            <input type="text" class="form-control name-input no-spaces" id="name-{{ alias_id }}" value="{{ alias_name }}" style="width: 100%;" maxlength="12" autocomplete="off">
         </div>
 
         <div class="form-group" style="flex: 1 1 auto;">
             <label for="command-{{ alias_id }}" class="sr-only">Aliased command</label>
-            <input type="text" class="command-input" id="command-{{ alias_id }}" value="{{ alias_command }}" style="width: 100%;" maxlength="2048" autocomplete="off">
+            <input type="text" class="form-control command-input" id="command-{{ alias_id }}" value="{{ alias_command }}" style="width: 100%;" maxlength="2048" autocomplete="off">
         </div>
 
         <div class="form-group" style="flex: 0 0 auto;">

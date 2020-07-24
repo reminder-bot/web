@@ -151,6 +151,22 @@ $sortable.sortable({
     }
 });
 
+
+$(function() {
+    $(".no-spaces").on({
+
+       keydown: function(e) {
+          // 32 - ASCII for Space;
+          if (e.which === 32)
+             return false;
+       },
+
+       change: function() {
+          this.value = this.value.replace(/\s/g, "");
+       }
+    });
+});
+
     </script>
 
     </body>
