@@ -183,6 +183,18 @@ embed_options_display();
                             </div>
 
                             <div class="form-group">
+                                <label for="embed_image">Thumbnail Image</label>
+
+                                <div class="input-group">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-image"></i>
+                                    </div>
+
+                                    <input name="embed_thumbnail" maxlength="512" id="embed_image" class="form-control no-spaces" value="{{ message.embed.thumbnail_url or '' }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <label for="embed_footer">Embed Footer</label>
 
                                 <div class="input-group">
