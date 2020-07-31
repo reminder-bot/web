@@ -37,8 +37,21 @@
                     <hr>
                     <h2 class="font-weight-light text-secondary" style="margin-top: 2rem;">{{ category }}</h2>
 
-                    {% for item, description in items.items() %}
-                        <h4><code>{{ item }}</code></h4>
+                    {% for command, description in items.items() %}
+
+                        <h4>
+                            {% set details = command_properties.get(command) %}
+
+                            {% if details != None %}
+                                {% if details.dashboard %}
+                                    <a href="{{ url_for('dashboard') }}"><i class="fad fa-browser"></i></a>
+                                {% endif %}
+                                {% if details.wiki != None %}
+                                    <a href="https://github.com/reminder-bot/bot/wiki{{ details.wiki }}"><i class="fad fa-newspaper"></i></a>
+                                {% endif %}
+                            {% endif %}
+                            <code>{{ command }}</code>
+                        </h4>
 
                         <div class="lead" style="margin-left: 10%; margin-bottom: 2rem;">
                             {{ description | safe }}
