@@ -18,7 +18,8 @@ class User(db.Model):
     user = db.Column(BIGINT(unsigned=True), unique=True)
 
     patreon = db.Column(db.Boolean, nullable=False, default=False)
-    dm_channel = db.Column(BIGINT(unsigned=True))
+    dm_channel = db.Column(INT(unsigned=True), db.ForeignKey('channels.id', ondelete='SET NULL'), nullable=False)
+    channel = db.relationship('Channel')
     language = db.Column(db.String(2), nullable=False, default='EN')
     name = db.Column(db.String(37))
 

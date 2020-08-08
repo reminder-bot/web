@@ -64,28 +64,37 @@ def cache():
     else:
         user: dict = discord.get('api/users/@me').json()
 
-        session['user_id'] = int(user['id'])
+        user_id: int = int(user['id'])
+        user_name: str = '{}#{}'.format(user['username'], user['discriminator'])
 
-        user_query = User.query.filter(User.user == int(user['id']))
+        session['user_id'] = user_id
+
+        user_query = User.query.filter(User.user == user_id)
         cached_user: typing.Optional[User] = user_query.first()
 
         if cached_user is None:
-            return render_template('dashboard_error.html',
-                                   error_message='You need to interact with the bot at least '
-                                                 'once within Discord before using the dashboard')
+            user_record = User(
+                user=user_id,
+                channel=Channel(
+                    channel=api_post('users/@me/channels', {'recipient_id': user_id}).json()['id']
+                ),
+                name=user_name
+            )
+
+            db.session.add(user_record)
 
         else:
             session['internal_id'] = cached_user.id
 
-            cached_user.name = user['username']
+            cached_user.name = user_name
 
             cached_user.patreon = check_user_patreon(cached_user) > 0
 
             cached_user.set_permitted_guilds(get_user_guilds())
 
-            db.session.commit()
+        db.session.commit()
 
-            return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard'))
 
 
 from .general import *
