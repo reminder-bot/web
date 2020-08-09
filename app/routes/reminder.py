@@ -266,6 +266,10 @@ def change_channel():
     if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
 
         if (channel := Channel.query.get(int(request.json['channel']))) is not None:
+
+            if (channel.webhook_id or channel.webhook_token) is None:
+                channel.update_webhook(api_get, api_post, app.config['DISCORD_OAUTH_CLIENT_ID'])
+
             reminder.channel = channel
 
             Event.new_edit_event(reminder, get_internal_id())
