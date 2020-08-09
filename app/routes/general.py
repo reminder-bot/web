@@ -82,6 +82,18 @@ def help_page():
             'dashboard': True,
         },
 
+        '$todo server': {
+            'wiki': None,
+
+            'dashboard': True,
+        },
+
+        '$todo channel': {
+            'wiki': None,
+
+            'dashboard': True,
+        },
+
         '$alias': {
             'wiki': None,
 
