@@ -371,6 +371,10 @@ $('.timepicker').add('#timepicker').timepicker({
     showInputs: false,
     showSeconds: true,
     showMeridian: Cookies.get('meridian') === "true",
+    icons: {
+        up: 'fas fa-chevron-up',
+        down: 'fas fa-chevron-down'
+    }
 });
 
 $('.channel-selector').on('change', function () {
