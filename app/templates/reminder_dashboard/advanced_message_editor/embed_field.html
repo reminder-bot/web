@@ -1,0 +1,45 @@
+<div class="form-inline field-entry" style="display: flex; flex-flow: row;">
+    <div class="form-group" style="flex: 0 4 auto;">
+        <label for="field-title" class="sr-only">Field title</label>
+        <input
+                type="text"
+                class="form-control"
+                id="field-title"
+                name="field_title[]"
+                placeholder="Field title"
+                value="{{ field_title }}"
+                style="width: 100%;"
+                maxlength="256"
+                autocomplete="off">
+    </div>
+
+    <div class="form-group" style="flex: 1 1 auto;">
+        <label for="field-value" class="sr-only">Field value</label>
+        <input
+                type="text"
+                class="form-control field-value"
+                id="field-value"
+                name="field_value[]"
+                placeholder="Field value"
+                value="{{ field_value }}"
+                style="width: 100%;"
+                maxlength="1024"
+                autocomplete="off">
+    </div>
+
+    <div class="input-group">
+        <div class="input-group-addon">
+            <label for="field-inline-disp">Inline</label>
+        </div>
+        <div class="input-group-addon">
+            <input class="field-inline" name="field_inline[]" value="{{ 'true' if field_inline else 'false' }}" hidden>
+
+            <input
+                    type="checkbox"
+                    class="field-inline-disp"
+                    id="field-inline-disp"
+                    autocomplete="off"
+                    {{ 'checked' if field_inline else '' }}>
+        </div>
+    </div>
+</div>

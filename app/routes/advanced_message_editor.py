@@ -3,7 +3,7 @@ import io
 from flask import redirect, url_for, render_template, abort, flash, request, send_file
 
 from app import app, db
-from app.models import Reminder, User, Guild, Embed, Event
+from app.models import Reminder, User, Guild, Embed, Event, EmbedField
 from app.helpers import get_internal_id
 from app.color import Color
 
@@ -26,7 +26,7 @@ def advanced_message_editor(guild_id: int, reminder_uid: str):
             return abort(404)
 
         else:
-            return render_template('reminder_dashboard/advanced_message_editor.html',
+            return render_template('reminder_dashboard/advanced_message_editor/advanced_message_editor.html',
                                    guilds=member.permitted_guilds(),
                                    guild=guild,
                                    member=member,
@@ -39,6 +39,7 @@ def update_message(guild_id: int, reminder_uid: str):
     reminder = Reminder.query.filter(Reminder.uid == reminder_uid).first_or_404()
 
     field = request.form.get
+    fields = request.form.getlist
 
     if field('embedded') is not None:
         color = Color.decode(field('embed_color')[1:])
@@ -52,14 +53,53 @@ def update_message(guild_id: int, reminder_uid: str):
             image_url = icon if (icon := field('embed_image')).startswith('https://') else None
             thumbnail_url = icon if (icon := field('embed_thumbnail')).startswith('https://') else None
 
-            reminder.message.embed = Embed(
-                title=field('embed_title'),
-                description=field('embed_description'),
-                footer=field('embed_footer'),
-                image_url=image_url,
-                thumbnail_url=thumbnail_url,
-                footer_icon=footer_icon,
-                color=color.color)
+            if reminder.message.embed is None:
+                reminder.message.embed = Embed(
+                    title=field('embed_title'),
+                    description=field('embed_description'),
+                    footer=field('embed_footer'),
+                    image_url=image_url,
+                    thumbnail_url=thumbnail_url,
+                    footer_icon=footer_icon,
+                    color=color.color
+                )
+
+                db.session.flush()
+
+            else:
+                reminder.message.embed.title = field('embed_title')
+                reminder.message.embed.description = field('embed_description')
+                reminder.message.embed.footer = field('embed_footer')
+                reminder.message.embed.image_url = image_url
+                reminder.message.embed.thumbnail_url = thumbnail_url
+                reminder.message.embed.footer_icon = footer_icon
+                reminder.message.embed.color = color.color
+
+            combined = enumerate(zip(fields('field_title[]'), fields('field_value[]'), fields('field_inline[]')))
+            for count, (title, value, inline) in combined:
+                if len(title) * len(value) == 0:
+                    continue
+
+                elif count >= 25:
+                    break
+
+                else:
+                    if count < reminder.message.embed.fields.count():
+                        embed_field = reminder.message.embed.fields[count]
+
+                        embed_field.title = title
+                        embed_field.value = value
+                        embed_field.inline = inline == 'true'
+
+                    else:
+                        db.session.add(
+                            EmbedField(
+                                title=title,
+                                value=value,
+                                inline=inline == 'true',
+                                embed_id=reminder.message.embed.id
+                            )
+                        )
 
     else:
         if reminder.message.embed is not None:

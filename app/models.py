@@ -71,6 +71,20 @@ class Embed(db.Model):
 
     color = db.Column(MEDIUMINT(unsigned=True), nullable=False, default=0x0)
 
+    fields = db.relationship('EmbedField', lazy='dynamic')
+
+
+class EmbedField(db.Model):
+    __tablename__ = 'embed_fields'
+
+    id = db.Column(INT(unsigned=True), primary_key=True)
+
+    title = db.Column(db.String(256), nullable=False)
+    value = db.Column(db.String(1024), nullable=False)
+    inline = db.Column(db.Boolean, nullable=False)
+
+    embed_id = db.Column(INT(unsigned=True), db.ForeignKey(Embed.id, ondelete='CASCADE'), nullable=False)
+
 
 class Message(db.Model):
     __tablename__ = 'messages'
