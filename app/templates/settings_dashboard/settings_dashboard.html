@@ -233,6 +233,10 @@ $(document).on('click', '.delete-blacklist', function (event) {
     event.preventDefault();
 
     let $li = $(this).closest('li');
+    let $create_select = $('#add-blacklist');
+
+    let channel_id = $li.data("id");
+    let channel_name = $li.data("name");
 
     $.ajax({
         url: "{{ url_for('change_blacklist') }}",
@@ -242,6 +246,8 @@ $(document).on('click', '.delete-blacklist', function (event) {
 
         success: function () {
             $li.remove();
+
+            $create_select.append(`<option value=${channel_id}>${channel_name}</option>`);
         }
     });
 });
