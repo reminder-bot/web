@@ -15,16 +15,15 @@
 
     <div class="form-group" style="flex: 1 1 auto;">
         <label for="field-value" class="sr-only">Field value</label>
-        <input
-                type="text"
+        <textarea
+                rows="1"
                 class="form-control field-value"
                 id="field-value"
                 name="field_value[]"
                 placeholder="Field value"
-                value="{{ field_value }}"
                 style="width: 100%;"
                 maxlength="1024"
-                autocomplete="off">
+                autocomplete="off">{{ field_value }}</textarea>
     </div>
 
     <div class="input-group">
