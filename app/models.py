@@ -108,7 +108,6 @@ class Guild(db.Model):
     name = db.Column(db.String(100))
 
     prefix = db.Column(db.String(5), default="$", nullable=False)
-    timezone = db.Column(db.String(30), default="UTC", nullable=False)
 
     default_channel_id = db.Column(INT(unsigned=True), db.ForeignKey('channels.id', ondelete='SET NULL'))
     default_username = db.Column(db.String(32))
