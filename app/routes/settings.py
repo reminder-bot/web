@@ -147,7 +147,6 @@ def change_blacklist():
         abort(400)
 
 
-
 @app.route('/default_values/', methods=['POST'])
 def default_values():
     if (guild_id := request.json.get('guild_id')) is not None:

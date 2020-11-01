@@ -19,7 +19,7 @@ def past_tense(n):
 app = Flask(__name__)
 app.config.from_object(Config)
 app.jinja_env.globals.update(hex=to_hex, past_tense=past_tense)
-discord_blueprint = make_discord_blueprint(scope=['identify', 'guilds', 'email'], redirect_url='/cache/')
+discord_blueprint = make_discord_blueprint(scope=['identify', 'guilds'], redirect_url='/cache/')
 app.register_blueprint(discord_blueprint, url_prefix='/login')
 db = SQLAlchemy(app)
 

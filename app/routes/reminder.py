@@ -18,7 +18,7 @@ def dashboard():
 
             try:
                 guild_channels = [x for x in api_get('guilds/{}/channels'.format(accessing_guild.guild)).json() if
-                                  isinstance(x, dict) and x['type'] == 0]
+                                  isinstance(x, dict) and x['type'] in (0, 5)]
 
             except:
                 flash('Bot no longer in specified guild')

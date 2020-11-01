@@ -30,7 +30,7 @@ def cache():
 
         if reminder_guild_member.status_code == 200:
             roles = [int(x) for x in reminder_guild_member.json()['roles']]
-            return app.config['PATREON_ROLE'] in roles
+            return any([x in roles for x in app.config['PATREON_ROLES']])
 
         else:
             return 0
@@ -103,4 +103,3 @@ from .settings import *
 from .todo import *
 from .advanced_message_editor import *
 from .audit_log import *
-from .purchase import *
