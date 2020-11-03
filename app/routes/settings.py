@@ -39,12 +39,16 @@ def change_restrictions():
         if guild_id in [x.id for x in member.permitted_guilds()]:
             guild = Guild.query.get(guild_id)
 
-            guild.command_restrictions.filter(CommandRestriction.command == command).delete(synchronize_session='fetch')
+            role_ids = [r.id for r in guild.roles]
 
-            valid_ids = [r.id for r in guild.roles]
+            CommandRestriction \
+                .query \
+                .filter(CommandRestriction.role_id.in_(role_ids)) \
+                .filter(CommandRestriction.command == command) \
+                .delete(synchronize_session='fetch')
 
-            for role in filter(lambda r: int(r) in valid_ids, roles):
-                c = CommandRestriction(role_id=role, guild_id=guild_id, command=command)
+            for role in filter(lambda r: int(r) in role_ids, roles):
+                c = CommandRestriction(role_id=role, command=command)
                 db.session.add(c)
 
             db.session.commit()

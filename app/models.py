@@ -125,7 +125,13 @@ class Guild(db.Model):
         backref=db.backref('guilds', lazy='dynamic'), lazy='dynamic'
     )
 
-    command_restrictions = db.relationship('CommandRestriction', backref='guild', lazy='dynamic')
+    command_restrictions = db.relationship('CommandRestriction',
+                                           secondary='join(Role, CommandRestriction, CommandRestriction.role_id == Role.id)',
+                                           primaryjoin='Role.guild_id == Guild.id',
+                                           secondaryjoin='Role.id == CommandRestriction.role_id',
+                                           backref='guild',
+                                           lazy='dynamic',
+                                           viewonly=False)
     todo_list = db.relationship('Todo', backref='guild', lazy='dynamic')
 
 
@@ -147,7 +153,6 @@ class CommandRestriction(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    guild_id = db.Column(INT(unsigned=True), db.ForeignKey(Guild.id, ondelete='CASCADE'), nullable=False)
     role_id = db.Column(INT(unsigned=True), db.ForeignKey(Role.id, ondelete='CASCADE'), nullable=False)
     role = db.relationship(Role)
     command = db.Column(ENUM('todos', 'natural', 'remind', 'interval', 'timer', 'del', 'look', 'alias'))
