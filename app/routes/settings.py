@@ -149,35 +149,3 @@ def change_blacklist():
 
     else:
         abort(400)
-
-
-@app.route('/default_values/', methods=['POST'])
-def default_values():
-    if (guild_id := request.json.get('guild_id')) is not None:
-        member = User.query.get(get_internal_id())
-
-        if guild_id in [x.id for x in member.permitted_guilds()]:
-            if (username := request.json.get('username')) is not None and \
-                    (avatar := request.json.get('avatar')) is not None:
-
-                if 0 < len(username) < 32 and 0 < len(avatar) < 512:
-                    channel = request.json.get('channel')
-
-                    guild = Guild.query.get(guild_id)
-
-                    guild.default_channel = Channel.query.get(channel)
-                    guild.default_username = username
-                    guild.default_avatar = avatar
-
-                    db.session.commit()
-
-                    return '', 201
-
-                else:
-                    abort(400)
-
-        else:
-            abort(403)
-
-    else:
-        abort(400)

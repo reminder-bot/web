@@ -109,12 +109,6 @@ class Guild(db.Model):
 
     prefix = db.Column(db.String(5), default="$", nullable=False)
 
-    default_channel_id = db.Column(INT(unsigned=True), db.ForeignKey('channels.id', ondelete='SET NULL'))
-    default_username = db.Column(db.String(32))
-    default_avatar = db.Column(db.String(512))
-
-    default_channel = db.relationship('Channel', foreign_keys=[default_channel_id])
-
     channels = db.relationship('Channel', backref='guild', lazy='dynamic', foreign_keys='[Channel.guild_id]')
     roles = db.relationship('Role', backref='guild', lazy='dynamic')
 
@@ -246,10 +240,8 @@ class Reminder(db.Model):
     time = db.Column(INT(unsigned=True))
     enabled = db.Column(db.Boolean, nullable=False, default=True)
 
-    avatar = db.Column(db.String(512),
-                       default='https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg',
-                       nullable=False)
-    username = db.Column(db.String(32), default='Reminder', nullable=False)
+    avatar = db.Column(db.String(512), nullable=True)
+    username = db.Column(db.String(32), nullable=True)
 
     interval = db.Column(INT(unsigned=True))
 

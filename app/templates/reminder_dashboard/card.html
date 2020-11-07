@@ -171,7 +171,7 @@
                     {% if guild != None %}
 
                         <div class="form-group">
-                            <label for="username{{ reminder.uid }}">Username (optional):</label>
+                            <label for="username{{ reminder.uid }}">Username:</label>
                             <div class="input-group">
                                 <div class="input-group-addon">
                                     <i class="fas fa-file-signature"></i>
@@ -180,8 +180,9 @@
                                         type="text"
                                         class="form-control pull-right reminder-username"
                                         id="username{{ reminder.uid }}"
-                                        value="{{ reminder.username }}"
-                                        data-initial-value="{{ reminder.username }}"
+                                        value="{{ reminder.username or '' }}"
+                                        data-initial-value="{{ reminder.username or '' }}"
+                                        placeholder="(Fallback to webhook username)"
                                         autocomplete="off"
                                         maxlength="32" />
                             </div>
@@ -196,11 +197,12 @@
                                 <input
                                         type="text"
                                         class="form-control pull-right reminder-avatar no-spaces"
-                                        value="{{ reminder.avatar }}"
                                         id="avatar"
-                                        maxlength="512"
-                                        data-initial-value="{{ reminder.avatar }}"
-                                        autocomplete="off" />
+                                        value="{{ reminder.avatar or '' }}"
+                                        data-initial-value="{{ reminder.avatar or '' }}"
+                                        placeholder="(Fallback to webhook avatar)"
+                                        autocomplete="off"
+                                        maxlength="512" />
                             </div>
                         </div>
 

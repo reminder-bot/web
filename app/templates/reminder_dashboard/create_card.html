@@ -135,7 +135,14 @@
                                 <div class="input-group-addon">
                                     <i class="fas fa-file-signature"></i>
                                 </div>
-                                <input type="text" class="form-control pull-right" id="username" name="username" maxlength="32" value="{{ guild.default_username }}" />
+                                <input
+                                        type="text"
+                                        class="form-control pull-right"
+                                        id="username"
+                                        name="username"
+                                        maxlength="32"
+                                        placeholder="(Fallback to webhook username)"
+                                        value="" />
                             </div>
                         </div>
 
@@ -145,7 +152,13 @@
                                 <div class="input-group-addon">
                                     <i class="fas fa-camera"></i>
                                 </div>
-                                <input type="text" class="form-control pull-right" id="avatar" name="avatar" value="{{ guild.default_avatar }}" />
+                                <input
+                                        type="text"
+                                        class="form-control pull-right"
+                                        id="avatar"
+                                        name="avatar"
+                                        placeholder="(Fallback to webhook avatar)"
+                                        value="" />
                             </div>
                         </div>
                     {% endif %}

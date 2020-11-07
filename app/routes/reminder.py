@@ -202,10 +202,17 @@ def change_username():
     if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
         username = request.json['username']
 
-        if len(username) <= 32:
+        if 0 < len(username) <= 32:
             reminder.username = username
 
             Event.new_edit_event(reminder, get_internal_id())
+
+            db.session.commit()
+
+            return '', 200
+
+        elif 0 <= len(username):
+            reminder.username = None
 
             db.session.commit()
 
@@ -245,10 +252,17 @@ def change_avatar():
     if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
         avatar = request.json['avatar']
 
-        if len(avatar) <= 512:
+        if 0 < len(avatar) <= 512:
             reminder.avatar = avatar
 
             Event.new_edit_event(reminder, get_internal_id())
+
+            db.session.commit()
+
+            return '', 200
+
+        elif 0 <= len(avatar):
+            reminder.avatar = None
 
             db.session.commit()
 
@@ -417,7 +431,7 @@ def change_reminder():
         else:
             username = request.form.get('username') or 'Reminder'
             if not (0 < len(username) <= 32):
-                username = 'Reminder'
+                username = None
 
             avatar = request.form.get('avatar')
             if not isinstance(avatar, str) or not avatar.startswith('http'):
