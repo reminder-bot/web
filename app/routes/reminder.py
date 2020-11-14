@@ -214,6 +214,8 @@ def change_username():
         elif 0 <= len(username):
             reminder.username = None
 
+            Event.new_edit_event(reminder, get_internal_id())
+
             db.session.commit()
 
             return '', 200
@@ -429,7 +431,7 @@ def change_reminder():
             return end()
 
         else:
-            username = request.form.get('username') or 'Reminder'
+            username = request.form.get('username')
             if not (0 < len(username) <= 32):
                 username = None
 
