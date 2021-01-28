@@ -244,6 +244,7 @@ class Reminder(db.Model):
     username = db.Column(db.String(32), nullable=True)
 
     interval = db.Column(INT(unsigned=True))
+    expires = db.Column(db.TIMESTAMP)
 
     method = db.Column(ENUM('remind', 'natural', 'dashboard', 'todo'))
     set_by = db.Column(INT(unsigned=True), db.ForeignKey(User.id, ondelete='SET NULL'), nullable=True)

@@ -98,8 +98,7 @@
 
                     <label for="datepicker{{ reminder.uid }}">Time:</label>
 
-                    <div class="form-group time-selectors" data-start-time="{{ reminder.time }}">
-
+                    <div class="form-group time-inputs time-selectors" data-start-time="{{ reminder.time }}">
                         <div class="col-5" style="display: inline-flex;">
                             <div class="input-group date">
                                 <div class="input-group-addon">
@@ -108,21 +107,17 @@
 
                                 <label for="datepicker{{ reminder.uid }}" class="sr-only">Reminder Date</label>
 
-                                <input type="text" class="form-control datepicker time-update" id="datepicker{{ reminder.uid }}" name="date" />
+                                <input type="text" class="form-control datepicker time-update" id="datepicker{{ reminder.uid }}" name="date">
                             </div>
                         </div>
 
                         <div class="bootstrap-timepicker col-5" style="display: inline-flex;">
                             <div class="input-group">
-
                                 <label for="timepicker{{ reminder.uid }}" class="sr-only">Reminder Time</label>
 
-                                <input type="text" class="form-control timepicker time-update" id="timepicker{{ reminder.uid }}" name="time" />
-
+                                <input type="text" class="form-control timepicker time-update" id="timepicker{{ reminder.uid }}" name="time">
                             </div>
-
                         </div>
-
                     </div>
 
                     {% if member.patreon %}
@@ -161,10 +156,34 @@
                             <!-- /.input group -->
                         </div>
 
+                        <label for="expires-checkbox">Expires:</label>
+                        <input type="checkbox" name="expires" id="expires-checkbox" {{ 'checked' if reminder.expires != None else '' }}>
+
+                        <div class="form-group expires-inputs time-selectors" data-start-time="{{ reminder.expires.timestamp() if reminder.expires != None else None }}">
+                            <div class="col-5" style="display: inline-flex;">
+                                <div class="input-group date">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-calendar-times"></i>
+                                    </div>
+
+                                    <label for="expires-datepicker" class="sr-only">New Reminder Expiration Date</label>
+
+                                    <input type="text" class="form-control expires-datepicker" name="expires-date">
+                                </div>
+                            </div>
+
+                            <div class="bootstrap-timepicker col-5" style="display: inline-flex;">
+                                <div class="input-group">
+                                    <label for="expires-timepicker" class="sr-only">New Reminder Expiration Time</label>
+
+                                    <input type="text" class="form-control expires-timepicker" name="expires-time">
+                                </div>
+                            </div>
+                        </div>
+
                     {% endif %}
 
                 </div> <!-- closes column -->
-
 
                 <div class="col-lg-4 col-md-12">
 

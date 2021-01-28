@@ -1,3 +1,4 @@
+from datetime import datetime
 from time import time as unix_time
 
 from flask import request, jsonify, redirect, url_for, flash, render_template, abort
@@ -331,6 +332,45 @@ def change_time():
         return 'Reminder not found', 404
 
 
+@app.route('/change_expires/', methods=['POST'])
+def change_expires():
+    if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
+        new_time = request.json['time']
+
+        if new_time is None:
+            reminder.expires = None
+
+            Event.new_edit_event(reminder, get_internal_id())
+
+            db.session.commit()
+
+            return '', 200
+
+        elif 0 < new_time < unix_time() + MAX_TIME:
+            reminder.expires = datetime.fromtimestamp(new_time)
+
+            Event.new_edit_event(reminder, get_internal_id())
+
+            db.session.commit()
+
+            return '', 200
+
+        elif new_time < 0:
+            return 'Expiration time cannot be less than zero', 400
+
+        elif new_time > unix_time() + MAX_TIME:
+            return 'Expiration time must be less than {} seconds in the future'.format(MAX_TIME), 400
+
+        elif new_time is None:
+            return 'Something went wrong with client-side expiration time processing. Please refresh the page', 400
+
+        else:
+            return 'This error should never happen, but something went wrong', 400
+
+    else:
+        return 'Reminder not found', 404
+
+
 @app.route('/change_paused/', methods=['POST'])
 def change_paused():
     if (guild_id := request.json.get('guild_id')) is not None and \
@@ -440,12 +480,16 @@ def change_reminder():
                 avatar = None
 
             new_interval = None
+            new_expires = None
+
             if member.patreon:
                 try:
                     new_interval = int(request.form.get('interval_new')) * int(request.form.get('multiplier_new'))
+                    new_expires = int(request.form.get('expires-new'))
 
                 except:
                     new_interval = None
+                    new_expires = None
 
             if not (0 < new_time < unix_time() + MAX_TIME):
                 flash('Error setting reminder (time is too long)')
@@ -484,6 +528,7 @@ def change_reminder():
                         avatar=avatar,
                         enabled=True,
                         interval=new_interval,
+                        expires=datetime.fromtimestamp(new_expires),
                         set_by=member.id)
 
                     db.session.add(reminder)

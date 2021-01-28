@@ -122,6 +122,35 @@
                             </div>
                         </div>
 
+                        <label for="expires-checkbox">Expires:</label>
+                        <input type="checkbox" name="expires" id="expires-checkbox">
+
+                        <input name="expires-new" value="0" hidden>
+
+                        <div class="form-group expires-inputs">
+
+                            <div class="col-5" style="display: inline-flex;">
+                                <div class="input-group date">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-calendar-times"></i>
+                                    </div>
+
+                                    <label for="expires-datepicker" class="sr-only">New Reminder Expiration Date</label>
+
+                                    <input type="text" class="form-control datepicker" id="expires-datepicker" name="expires-date">
+                                </div>
+                            </div>
+
+                            <div class="bootstrap-timepicker col-5" style="display: inline-flex;">
+                                <div class="input-group">
+                                    <label for="expires-timepicker" class="sr-only">New Reminder Expiration Time</label>
+
+                                    <input type="text" class="form-control timepicker" id="expires-timepicker" name="expires-time">
+                                </div>
+                            </div>
+
+                        </div>
+
                     {% endif %}
 
                 </div>
@@ -175,12 +204,24 @@ function update_time() {
     document.getElementById("time_new").value = m.unix();
 }
 
-let current = moment();
-
 $("#datepicker").change(update_time);
 $("#timepicker").change(update_time);
 
 update_time();
+
+function update_expires() {
+    let t_time = document.getElementById("expires-timepicker");
+    let d_time = document.getElementById("expires-datepicker");
+
+    let m = moment(d_time.value + ' ' + t_time.value, 'YYYY/MM/DD HH:mm:ss A');
+
+    $('input[name="expires-new"]').val(m.unix());
+}
+
+$("#expires-datepicker").change(update_expires);
+$("#expires-timepicker").change(update_expires);
+
+update_expires();
 
                 </script>
 

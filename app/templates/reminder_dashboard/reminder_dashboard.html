@@ -265,6 +265,36 @@ function sort_reminders(el) {
     }
 }
 
+$(document).on('change', 'input[name="expires"]', function () {
+    if ($(this).prop('checked')) {
+        $(this).siblings('.expires-inputs').show();
+    } else {
+        $(this).siblings('.expires-inputs').hide();
+    }
+});
+
+$('input[name="expires"]').trigger('change');
+
+$(document).on('change', 'input[name="expires"]', function () {
+    if (!$(this).prop('checked')) {
+        let card = $(this).closest('.reminder-card');
+        mark_as_saving(card);
+
+        let uid = card.data('uid');
+
+        $.ajax({
+            url: '{{ url_for('change_expires') }}',
+            data: JSON.stringify({uid: uid, time: null}),
+            contentType: 'application/json; charset=utf-8',
+            method: 'POST',
+
+            success: function () {
+                mark_as_saved(card);
+            },
+        });
+    }
+})
+
 $(document).on('click', '.pause-channel', function () {
     let header = $(this).closest('.channel-header');
 
@@ -314,8 +344,8 @@ $(function () {
     function reset_time_inputs() {
         let time = moment.unix($(this).data('start-time'));
 
-        $(this).find('.timepicker').timepicker('setTime', time.format('hh:mm:ss A'));
-        $(this).find('.datepicker').datepicker('setDate', time.format('YYYY/MM/DD'));
+        $(this).find('.timepicker, .expires-timepicker').timepicker('setTime', time.format('hh:mm:ss A'));
+        $(this).find('.datepicker, .expires-datepicker').datepicker('setDate', time.format('YYYY/MM/DD'));
     }
 
     $('.time-selectors').each(reset_time_inputs);
@@ -326,7 +356,7 @@ $(function () {
 
         let uid = card.data('uid');
 
-        let parent = $(this).closest('.time-selectors');
+        let parent = $(this).closest('.time-inputs');
 
         let dp = parent.find('.datepicker');
         let tp = parent.find('.timepicker');
@@ -348,13 +378,43 @@ $(function () {
             },
             error: function (resp) {
                 show_error(card, resp);
-                card.find('.time-selectors').each(reset_time_inputs);
+                card.find('.time-inputs').each(reset_time_inputs);
             }
         });
     }
 
     $('.timepicker').on('change', update_time);
     $('.datepicker').on('change', update_time);
+
+    function update_expires() {
+        let card = $(this).closest('.reminder-card');
+        mark_as_saving(card);
+
+        let uid = card.data('uid');
+
+        let parent = $(this).closest('.expires-inputs');
+
+        let dp = parent.find('.expires-datepicker');
+        let tp = parent.find('.expires-timepicker');
+
+        let m = moment(`${dp.val()} ${tp.val()}`, 'YYYY/MM/DD HH:mm:ss A');
+
+        $.ajax({
+            url: '{{ url_for('change_expires') }}',
+            data: JSON.stringify({uid: uid, time: m.unix()}),
+            contentType: 'application/json; charset=utf-8',
+            method: 'POST',
+
+            success: function () {
+                parent.data('start-time', m.unix());
+
+                mark_as_saved(card);
+            },
+        });
+    }
+
+    $('.expires-timepicker').on('change', update_expires);
+    $('.expires-datepicker').on('change', update_expires);
 });
 
 $.datepicker.setDefaults({
@@ -363,10 +423,10 @@ $.datepicker.setDefaults({
     minDate: '0',
 });
 
-$('.datepicker').add('#datepicker').datepicker();
+$('.datepicker, #datepicker, .expires-datepicker, #expires-datepicker').datepicker();
 $('#datepicker').datepicker('setDate', moment().toDate());
 
-$('.timepicker').add('#timepicker').timepicker({
+$('.timepicker, #timepicker, .expires-timepicker, #expires-timepicker').timepicker({
     minuteStep: 1,
     showInputs: false,
     showSeconds: true,
@@ -628,11 +688,9 @@ $collapse.on('show.bs.collapse', function () {
 });
 
 $(function () {
-
     update_reminder_times();
 
     setInterval(update_reminder_times, 60000);
-
 });
 
 $(function () {
