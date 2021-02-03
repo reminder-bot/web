@@ -485,7 +485,7 @@ def change_reminder():
             if member.patreon:
                 try:
                     new_interval = int(request.form.get('interval_new')) * int(request.form.get('multiplier_new'))
-                    new_expires = int(request.form.get('expires-new'))
+                    new_expires = datetime.fromtimestamp(int(request.form.get('expires-new')))
 
                 except:
                     new_interval = None
@@ -528,7 +528,7 @@ def change_reminder():
                         avatar=avatar,
                         enabled=True,
                         interval=new_interval,
-                        expires=datetime.fromtimestamp(new_expires),
+                        expires=new_expires,
                         set_by=member.id)
 
                     db.session.add(reminder)
