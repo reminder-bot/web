@@ -34,7 +34,6 @@ def get_internal_id():
 
         if user_record is not None:
             session['internal_id'] = user_record.id
-            user_record.name = user_name
 
             return user_record.id
 
