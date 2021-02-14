@@ -5,7 +5,7 @@ from app import app
 
 
 MAX_TIME = 1576800000
-MIN_INTERVAL = 800
+MIN_INTERVAL = 60
 LOGO_URL = 'https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg'
 
 

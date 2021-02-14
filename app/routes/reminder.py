@@ -472,7 +472,7 @@ def change_reminder():
 
         else:
             username = request.form.get('username')
-            if not (0 < len(username) <= 32):
+            if username is not None and not (0 < len(username) <= 32):
                 username = None
 
             avatar = request.form.get('avatar')
