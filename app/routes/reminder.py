@@ -485,10 +485,12 @@ def change_reminder():
             if member.patreon:
                 try:
                     new_interval = int(request.form.get('interval_new')) * int(request.form.get('multiplier_new'))
-                    new_expires = datetime.fromtimestamp(int(request.form.get('expires-new')))
-
                 except:
                     new_interval = None
+
+                try:
+                    new_expires = datetime.fromtimestamp(int(request.form.get('expires-new')))
+                except:
                     new_expires = None
 
             if not (0 < new_time < unix_time() + MAX_TIME):
