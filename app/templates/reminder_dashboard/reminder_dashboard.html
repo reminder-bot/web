@@ -24,14 +24,16 @@
 
             <div class="row controls">
                 <div class="col-xs-6">
-                    <label for="sort">
-                        Sort by:
-                    </label>
-                    <select id="sort">
-                        <option value="time">Time</option>
-                        <option value="name">Name</option>
-                        <option value="channel">Channel</option>
-                    </select>
+                    {% if guild != None %}
+                        <label for="sort">
+                            Sort by:
+                        </label>
+                        <select id="sort">
+                            <option value="time">Time</option>
+                            <option value="name">Name</option>
+                            <option value="channel">Channel</option>
+                        </select>
+                    {% endif %}
                 </div>
 
                 <div class="col-xs-6">
@@ -67,12 +69,6 @@ const channels = {
     {% endfor %}
 };
 
-const members = {
-    {% for m in guild.users %}
-    "{{ m.name.replace('\\', '').lower()[:32] }}": "{{ m.user }}",
-    {% endfor %}
-};
-
 const roles = {
     {% for role in guild.roles %}
     "@{{ role.display_name().replace('\\', '').lower()[:32] }}": "&{{ role.role }}",
@@ -98,19 +94,10 @@ function manage_characters(change_event, i)
     let out = [];
 
     if ( type === "@" ) {
-        let roles_also = last[1] === "@";
-        let set;
-
-        if ( roles_also ) {
-            set = roles;
-        }
-        else {
-            set = members;
-        }
 
         document.getElementById("mention-input" + i).style.display = "table";
 
-        for (let key in set ) {
+        for (let key in roles ) {
             if ( key.includes(name) ) {
                 out.push("@" + key);
             }
@@ -137,18 +124,13 @@ function manage_characters(change_event, i)
         let name_n = out[el];
 
         if ( type === "@" ) {
-            let id;
+            let id = roles[name_n.slice(1)];
 
-            if ( last[1] === "@" ) {
-                id = roles[name_n.slice(1)];
-            }
-            else {
-                id = members[name_n.slice(1)];
-            }
-            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="mention('<@${id}>', '${i}')">${name_n}</a></li>`;
+            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="mention('<@&${id}>', '${i}')">${name_n}</a></li>`;
         }
         else {
             let id = channels[name_n.slice(1)];
+
             document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="mention('<#${id}>', '${i}')">${name_n}</a></li>`;
         }
     }
@@ -160,49 +142,12 @@ function m(e) {
 
 document.getElementById("input-message").addEventListener("input", m);
 
-    </script>
-{% endif %}
-{# end of guild-only code #}
-
-    <script>
-
 const channel_pauses = {
     {% for channel in guild.channels %}
         {% if channel.name != None %}
             {{ channel.id }}: {{ 'true' if channel.paused else 'false' }},
         {% endif %}
     {% endfor %}
-}
-
-function mark_as_saving(card) {
-    let save_button = card.find('.save-notice');
-
-    save_button.fadeTo(150, 0.45).removeClass('btn-danger').addClass('btn-success');
-    save_button.find('span').text('Saving...');
-    save_button.find('i').removeClass('fa-check fa-exclamation-triangle').addClass('fa-save');
-}
-
-function mark_as_saved(card) {
-    let save_button = card.find('.save-notice');
-
-    card.find('.error-area').text('');
-
-    save_button.fadeTo(150, 0.65).removeClass('btn-danger').addClass('btn-success');
-    save_button.find('span').text('Saved!');
-    save_button.find('i').removeClass('fa-save fa-exclamation-triangle').addClass('fa-check');
-}
-
-function show_error(card, text) {
-    let save_button = card.find('button.save-notice');
-    let error_div = card.find('div.error-area');
-
-    // show error message provided by server
-    error_div.text(text.responseText);
-
-    // switch button to danger and add error text
-    save_button.fadeTo(150, 0.85).removeClass('btn-success').addClass('btn-danger');
-    save_button.find('span').text('Error');
-    save_button.find('i').removeClass('fa-save fa-check').addClass('fa-exclamation-triangle');
 }
 
 function sort_reminders(el) {
@@ -265,6 +210,80 @@ function sort_reminders(el) {
     }
 }
 
+$(document).on('click', '.pause-channel', function () {
+    let header = $(this).closest('.channel-header');
+
+    let paused = !header.data('paused');
+    let channel = header.data('channel');
+
+    $.ajax({
+        url: '{{ url_for('change_paused') }}',
+        data: JSON.stringify({guild_id: {{ guild.id }}, channel_id: channel, paused: paused}),
+        contentType: 'application/json; charset=utf-8;',
+        method: 'POST',
+
+        success: function () {
+            header.data('paused', paused);
+
+            if (paused) {
+                header.find('.pause-channel').text('Unpause Channel')
+                    .removeClass('btn-danger')
+                    .addClass('btn-success');
+            }
+            else {
+                header.find('.pause-channel').text('Pause Channel')
+                    .removeClass('btn-success')
+                    .addClass('btn-danger');
+            }
+        }
+    });
+});
+
+$(function () {
+    sort_reminders('#sort');
+
+    $('#sort').on('change', function () {
+        sort_reminders(this);
+    });
+});
+
+    </script>
+{% endif %}
+{# end of guild-only code #}
+
+    <script>
+
+function mark_as_saving(card) {
+    let save_button = card.find('.save-notice');
+
+    save_button.fadeTo(150, 0.45).removeClass('btn-danger').addClass('btn-success');
+    save_button.find('span').text('Saving...');
+    save_button.find('i').removeClass('fa-check fa-exclamation-triangle').addClass('fa-save');
+}
+
+function mark_as_saved(card) {
+    let save_button = card.find('.save-notice');
+
+    card.find('.error-area').text('');
+
+    save_button.fadeTo(150, 0.65).removeClass('btn-danger').addClass('btn-success');
+    save_button.find('span').text('Saved!');
+    save_button.find('i').removeClass('fa-save fa-exclamation-triangle').addClass('fa-check');
+}
+
+function show_error(card, text) {
+    let save_button = card.find('button.save-notice');
+    let error_div = card.find('div.error-area');
+
+    // show error message provided by server
+    error_div.text(text.responseText);
+
+    // switch button to danger and add error text
+    save_button.fadeTo(150, 0.85).removeClass('btn-success').addClass('btn-danger');
+    save_button.find('span').text('Error');
+    save_button.find('i').removeClass('fa-save fa-check').addClass('fa-exclamation-triangle');
+}
+
 $(document).on('change', 'input[name="expires"]', function () {
     if ($(this).prop('checked')) {
         $(this).siblings('.expires-inputs').show();
@@ -294,35 +313,6 @@ $(document).on('change', 'input[name="expires"]', function () {
         });
     }
 })
-
-$(document).on('click', '.pause-channel', function () {
-    let header = $(this).closest('.channel-header');
-
-    let paused = !header.data('paused');
-    let channel = header.data('channel');
-
-    $.ajax({
-        url: '{{ url_for('change_paused') }}',
-        data: JSON.stringify({guild_id: {{ guild.id }}, channel_id: channel, paused: paused}),
-        contentType: 'application/json; charset=utf-8;',
-        method: 'POST',
-
-        success: function () {
-            header.data('paused', paused);
-
-            if (paused) {
-                header.find('.pause-channel').text('Unpause Channel')
-                    .removeClass('btn-danger')
-                    .addClass('btn-success');
-            }
-            else {
-                header.find('.pause-channel').text('Pause Channel')
-                    .removeClass('btn-success')
-                    .addClass('btn-danger');
-            }
-        }
-    });
-});
 
 function update_reminder_times() {
     $('.time-remaining').each(function () {
@@ -695,14 +685,6 @@ $(function () {
 
 $(function () {
     $('[data-toggle="tooltip"]').tooltip()
-});
-
-$(function () {
-    sort_reminders('#sort');
-
-    $('#sort').on('change', function () {
-        sort_reminders(this);
-    });
 });
 
 $(function () {
