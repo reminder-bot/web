@@ -493,7 +493,7 @@ def change_reminder():
                 except:
                     new_expires = None
 
-                if new_expires < datetime.now():
+                if new_expires is not None and new_expires < datetime.now():
                     new_expires = None
 
             if not (0 < new_time < unix_time() + MAX_TIME):
