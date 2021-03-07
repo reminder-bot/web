@@ -307,7 +307,10 @@ def change_time():
     if (reminder := Reminder.query.filter(Reminder.uid == request.json['uid']).first()) is not None:
         new_time = request.json['time']
 
-        if new_time is not None and 0 < new_time < unix_time() + MAX_TIME:
+        if new_time is None:
+            return 'Something went wrong with client-side time processing. Please refresh the page', 400
+
+        elif 0 < new_time < unix_time() + MAX_TIME:
             reminder.time = new_time
 
             Event.new_edit_event(reminder, get_internal_id())
@@ -321,9 +324,6 @@ def change_time():
 
         elif new_time > unix_time() + MAX_TIME:
             return 'Time must be less than {} seconds in the future'.format(MAX_TIME), 400
-
-        elif new_time is None:
-            return 'Something went wrong with client-side time processing. Please refresh the page', 400
 
         else:
             return 'This error should never happen, but something went wrong', 400
@@ -491,6 +491,9 @@ def change_reminder():
                 try:
                     new_expires = datetime.fromtimestamp(int(request.form.get('expires-new')))
                 except:
+                    new_expires = None
+
+                if new_expires < datetime.now():
                     new_expires = None
 
             if not (0 < new_time < unix_time() + MAX_TIME):
