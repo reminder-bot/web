@@ -265,7 +265,7 @@ embed_options_display();
                         </div>
                         <div class="dropdown">
                             <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                Mention... (tip: use a double @ to mention roles)
+                                Mention Role...
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdown-mention" style="max-height: 40vh; overflow-y: scroll;">
@@ -325,12 +325,6 @@ const channels = [
     {% endfor %}
 ];
 
-const members = [
-    {% for m in guild.users %}
-        {name: "{{ m.name.replace('\\', '').lower()[:32] }}", id: "{{ m.user }}"},
-    {% endfor %}
-];
-
 const roles = [
     {% for role in guild.roles %}
         {name: "@{{ role.display_name().replace('\\', '').lower()[:32] }}", id: "{{ role.role }}"},
@@ -361,8 +355,8 @@ $('textarea').on('keyup', function() {
     // show users if word starts with single @
     else if ( final_word.startsWith('@') ) {
         search_name = final_word.slice(1);
-        prefix = '@';
-        associated_set = members;
+        prefix = '@&';
+        associated_set = roles;
         show_dropdown = true;
     }
     // show channels if #

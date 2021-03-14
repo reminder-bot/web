@@ -126,7 +126,7 @@ function manage_characters(change_event, i)
         if ( type === "@" ) {
             let id = roles[name_n.slice(1)];
 
-            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="mention('<@&${id}>', '${i}')">${name_n}</a></li>`;
+            document.getElementById("dropdown-mention" + i).innerHTML += `<li><a onclick="mention('<@${id}>', '${i}')">${name_n}</a></li>`;
         }
         else {
             let id = channels[name_n.slice(1)];
