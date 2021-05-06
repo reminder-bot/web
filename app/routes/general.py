@@ -16,7 +16,7 @@ def cookies():
 
 @app.route('/')
 def index():
-    return redirect(url_for('help_page'))
+    return render_template('index.html')
 
 
 @app.route('/help/')

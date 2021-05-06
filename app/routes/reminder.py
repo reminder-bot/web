@@ -4,7 +4,7 @@ from time import time as unix_time
 from flask import request, jsonify, redirect, url_for, flash, render_template, abort
 
 from app import app, db, discord
-from app.models import Reminder, Event, Channel, Message, Guild, User, Role
+from app.models import Reminder, Event, Channel, Guild, User, Role
 from app.helpers import get_internal_id, api_post, api_get
 
 from . import MIN_INTERVAL, MAX_TIME
@@ -61,7 +61,7 @@ def dashboard():
                 db.session.commit()
 
         channel_ids = [channel.id for channel in guild.channels]
-        guild_reminders = Reminder.query.filter(Reminder.channel_id.in_(channel_ids)).order_by(Reminder.time).all()
+        guild_reminders = Reminder.query.filter(Reminder.channel_id.in_(channel_ids)).all()
 
         if request.args.get('refresh') is None:
 
@@ -88,14 +88,13 @@ def dashboard():
             try:
                 guild_id = int(request.args.get('id'))
 
-            except:  # Guild ID is invalid
+            except:
                 flash('Guild ID invalid')
                 return redirect(url_for('dashboard'))
 
             else:
                 if guild_id == 0:
-                    reminders = Reminder.query.filter(Reminder.channel_id == member.dm_channel).order_by(
-                        Reminder.time).all()  # fetch reminders
+                    reminders = Reminder.query.filter(Reminder.channel_id == member.dm_channel).all()
 
                     return render_template('reminder_dashboard/reminder_dashboard.html',
                                            guilds=member.permitted_guilds(),
@@ -148,6 +147,8 @@ def delete_interval():
     reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
 
     reminder.interval = None
+    reminder.expires = None
+    reminder.restartable = False
     reminder.enabled = True
 
     Event.new_edit_event(reminder, get_internal_id())

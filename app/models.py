@@ -55,25 +55,6 @@ class User(db.Model):
         db.session.commit()
 
 
-class Embed(db.Model):
-    __tablename__ = 'embeds'
-
-    id = db.Column(INT(unsigned=True), primary_key=True)
-
-    title = db.Column(db.String(256), nullable=False, default='')
-    description = db.Column(db.String(2048), nullable=False, default='')
-
-    image_url = db.Column(db.String(512), nullable=True)
-    thumbnail_url = db.Column(db.String(512), nullable=True)
-
-    footer = db.Column(db.String(2048), nullable=False, default='')
-    footer_icon = db.Column(db.String(512), nullable=True)
-
-    color = db.Column(MEDIUMINT(unsigned=True), nullable=False, default=0x0)
-
-    fields = db.relationship('EmbedField', lazy='dynamic')
-
-
 class EmbedField(db.Model):
     __tablename__ = 'embed_fields'
 
@@ -83,21 +64,7 @@ class EmbedField(db.Model):
     value = db.Column(db.String(1024), nullable=False)
     inline = db.Column(db.Boolean, nullable=False)
 
-    embed_id = db.Column(INT(unsigned=True), db.ForeignKey(Embed.id, ondelete='CASCADE'), nullable=False)
-
-
-class Message(db.Model):
-    __tablename__ = 'messages'
-
-    id = db.Column(INT(unsigned=True), primary_key=True)
-
-    content = db.Column(db.String(2048), nullable=False, default='')
-    tts = db.Column(db.Boolean, nullable=False, default=False)
-    embed_id = db.Column(INT(unsigned=True), db.ForeignKey(Embed.id))
-    embed = db.relationship(Embed)
-
-    attachment = db.Column(MEDIUMBLOB, nullable=True)
-    attachment_name = db.Column(db.String(260), nullable=True)
+    reminder_id = db.Column(INT(unsigned=True), db.ForeignKey('reminders.id', ondelete='CASCADE'), nullable=False)
 
 
 class Guild(db.Model):
@@ -231,24 +198,39 @@ class Reminder(db.Model):
 
     name = db.Column(db.String(24), default='Reminder')
 
-    message_id = db.Column(INT(unsigned=True), db.ForeignKey(Message.id), nullable=False)
-    message = db.relationship(Message)
-
     channel_id = db.Column(INT(unsigned=True), db.ForeignKey(Channel.id), nullable=True)
     channel = db.relationship(Channel, backref='reminders')
 
-    time = db.Column(INT(unsigned=True))
-    enabled = db.Column(db.Boolean, nullable=False, default=True)
+    utc_time = db.Column(db.DateTime, nullable=False)
 
-    avatar = db.Column(db.String(512), nullable=True)
     username = db.Column(db.String(32), nullable=True)
+    avatar = db.Column(db.String(512), nullable=True)
+
+    tts = db.Column(db.Boolean, nullable=False, default=False)
+    content = db.Column(db.String(2048), nullable=False, default='')
+    embed_title = db.Column(db.String(256))
+    embed_description = db.Column(db.String(2048))
+    embed_image_url = db.Column(db.String(512))
+    embed_thumbnail_url = db.Column(db.String(512))
+    embed_footer = db.Column(db.String(2048))
+    embed_footer_url = db.Column(db.String(512))
+    embed_author = db.Column(db.String(256))
+    embed_author_url = db.Column(db.String(512))
+    embed_color = db.Column(MEDIUMINT(unsigned=True))
+    attachment = db.Column(MEDIUMBLOB, nullable=True)
+    attachment_name = db.Column(db.String(260), nullable=True)
+
+    pin = db.Column(db.Boolean, nullable=False, default=False)
 
     interval = db.Column(INT(unsigned=True))
-    expires = db.Column(db.TIMESTAMP)
+    restartable = db.Column(db.Boolean, nullable=False, default=False)
+    enabled = db.Column(db.Boolean, nullable=False, default=True)
+    expires = db.Column(db.DateTime)
 
-    method = db.Column(ENUM('remind', 'natural', 'dashboard', 'todo'))
     set_by = db.Column(INT(unsigned=True), db.ForeignKey(User.id, ondelete='SET NULL'), nullable=True)
-    set_at = db.Column(TIMESTAMP, nullable=True, default=datetime.now, server_default='CURRENT_TIMESTAMP')
+    set_at = db.Column(db.TIMESTAMP, nullable=True, default=datetime.now, server_default='CURRENT_TIMESTAMP')
+
+    fields = db.relationship(EmbedField, lazy='dynamic')
 
     @staticmethod
     def create_uid():
@@ -259,19 +241,13 @@ class Reminder(db.Model):
         return full
 
     def hex_color(self):
-        if self.message.embed is None:
-            return
-
-        else:
-            return hex(self.message.embed.color)[2:]
+        return hex(self.embed_color)[2:]
 
     def message_content(self):
-        if len(self.message.content) > 0:
-            return self.message.content
-        elif self.message.embed is not None:
-            return self.message.embed.description
+        if len(self.content) > 0:
+            return self.content
         else:
-            return ''
+            return self.embed_description
 
 
 class Event(db.Model):

@@ -12,6 +12,7 @@ LOGO_URL = 'https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_M
 @app.errorhandler(500)
 def internal_error(_error):
     session.clear()
+
     return "An error has occurred! We've made a report, and cleared your session cache on this website. If you " \
            "encounter this error again, please send us a message on Discord!"
 

@@ -3,7 +3,7 @@ from time import time as unix_time
 from flask import request, redirect, url_for, abort, jsonify, render_template
 
 from app import app, db
-from app.models import Guild, Todo, User, Channel, Reminder, Message, Embed
+from app.models import Guild, Todo, User, Channel, Reminder
 from app.helpers import get_internal_id
 
 

@@ -64,11 +64,8 @@
                 <section class="sidebar">
                     <ul class="sidebar-menu" data-widget="tree">
 
-                        {% if guild != None %}
-                            <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', id=guild.guild, refresh=1) }}"><i class="fas fa-sync-alt"></i> <i class="fab fa-discord"></i> Sync guild data</a></li>
-                        {% else %}
-                            <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', refresh=1) }}"><i class="fas fa-sync-alt"></i> <i class="fab fa-discord"></i> Sync member data</a></li>
-                        {% endif %}
+                        <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', id=guild.guild, refresh=1) }}"><i class="fas fa-sync-alt"></i> <i class="fab fa-discord"></i> Sync server data</a></li>
+                        <li style="margin-left: 1rem;"><a href="{{ url_for('dashboard', refresh=1) }}"><i class="fas fa-sync-alt"></i> <i class="fab fa-discord"></i> Sync member data</a></li>
                         <li style="margin-left: 2rem; margin-bottom: 1rem;"><a href="{{ url_for('dashboard', id=0) }}">@{{ member.name }}</a></li>
 
                         <li class="header">GUILDS</li>
@@ -103,14 +100,13 @@
 
                 {% block content %}
                 {% endblock %}
-
             </div>
         </div>
 
         <div class="cookie-alert">
             This website uses first-party cookies and session data to operate.
             <span class="vertical-divider">|</span> <a href="{{ url_for('cookies') }}">Learn more</a>
-            <span class="vertical-divider">|</span> <a href="https://www.i-dont-care-about-cookies.eu/">I don't care</a>
+            <span class="vertical-divider">|</span> <a href="https://www.i-dont-care-about-cookies.eu/" target="_blank">I don't care</a>
             <a href="javascript:close_cookie_notice()" class="pull-right" style="color: white;">&times;</a>
         </div>
 
@@ -165,6 +161,10 @@ $(function() {
        }
     });
 });
+
+function show_dynamic_content_modal() {
+
+}
 
     </script>
 
