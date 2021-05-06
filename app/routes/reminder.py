@@ -523,13 +523,10 @@ def change_reminder():
                     else:
                         channel_id = member.dm_channel
 
-                    m = Message(content=new_msg)
-
                     reminder = Reminder(
-                        message=m,
-                        time=new_time,
+                        content=new_msg,
+                        utc_time=datetime.fromtimestamp(new_time),
                         channel_id=channel_id,
-                        method='dashboard',
                         username=username,
                         avatar=avatar,
                         enabled=True,

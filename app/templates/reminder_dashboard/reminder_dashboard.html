@@ -327,14 +327,10 @@ function update_reminder_times() {
 }
 
 $(function () {
-    if (Cookies.get('meridian') === undefined) {
-        Cookies.set('meridian', 'true', { sameSite: 'strict' });
-    }
-
     function reset_time_inputs() {
         let time = moment.unix($(this).data('start-time'));
 
-        $(this).find('.timepicker, .expires-timepicker').timepicker('setTime', time.format('hh:mm:ss A'));
+        $(this).find('.timepicker, .expires-timepicker').timepicker('setTime', time.format('HH:mm:ss'));
         $(this).find('.datepicker, .expires-datepicker').datepicker('setDate', time.format('YYYY/MM/DD'));
     }
 
@@ -351,7 +347,7 @@ $(function () {
         let dp = parent.find('.datepicker');
         let tp = parent.find('.timepicker');
 
-        let m = moment(`${dp.val()} ${tp.val()}`, 'YYYY/MM/DD HH:mm:ss A');
+        let m = moment(`${dp.val()} ${tp.val()}`, 'YYYY/MM/DD HH:mm:ss');
 
         $.ajax({
             url: '{{ url_for('change_time') }}',
@@ -387,7 +383,7 @@ $(function () {
         let dp = parent.find('.expires-datepicker');
         let tp = parent.find('.expires-timepicker');
 
-        let m = moment(`${dp.val()} ${tp.val()}`, 'YYYY/MM/DD HH:mm:ss A');
+        let m = moment(`${dp.val()} ${tp.val()}`, 'YYYY/MM/DD HH:mm:ss');
 
         $.ajax({
             url: '{{ url_for('change_expires') }}',
@@ -420,7 +416,7 @@ $('.timepicker, #timepicker, .expires-timepicker, #expires-timepicker').timepick
     minuteStep: 1,
     showInputs: false,
     showSeconds: true,
-    showMeridian: Cookies.get('meridian') === "true",
+    showMeridian: false,
     icons: {
         up: 'fas fa-chevron-up',
         down: 'fas fa-chevron-down'

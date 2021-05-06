@@ -1,12 +1,6 @@
-import io
-import os
+from flask import render_template, session
 
-from flask import redirect, url_for, request, render_template
-
-from app.models import User
 from app import app
-from . import LOGO_URL
-from ..helpers import get_internal_id
 
 
 @app.route('/cookies/')
@@ -21,115 +15,23 @@ def index():
 
 @app.route('/help/')
 def help_page():
-    extra_command_properties = {
-        '$natural': {
-            'wiki': '/natural',
-
-            'dashboard': True,
-        },
-
-        '$del': {
-            'wiki': '/del',
-
-            'dashboard': True,
-        },
-
-        '$look [n] [channel] [enabled] [time]': {
-            'wiki': '/look',
-
-            'dashboard': True,
-        },
-
-        '$remind [user/channel] <time-to-reminder> <message>': {
-            'wiki': '/remind',
-
-            'dashboard': True,
-        },
-
-        '$interval [user/channel] <time-to-reminder> <interval> <message>': {
-            'wiki': '/interval',
-
-            'dashboard': True,
-        },
-
-        '$offset': {
-            'wiki': '/offset',
-
-            'dashboard': False,
-        },
-
-        '$pause [time]': {
-            'wiki': None,
-
-            'dashboard': True,
-        },
-
-        '$restrict [role mention] [commands]': {
-            'wiki': None,
-
-            'dashboard': True,
-        },
-
-        '$blacklist [channel-name]': {
-            'wiki': None,
-
-            'dashboard': True,
-        },
-
-        '$todos': {
-            'wiki': None,
-
-            'dashboard': True,
-        },
-
-        '$todo server': {
-            'wiki': None,
-
-            'dashboard': True,
-        },
-
-        '$todo channel': {
-            'wiki': None,
-
-            'dashboard': True,
-        },
-
-        '$alias': {
-            'wiki': None,
-
-            'dashboard': True,
-        },
-    }
-
-    all_langs = sorted([s[-5:-3] for s in os.listdir(app.config['BASE_URI'] + 'languages') if s.startswith('strings_')])
-
-    lang = request.args.get('lang') or 'EN'
-    lang = lang.upper()
-
-    if lang not in all_langs:
-        return redirect(url_for('help_page'))
-
-    with io.open('{}languages/strings_{}.py'.format(app.config['BASE_URI'], lang), 'r', encoding='utf8') as f:
-        s = eval(f.read())
-
-    return render_template('help.html',
-                           command_properties=extra_command_properties,
-                           help=s['help_raw'],
-                           languages=all_langs,
-                           title='Help',
-                           language=lang,
-                           logo=LOGO_URL)
+    return render_template('help.html')
 
 
-@app.route('/user-settings/')
-def user_settings():
-    member = User.query.get(get_internal_id())
+@app.route('/error')
+def throw_error():
+    return render_template('errors/500.html')
 
-    if member is None:
-        return redirect(url_for('cache'))
 
-    else:
-        return render_template('user_settings.html',
-                               guilds=member.permitted_guilds(),
-                               guild=None,
-                               member=member)
+@app.errorhandler(500)
+def internal_server_error(_error):
+    session.clear()
+
+    return render_template('errors/500.html')
+
+
+@app.errorhandler(404)
+def file_not_found(_error):
+    session.clear()
+
+    return render_template('errors/404.html')

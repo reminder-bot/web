@@ -9,14 +9,6 @@ MIN_INTERVAL = 60
 LOGO_URL = 'https://raw.githubusercontent.com/reminder-bot/logos/master/Remind_Me_Bot_Logo_PPic.jpg'
 
 
-@app.errorhandler(500)
-def internal_error(_error):
-    session.clear()
-
-    return "An error has occurred! We've made a report, and cleared your session cache on this website. If you " \
-           "encounter this error again, please send us a message on Discord!"
-
-
 @app.route('/oauth/')
 def oauth():
     session.clear()

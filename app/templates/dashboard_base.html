@@ -11,7 +11,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
-        <title>Reminder Bot - Dashboard</title>
+        <title>Reminder Bot | Dashboard</title>
 
         <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
@@ -51,11 +51,6 @@
                     <a href="#" class="sidebar-toggle visible-xs" data-toggle="push-menu" role="button">
                         <i class="fas fa-bars"></i>
                         <span class="sr-only">Toggle navigation</span>
-                    </a>
-
-                    <a href="{{ url_for('user_settings') }}" class="pull-right sidebar-toggle">
-                        <i class="fas fa-cog"></i>
-                        <span class="sr-only">User settings</span>
                     </a>
                 </nav>
             </header>
@@ -106,7 +101,6 @@
         <div class="cookie-alert">
             This website uses first-party cookies and session data to operate.
             <span class="vertical-divider">|</span> <a href="{{ url_for('cookies') }}">Learn more</a>
-            <span class="vertical-divider">|</span> <a href="https://www.i-dont-care-about-cookies.eu/" target="_blank">I don't care</a>
             <a href="javascript:close_cookie_notice()" class="pull-right" style="color: white;">&times;</a>
         </div>
 
@@ -161,10 +155,6 @@ $(function() {
        }
     });
 });
-
-function show_dynamic_content_modal() {
-
-}
 
     </script>
 
