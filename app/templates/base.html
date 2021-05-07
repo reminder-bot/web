@@ -50,39 +50,35 @@
                 </a>
             </div>
 
-            {% if not hide_dashboard_button %}
-                <div class="navbar-end">
-                    <div class="navbar-item">
-                        <a class="button is-rounded is-light" href="{{ url_for('dashboard') }}">
-                            <p>
-                                Dashboard <span class="icon"><i class="fas fa-chevron-right"></i></span>
-                            </p>
-                        </a>
-                    </div>
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="navbar-menu is-hidden-desktop" id="pageNavbar">
-                <a class="navbar-item">
-                    <i class="fas fa-plus"></i>
-                </a>
-                <a class="navbar-item">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a class="navbar-item">
-                    <i class="fab fa-discord"></i>
-                </a>
-
-            {% if not hide_dashboard_button %}
+            <div class="navbar-end">
                 <div class="navbar-item">
-                    <a href="{{ url_for('dashboard') }}">
+                    <a class="button is-rounded is-light" href="{{ url_for('dashboard') }}">
                         <p>
                             Dashboard <span class="icon"><i class="fas fa-chevron-right"></i></span>
                         </p>
                     </a>
                 </div>
-            {% endif %}
+            </div>
+        </div>
+
+        <div class="navbar-menu is-hidden-desktop" id="pageNavbar">
+            <a class="navbar-item">
+                <i class="fas fa-plus"></i>
+            </a>
+            <a class="navbar-item">
+                <i class="fab fa-github"></i>
+            </a>
+            <a class="navbar-item">
+                <i class="fab fa-discord"></i>
+            </a>
+
+            <div class="navbar-item">
+                <a href="{{ url_for('dashboard') }}">
+                    <p>
+                        Dashboard <span class="icon"><i class="fas fa-chevron-right"></i></span>
+                    </p>
+                </a>
+            </div>
         </div>
     </nav>
 
@@ -136,6 +132,8 @@
                 <strong>Reminder Bot</strong>, created by <a href="https://github.com/JellyWX"><strong>JellyWX</strong></a>
                 <br>
                 <a href="https://patreon.com/jellywx"><strong>Patreon</strong></a> | <a href="https://discord.jellywx.com"><strong>Discord</strong></a> | <a href="https://github.com/JellyWX"><strong>GitHub</strong></a>
+                <br>
+                or, <a href="mailto:jude@jellywx.com">Email me</a>
             </p>
         </div>
     </footer>
@@ -165,7 +163,6 @@
                     });
                 });
             }
-
         });
 
     </script>

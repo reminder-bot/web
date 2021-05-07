@@ -9,3 +9,20 @@ nav .dashboard-button {
 span.patreon-color {
     color: #f96854;
 }
+
+div#pageNavbar {
+    background-color: #363636;
+}
+
+div#pageNavbar a {
+    color: #fff;
+    text-align: center;
+}
+
+div#pageNavbar a:hover {
+    background-color: #4a4a4a;
+}
+
+img.rounded-corners {
+    border-radius: 12px;
+}
