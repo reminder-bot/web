@@ -26,3 +26,52 @@ div#pageNavbar a:hover {
 img.rounded-corners {
     border-radius: 12px;
 }
+
+div.brand {
+    text-align: center;
+    height: 48px;
+    background-color: #8fb677;
+}
+
+img.dashboard-brand {
+    text-align: center;
+    height: 100%;
+    width: auto;
+}
+
+div.dashboard-sidebar {
+    background-color: #363636;
+    width: 230px !important;
+    padding-right: 0;
+}
+
+div.mobile-sidebar {
+    height: 100vh;
+    position: absolute;
+    display: none;
+}
+
+div.mobile-sidebar.is-active {
+    display: block;
+}
+
+div.dashboard-frame {
+    height: 100vh;
+    margin-bottom: 0 !important;
+}
+
+.menu a {
+    color: #fff;
+}
+
+.menu .menu-label {
+    color: #bbb;
+}
+
+.menu {
+    padding-left: 4px;
+}
+
+.dashboard-navbar {
+    background-color: #8fb677 !important;
+}

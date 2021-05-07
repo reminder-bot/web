@@ -1,0 +1,35 @@
+{% extends "dashboard_base.html" %}
+{% block dashboard_frame %}
+
+    <div class="tabs">
+        <ul>
+            {% if reminders_page %}
+                <li><a class="is-active">Reminders</a></li>
+            {% else %}
+                <li><a>Reminders</a></li>
+            {% endif %}
+
+            {% if todo_lists_page %}
+                <li><a class="is-active">Todo Lists</a></li>
+            {% else %}
+                <li><a>Todo Lists</a></li>
+            {% endif %}
+
+            {% if settings_page %}
+                <li><a class="is-active">Settings</a></li>
+            {% else %}
+                <li><a>Settings</a></li>
+            {% endif %}
+
+            {% if audit_log_page %}
+                <li><a class="is-active">Audit Log</a></li>
+            {% else %}
+                <li><a>Audit Log</a></li>
+            {% endif %}
+        </ul>
+    </div>
+
+    {% block dashboard_content %}
+    {% endblock %}
+
+{% endblock %}

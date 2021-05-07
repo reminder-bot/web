@@ -17,8 +17,6 @@ def get_internal_id():
         if user_id is None:
             user = discord.get('api/users/@me').json()
 
-            print(user)
-
             try:
                 user_id = int(user['id'])
                 user_name = '{}#{}'.format(user['username'], user['discriminator'])

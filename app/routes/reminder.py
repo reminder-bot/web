@@ -10,6 +10,22 @@ from app.helpers import get_internal_id, api_post, api_get
 from . import MIN_INTERVAL, MAX_TIME
 
 
+@app.route('/dashboard/personal')
+def personal_dashboard():
+    user_id = get_internal_id()
+
+    member = User.query.get(user_id)
+
+    return render_template('reminder_dashboard/reminder_dashboard_personal.html',
+                           member=member,
+                           guilds=member.permitted_guilds())
+
+
+@app.route('/dashboard/server/<int:id>')
+def server_dashboard(id):
+    pass
+
+
 @app.route('/dashboard/', methods=['GET'])
 def dashboard():
     def permitted_access(accessing_guild: Guild):
