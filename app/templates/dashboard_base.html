@@ -71,14 +71,22 @@
                     Personal
                 </p>
                 <ul class="menu-list">
-                    <li><a><span class="icon"><i class="fas fa-map-pin"></i></span> @{{ member.name }}</a></li>
+                    {% if is_personal %}
+                        <li><a href="{{ url_for('personal_dashboard') }}" class="is-active"><span class="icon"><i class="fas fa-map-pin"></i></span> @{{ member.name }}</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('personal_dashboard') }}"><span class="icon"><i class="fas fa-map-pin"></i></span> @{{ member.name }}</a></li>
+                    {% endif %}
                 </ul>
                 <p class="menu-label">
                     Servers
                 </p>
                 <ul class="menu-list">
-                    {% for guild in guilds %}
-                        <li><a><span class="icon"><i class="fas fa-map-pin"></i></span> {{ guild.name }}</a></li>
+                    {% for user_guild in guilds %}
+                        {% if user_guild.guild == guild.guild %}
+                            <li><a href="{{ url_for('server_dashboard', id=user_guild.guild) }}" class="is-active"><span class="icon"><i class="fas fa-map-pin"></i></span> {{ user_guild.name }}</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('server_dashboard', id=user_guild.guild) }}"><span class="icon"><i class="fas fa-map-pin"></i></span> {{ user_guild.name }}</a></li>
+                        {% endif %}
                     {% endfor %}
                 </ul>
             </aside>
@@ -102,14 +110,22 @@
                     Personal
                 </p>
                 <ul class="menu-list">
-                    <li><a href="{{ url_for('personal_dashboard') }}"><span class="icon"><i class="fas fa-map-pin"></i></span> @{{ member.name }}</a></li>
+                    {% if is_personal %}
+                        <li><a href="{{ url_for('personal_dashboard') }}" class="is-active"><span class="icon"><i class="fas fa-map-pin"></i></span> @{{ member.name }}</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('personal_dashboard') }}"><span class="icon"><i class="fas fa-map-pin"></i></span> @{{ member.name }}</a></li>
+                    {% endif %}
                 </ul>
                 <p class="menu-label">
                     Servers
                 </p>
                 <ul class="menu-list">
-                    {% for guild in guilds %}
-                        <li><a href="{{ url_for('server_dashboard', id=guild.guild) }}"><span class="icon"><i class="fas fa-map-pin"></i></span> {{ guild.name }}</a></li>
+                    {% for user_guild in guilds %}
+                        {% if user_guild.guild == guild.guild %}
+                            <li><a href="{{ url_for('server_dashboard', id=user_guild.guild) }}" class="is-active"><span class="icon"><i class="fas fa-map-pin"></i></span> {{ user_guild.name }}</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('server_dashboard', id=user_guild.guild) }}"><span class="icon"><i class="fas fa-map-pin"></i></span> {{ user_guild.name }}</a></li>
+                        {% endif %}
                     {% endfor %}
                 </ul>
             </aside>
@@ -160,6 +176,31 @@
                     });
                 });
             }
+        });
+
+        document.querySelectorAll('textarea.autoresize').forEach((element) => {
+            element.style.height = "";
+            element.style.height = element.scrollHeight + 3 + "px";
+
+            element.addEventListener('input', (_e) => {
+                element.style.height = "";
+                element.style.height = element.scrollHeight + 3 + "px";
+            })
+        });
+
+        document.querySelectorAll('.customizable').forEach((element) => {
+            const $input = element.querySelector('input');
+            const $img = element.querySelector('img');
+
+            element.querySelector('a').addEventListener('click', (e) => {
+                e.preventDefault();
+
+                $input.classList.toggle('is-active')
+            });
+
+            $input.addEventListener('input', () => {
+                $img.src = $input.value;
+            });
         });
 
     </script>

@@ -101,9 +101,17 @@
                 </div>
             {% elif show_contact %}
                 <div class="hero-foot has-text-centered">
-                    <a class="button is-size-4 is-rounded is-primary" href="https://invite.reminder-bot.com">
+                    <a class="button is-size-4 is-rounded is-primary" href="https://discord.jellywx.com">
                         <p class="is-size-4">
                             Join Discord <span class="icon"><i class="fas fa-chevron-right"></i></span>
+                        </p>
+                    </a>
+                </div>
+            {% elif show_login %}
+                <div class="hero-foot has-text-centered">
+                    <a class="button is-size-4 is-rounded is-light" href="{{ url_for('discord.login') }}">
+                        <p class="is-size-4">
+                            Login with Discord <span class="icon"><i class="fas fa-chevron-right"></i></span>
                         </p>
                     </a>
                 </div>

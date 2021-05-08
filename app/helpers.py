@@ -22,7 +22,7 @@ def get_internal_id():
                 user_name = '{}#{}'.format(user['username'], user['discriminator'])
 
             except KeyError:
-                return abort(403)
+                return abort(401)
 
             else:
                 session['user_id'] = user_id

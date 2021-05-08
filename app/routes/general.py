@@ -35,4 +35,9 @@ def file_not_found(_error):
 
 @app.errorhandler(403)
 def forbidden(_error):
-    return render_template('errors/404.html')
+    return render_template('errors/403.html')
+
+
+@app.errorhandler(401)
+def not_authorized(_error):
+    return render_template('errors/401.html')

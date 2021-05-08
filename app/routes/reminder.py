@@ -18,7 +18,8 @@ def personal_dashboard():
 
     return render_template('reminder_dashboard/reminder_dashboard_personal.html',
                            member=member,
-                           guilds=member.permitted_guilds())
+                           guilds=member.permitted_guilds(),
+                           guild=None)
 
 
 @app.route('/dashboard/server/<int:id>')
