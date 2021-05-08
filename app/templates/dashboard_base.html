@@ -151,6 +151,19 @@
         </div>
     </footer>
 
+    <template id="embedFieldTemplate">
+        <div class="embed-field-box">
+            <label class="is-sr-only" for="embedFieldTitle">Field Title</label>
+            <input class="discord-field-title field-input message-input" placeholder="Field Title..."
+                   maxlength="256" id="embedFieldTitle" name="embed_field_title[]">
+
+            <label class="is-sr-only" for="embedFieldValue">Field Value</label>
+            <textarea class="discord-field-value field-input message-input autoresize" placeholder="Field Value..."
+                      maxlength="1024" id="embedFieldValue" name="embed_field_value[]"
+                      rows="1"></textarea>
+        </div>
+    </template>
+
     <script>
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -188,18 +201,117 @@
             })
         });
 
-        document.querySelectorAll('.customizable').forEach((element) => {
-            const $input = element.querySelector('input');
-            const $img = element.querySelector('img');
+        let $img;
+        const $inputModal = document.querySelector('div#addImageModal');
+        const $input = $inputModal.querySelector('input');
 
+        $inputModal.querySelector('button.is-success').addEventListener('click', () => {
+            $img.src = $input.value;
+
+            $input.value = '';
+            $inputModal.classList.remove('is-active')
+        });
+
+        $inputModal.querySelectorAll('button.close-modal').forEach((element) => {
+            element.addEventListener('click', () => {
+                $input.value = '';
+                $inputModal.classList.remove('is-active')
+            });
+        });
+
+        document.querySelectorAll('.customizable').forEach((element) => {
             element.querySelector('a').addEventListener('click', (e) => {
                 e.preventDefault();
 
-                $input.classList.toggle('is-active')
+                $img = element.querySelector('img');
+
+                $inputModal.classList.toggle('is-active')
+            });
+        });
+
+        document.querySelectorAll('a.icon-toggle').forEach((element) => {
+            element.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                element.classList.toggle('is-active');
+            })
+        });
+
+        document.querySelectorAll('.discord-field-title').forEach((element) => {
+            const $template = document.querySelector('template#embedFieldTemplate');
+            const $complement = element.parentElement.querySelector('.discord-field-value');
+
+            // when the user clicks out of the field title and if the field title/value are empty, remove the field
+            element.addEventListener('blur', () => {
+                if (element.value === '' && $complement.value === '' && element.parentElement.nextElementSibling !== null) {
+                    element.parentElement.remove();
+                }
             });
 
-            $input.addEventListener('input', () => {
-                $img.src = $input.value;
+            $complement.addEventListener('blur', () => {
+                if (element.value === '' && $complement.value === '' && element.parentElement.nextElementSibling !== null) {
+                    element.parentElement.remove();
+                }
+            });
+
+            // when the user inputs into the end field, create a new field after it
+            element.addEventListener('input', () => {
+                if (element.value !== '' && $complement.value !== '' && element.parentElement.nextElementSibling === null) {
+                    const $clone = $template.content.cloneNode(true);
+                    element.parentElement.parentElement.append($clone);
+                }
+            });
+
+            $complement.addEventListener('input', () => {
+                if (element.value !== '' && $complement.value !== '' && element.parentElement.nextElementSibling === null) {
+                    const $clone = $template.content.cloneNode(true);
+                    element.parentElement.parentElement.append($clone);
+                }
+            });
+        });
+
+        document.addEventListener('DOMNodeInserted', () => {
+            document.querySelectorAll('.discord-field-title').forEach((element) => {
+                const $template = document.querySelector('template#embedFieldTemplate');
+                const $complement = element.parentElement.querySelector('.discord-field-value');
+
+                // when the user clicks out of the field title and if the field title/value are empty, remove the field
+                element.addEventListener('blur', () => {
+                    if (element.value === '' && $complement.value === '' && element.parentElement.nextElementSibling !== null) {
+                        element.parentElement.remove();
+                    }
+                });
+
+                $complement.addEventListener('blur', () => {
+                    if (element.value === '' && $complement.value === '' && element.parentElement.nextElementSibling !== null) {
+                        element.parentElement.remove();
+                    }
+                });
+
+                // when the user inputs into the end field, create a new field after it
+                element.addEventListener('input', () => {
+                    if (element.value !== '' && $complement.value !== '' && element.parentElement.nextElementSibling === null) {
+                        const $clone = $template.content.cloneNode(true);
+                        element.parentElement.parentElement.append($clone);
+                    }
+                });
+
+                $complement.addEventListener('input', () => {
+                    if (element.value !== '' && $complement.value !== '' && element.parentElement.nextElementSibling === null) {
+                        const $clone = $template.content.cloneNode(true);
+                        element.parentElement.parentElement.append($clone);
+                    }
+                });
+            });
+
+            document.querySelectorAll('textarea.autoresize').forEach((element) => {
+                element.style.height = "";
+                element.style.height = element.scrollHeight + 3 + "px";
+
+                element.addEventListener('input', (_e) => {
+                    element.style.height = "";
+                    element.style.height = element.scrollHeight + 3 + "px";
+                })
             });
         });
 

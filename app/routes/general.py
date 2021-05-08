@@ -18,11 +18,6 @@ def help_page():
     return render_template('help.html')
 
 
-@app.route('/error')
-def throw_error():
-    return render_template('errors/500.html')
-
-
 @app.errorhandler(500)
 def internal_server_error(_error):
     return render_template('errors/500.html')
