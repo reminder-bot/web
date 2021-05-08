@@ -134,6 +134,7 @@ textarea {
 
 .discord-message-header {
     white-space: nowrap;
+    margin-bottom: 8px;
 }
 
 .discord-content {
