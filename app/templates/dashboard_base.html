@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/fa.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
+    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+
 </head>
 <body>
     <nav class="navbar is-spaced is-size-4 is-hidden-desktop dashboard-navbar" role="navigation" aria-label="main navigation">
@@ -57,7 +59,7 @@
         <button class="modal-close is-large close-modal" aria-label="close"></button>
     </div>
 
-    <div class="modal is-active" id="pickColorModal">
+    <div class="modal" id="pickColorModal">
         <div class="modal-background"></div>
         <div class="modal-card">
             <header class="modal-card-head">
@@ -65,11 +67,8 @@
                 <button class="delete close-modal" aria-label="close"></button>
             </header>
             <section class="modal-card-body">
-                <div style="display: flex; align-items: center;">
-                    <div id="colorPicker" style="width: 150px; height: 150px; background-color: #ff0000;">
-                        <img src="{{ url_for('static', filename='img/saturation_value_gradient.png') }}" alt="colorpicker overlay">
-                    </div>
-                    <canvas width="30px" height="150px" id="colorSlider"></canvas>
+                <div style="display: flex; justify-content: center">
+                    <div id="colorpicker"></div>
                 </div>
                 <input class="input" id="colorInput">
             </section>
@@ -208,6 +207,49 @@
 
     <script>
 
+        let colorPicker = new iro.ColorPicker('#colorpicker');
+        let $discordFrame;
+        const $colorPickerModal = document.querySelector('div#pickColorModal');
+        const $colorPickerInput = $colorPickerModal.querySelector('input');
+
+        $colorPickerInput.value = colorPicker.color.hexString;
+
+        $colorPickerInput.addEventListener('input', () => {
+            if (/^#[0-9a-fA-F]{6}$/.test($colorPickerInput.value) === true) {
+                colorPicker.color.hexString = $colorPickerInput.value;
+            }
+        });
+
+        colorPicker.on('color:change', function (color) {
+            $colorPickerInput.value = color.hexString;
+        });
+
+        document.querySelectorAll('.discord-embed').forEach((element) => {
+            element.addEventListener('click', (e) => {
+                if (e.offsetX < parseInt(window.getComputedStyle(element).borderLeftWidth)) {
+                    $discordFrame = element;
+                    $colorPickerModal.classList.toggle('is-active');
+                    colorPicker.color.rgbString = window.getComputedStyle($discordFrame).borderLeftColor;
+                }
+            })
+        });
+
+        document.querySelectorAll('.set-color').forEach((element) => {
+            element.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                $discordFrame = element.closest('div.discord-frame').querySelector('div.discord-embed');
+                $colorPickerModal.classList.toggle('is-active');
+                colorPicker.color.rgbString = window.getComputedStyle($discordFrame).borderLeftColor;
+            })
+        });
+
+        $colorPickerModal.querySelector('button.is-success').addEventListener('click', () => {
+            $discordFrame.style.borderLeftColor = colorPicker.color.rgbString;
+
+            $colorPickerModal.classList.remove('is-active')
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
 
             // Get all "navbar-burger" elements
@@ -243,98 +285,6 @@
             })
         });
 
-        let $colorPicker = document.querySelector('div#colorPicker');
-        let $colorSlider = document.querySelector('canvas#colorSlider');
-        let $colorInput = document.querySelector('input#colorInput');
-        let sliderContext = $colorSlider.getContext('2d');
-        let gradient = sliderContext.createLinearGradient(0, 0, 0, sliderContext.canvas.height);
-        gradient.addColorStop(0,    "rgb(255,   0,   0)");
-        gradient.addColorStop(0.15, "rgb(255,   0, 255)");
-        gradient.addColorStop(0.33, "rgb(0,     0, 255)");
-        gradient.addColorStop(0.49, "rgb(0,   255, 255)");
-        gradient.addColorStop(0.67, "rgb(0,   255,   0)");
-        gradient.addColorStop(0.84, "rgb(255, 255,   0)");
-        gradient.addColorStop(1,    "rgb(255,   0,   0)");
-        sliderContext.fillStyle = gradient;
-        sliderContext.fillRect(0, 0, sliderContext.canvas.width, sliderContext.canvas.height);
-
-        let pickerMouseDown = false;
-
-        let sliderPosition = 0;
-        let sliderColor = [255, 0, 0];
-        let sliderMouseDown = false;
-
-        function sliderPositionToColor() {
-            if (0 <= sliderPosition && sliderPosition < 0.15) {
-                sliderColor[0] = 255;
-                sliderColor[1] = 0;
-                sliderColor[2] = 255 * (sliderPosition / 0.15);
-            } else if (0.15 <= sliderPosition && sliderPosition < 0.33) {
-                sliderColor[0] = 255 - (255 * ((sliderPosition - 0.15) / 0.18));
-                sliderColor[1] = 0;
-                sliderColor[2] = 255;
-            } else if (0.33 <= sliderPosition && sliderPosition < 0.49) {
-                sliderColor[0] = 0
-                sliderColor[1] = 255 * ((sliderPosition - 0.33) / 0.16)
-                sliderColor[2] = 255
-            } else if (0.49 <= sliderPosition && sliderPosition < 0.67) {
-                sliderColor[0] = 0;
-                sliderColor[1] = 255;
-                sliderColor[2] = 255 - (255 * ((sliderPosition - 0.49) / 0.18));
-            } else if (0.67 <= sliderPosition && sliderPosition < 0.84) {
-                sliderColor[0] = 255 * ((sliderPosition - 0.67) / 0.17);
-                sliderColor[1] = 255;
-                sliderColor[2] = 0;
-            } else {
-                sliderColor[0] = 255;
-                sliderColor[1] = 255 - (255 * ((sliderPosition - 0.84) / 0.16));
-                sliderColor[2] = 0;
-            }
-        }
-
-        function rgbToHex(r, g, b) {
-            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-        }
-
-        function setColorPicker() {
-            $colorPicker.style.backgroundColor = rgbToHex(~~sliderColor[0], ~~sliderColor[1], ~~sliderColor[2]);
-        }
-
-        $colorPicker.addEventListener('mousedown', (e) => {
-            pickerMouseDown = true;
-        });
-
-        $colorPicker.addEventListener('mouseup', (e) => {
-            pickerMouseDown = false;
-        });
-
-        $colorPicker.addEventListener('mousemove', (e) => {
-            if (pickerMouseDown === true) {
-            }
-        });
-
-        $colorSlider.addEventListener('mousedown', (e) => {
-            sliderMouseDown = true;
-            sliderPosition = e.offsetY / sliderContext.canvas.height;
-            sliderPositionToColor();
-            setColorPicker();
-        });
-
-        $colorSlider.addEventListener('mouseup', (e) => {
-            sliderMouseDown = false;
-            sliderPosition = e.offsetY / sliderContext.canvas.height;
-            sliderPositionToColor();
-            setColorPicker();
-        });
-
-        $colorSlider.addEventListener('mousemove', (e) => {
-            if (sliderMouseDown === true) {
-                sliderPosition = e.offsetY / sliderContext.canvas.height;
-                sliderPositionToColor();
-                setColorPicker();
-            }
-        });
-
         let $img;
         const $urlModal = document.querySelector('div#addImageModal');
         const $urlInput = $urlModal.querySelector('input');
@@ -346,10 +296,13 @@
             $urlModal.classList.remove('is-active')
         });
 
-        $urlModal.querySelectorAll('button.close-modal').forEach((element) => {
+        document.querySelectorAll('button.close-modal').forEach((element) => {
             element.addEventListener('click', () => {
+                let $modal = element.closest('div.modal');
+
                 $urlInput.value = '';
-                $urlModal.classList.remove('is-active')
+
+                $modal.classList.remove('is-active')
             });
         });
 
@@ -442,7 +395,7 @@
                 element.style.height = "";
                 element.style.height = element.scrollHeight + 3 + "px";
 
-                element.addEventListener('input', (_e) => {
+                element.addEventListener('input', () => {
                     element.style.height = "";
                     element.style.height = element.scrollHeight + 3 + "px";
                 })

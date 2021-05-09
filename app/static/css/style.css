@@ -297,8 +297,16 @@ textarea {
     opacity: 0.2;
 }
 
+a.level-item.preview-toggle {
+    color: #fcb620;
+}
+
+a.level-item.icon-toggle.preview-toggle:hover {
+    color: #fcb620;
+}
+
 a.level-item.icon-toggle:hover {
-    color: #fff;
+    color: inherit;
 }
 
 a.level-item:hover {
