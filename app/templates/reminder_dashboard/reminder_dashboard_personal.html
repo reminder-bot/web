@@ -46,7 +46,7 @@
                                        id="reminderTime" name="time">
                             </div>
                             <label class="is-sr-only" for="messageContent">Message</label>
-                            <textarea class="message-input autoresize discord-content" placeholder="Message Content..."
+                            <textarea class="message-input autoresize discord-content preview-mode" placeholder="Message Content..."
                                       maxlength="2000" id="messageContent" name="content" rows="1"></textarea>
 
                             <div class="discord-embed">
@@ -56,25 +56,24 @@
                                             <div class="a">
                                                 <p class="image is-24x24 customizable">
                                                     <a>
-                                                        <img class="is-rounded" src="">
+                                                        <img class="is-rounded preview-mode" src="">
                                                     </a>
                                                 </p>
                                             </div>
 
                                             <div class="b">
                                                 <label class="is-sr-only" for="embedAuthor">Embed Author</label>
-                                                <input class="discord-embed-author message-input"
-                                                       placeholder="Embed Author..."
-                                                       maxlength="256" id="embedAuthor" name="embed_author">
+                                                <textarea class="discord-embed-author message-input preview-mode autoresize"
+                                                       placeholder="Embed Author..." rows="1" maxlength="256" id="embedAuthor" name="embed_author"></textarea>
                                             </div>
                                         </div>
 
                                         <label class="is-sr-only" for="embedTitle">Embed Title</label>
-                                        <input class="discord-title message-input" placeholder="Embed Title..."
-                                               maxlength="256" id="embedTitle" name="embed_title">
+                                        <textarea class="discord-title message-input preview-mode autoresize" placeholder="Embed Title..."
+                                               maxlength="256" id="embedTitle" rows="1" name="embed_title"></textarea>
                                         <br>
                                         <label class="is-sr-only" for="embedDescription">Embed Description</label>
-                                        <textarea class="discord-description message-input autoresize"
+                                        <textarea class="discord-description message-input autoresize preview-mode"
                                                   placeholder="Embed Description..."
                                                   maxlength="2048" id="embedDescription" name="embed_description"
                                                   rows="1"></textarea>
@@ -83,13 +82,13 @@
                                         <div class="embed-multifield-box">
                                             <div class="embed-field-box">
                                                 <label class="is-sr-only" for="embedFieldTitle">Field Title</label>
-                                                <textarea class="discord-field-title field-input message-input autoresize"
+                                                <textarea class="discord-field-title field-input message-input autoresize preview-mode"
                                                        placeholder="Field Title..." rows="1"
                                                        maxlength="256" id="embedFieldTitle" name="embed_field_title[]"></textarea>
 
                                                 <label class="is-sr-only" for="embedFieldValue">Field Value</label>
                                                 <textarea
-                                                        class="discord-field-value field-input message-input autoresize"
+                                                        class="discord-field-value field-input message-input autoresize preview-mode"
                                                         placeholder="Field Value..."
                                                         maxlength="1024" id="embedFieldValue" name="embed_field_value[]"
                                                         rows="1"></textarea>
@@ -100,7 +99,7 @@
                                     <div class="b">
                                         <p class="image thumbnail customizable">
                                             <a>
-                                                <img src="">
+                                                <img class="preview-mode" src="">
                                             </a>
                                         </p>
                                     </div>
@@ -108,27 +107,19 @@
 
                                 <p class="image is-400x300 customizable">
                                     <a>
-                                        <img src="">
+                                        <img class="preview-mode" src="">
                                     </a>
-
-                                    <label class="is-sr-only" for="embedImage">Embed Image URL</label>
-                                    <input class="imageInput" id="embedImage" name="embed_image_url"
-                                           placeholder="Embed Image URL">
                                 </p>
 
                                 <div class="embed-footer-box">
                                     <p class="image is-20x20 customizable">
                                         <a>
-                                            <img class="is-rounded" src="">
+                                            <img class="is-rounded preview-mode" src="">
                                         </a>
-
-                                        <label class="is-sr-only" for="embedFooterImage">Embed Footer Image</label>
-                                        <input class="imageInput" id="embedFooterImage" name="embed_footer_url"
-                                               placeholder="Embed Footer URL">
                                     </p>
 
                                     <label class="is-sr-only" for="embedAuthor">Embed Author</label>
-                                    <textarea class="discord-embed-footer message-input autoresize"
+                                    <textarea class="discord-embed-footer message-input autoresize preview-mode"
                                               placeholder="Embed Footer..."
                                               maxlength="2048" id="embedAuthor" name="embed_author" rows="1"></textarea>
                                 </div>
@@ -136,7 +127,7 @@
                         </div>
                         <nav class="level is-mobile">
                             <div class="level-left">
-                                <a class="level-item icon-toggle preview-toggle" title="Preview Message">
+                                <a class="level-item preview-toggle" title="Preview Message">
                                     <p>
                                         Preview Mode <span class="icon is-small"><i class="far fa-eye"></i></span>
                                     </p>
@@ -175,7 +166,7 @@
                 </article>
             </div>
             <p style="font-size: 0.8rem;">
-                Most fields are optional. Fields left blank will be unset, and won't appear in the final message.
+                Most fields are optional. Use 'Preview Mode' to see how the reminder will appear in Discord.
                 Scaling is not exact.
             </p>
 

@@ -3,13 +3,16 @@
     <meta name="description" content="The most powerful Discord Reminders Bot">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
-    <meta name="yandex-verification" content="bb77b8681eb64a90" />
-    <meta name="google-site-verification" content="7h7UVTeEe0AOzHiH3cFtsqMULYGN-zCZdMT_YCkW1Ho" />
+    <meta name="yandex-verification" content="bb77b8681eb64a90"/>
+    <meta name="google-site-verification" content="7h7UVTeEe0AOzHiH3cFtsqMULYGN-zCZdMT_YCkW1Ho"/>
 
     <!-- favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180"
+          href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32"
+          href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16"
+          href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
     <link rel="manifest" href="/{{ url_for('static', filename='favicon/site.webmanifest') }}">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
@@ -25,241 +28,262 @@
 
 </head>
 <body>
-    <nav class="navbar is-spaced is-size-4 is-hidden-desktop dashboard-navbar" role="navigation" aria-label="main navigation">
-        <div class="navbar-brand">
-            <a class="navbar-item" href="{{ url_for('index') }}">
-                <figure class="image">
-                    <img src="{{ url_for('static', filename='img/logo_flat.jpg') }}" alt="Reminder Bot Logo">
-                </figure>
-            </a>
+<nav class="navbar is-spaced is-size-4 is-hidden-desktop dashboard-navbar" role="navigation"
+     aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="{{ url_for('index') }}">
+            <figure class="image">
+                <img src="{{ url_for('static', filename='img/logo_flat.jpg') }}" alt="Reminder Bot Logo">
+            </figure>
+        </a>
 
-            <a role="button" class="navbar-burger is-right" aria-label="menu" aria-expanded="false" data-target="mobileSidebar">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-            </a>
-        </div>
-    </nav>
-
-    <div class="modal" id="addImageModal">
-        <div class="modal-background"></div>
-        <div class="modal-card">
-            <header class="modal-card-head">
-                <label class="modal-card-title" for="urlInput">Enter Image URL</label>
-                <button class="delete close-modal" aria-label="close"></button>
-            </header>
-            <section class="modal-card-body">
-                <input class="input" id="urlInput" placeholder="Image URL...">
-            </section>
-            <footer class="modal-card-foot">
-                <button class="button is-success">Save</button>
-                <button class="button close-modal">Cancel</button>
-            </footer>
-        </div>
-        <button class="modal-close is-large close-modal" aria-label="close"></button>
+        <a role="button" class="navbar-burger is-right" aria-label="menu" aria-expanded="false"
+           data-target="mobileSidebar">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
     </div>
+</nav>
 
-    <div class="modal" id="pickColorModal">
-        <div class="modal-background"></div>
-        <div class="modal-card">
-            <header class="modal-card-head">
-                <label class="modal-card-title" for="colorInput">Select Color</label>
-                <button class="delete close-modal" aria-label="close"></button>
-            </header>
-            <section class="modal-card-body">
-                <div style="display: flex; justify-content: center">
-                    <div id="colorpicker"></div>
-                </div>
-                <input class="input" id="colorInput">
-            </section>
-            <footer class="modal-card-foot">
-                <button class="button is-success">Save</button>
-                <button class="button close-modal">Cancel</button>
-            </footer>
-        </div>
-        <button class="modal-close is-large close-modal" aria-label="close"></button>
+<!-- dead image used to check which other images are dead -->
+<img style="display: none;" src="" id="dead">
+
+<div class="modal" id="addImageModal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <label class="modal-card-title" for="urlInput">Enter Image URL</label>
+            <button class="delete close-modal" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <input class="input" id="urlInput" placeholder="Image URL...">
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-success">Save</button>
+            <button class="button close-modal">Cancel</button>
+        </footer>
     </div>
+    <button class="modal-close is-large close-modal" aria-label="close"></button>
+</div>
 
-    <div class="columns is-gapless dashboard-frame">
-        <div class="column is-2 is-sidebar-menu dashboard-sidebar is-hidden-touch">
-            <a href="{{ url_for('index') }}">
-                <div class="brand">
-                    <img src="{{ url_for('static', filename='img/logo_flat.jpg') }}" alt="Reminder bot logo" class="dashboard-brand">
-                </div>
-            </a>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 160">
-                <g transform="scale(1, 0.5)">
-                    <path fill="#8fb677" fill-opacity="1" d="M0,192L60,170.7C120,149,240,107,360,96C480,85,600,107,720,138.7C840,171,960,213,1080,197.3C1200,181,1320,107,1380,69.3L1440,32L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
-                </g>
-            </svg>
-            <aside class="menu">
-                <p class="menu-label">
-                    Sync
-                </p>
-                <ul class="menu-list">
-                    <li>
-                        {% if True %}
-                            <a><span class="icon"><i class="fad fa-sync-alt"></i></span> Sync Server</a>
-                        {% else %}
-                            <a><span class="icon"><i class="fad fa-sync-alt"></i></span> Sync Server</a>
-                        {% endif %}
-                    </li>
-                    <li>
-                        <a><span class="icon"><i class="fad fa-sync-alt"></i></span> Sync User</a>
-                    </li>
-                </ul>
-                <p class="menu-label">
-                    Personal
-                </p>
-                <ul class="menu-list">
-                    {% if is_personal %}
-                        <li><a href="{{ url_for('personal_dashboard') }}" class="is-active"><span class="icon"><i class="fas fa-map-pin"></i></span> @{{ member.name }}</a></li>
-                    {% else %}
-                        <li><a href="{{ url_for('personal_dashboard') }}"><span class="icon"><i class="fas fa-map-pin"></i></span> @{{ member.name }}</a></li>
-                    {% endif %}
-                </ul>
-                <p class="menu-label">
-                    Servers
-                </p>
-                <ul class="menu-list">
-                    {% for user_guild in guilds %}
-                        {% if user_guild.guild == guild.guild %}
-                            <li><a href="{{ url_for('server_dashboard', id=user_guild.guild) }}" class="is-active"><span class="icon"><i class="fas fa-map-pin"></i></span> {{ user_guild.name }}</a></li>
-                        {% else %}
-                            <li><a href="{{ url_for('server_dashboard', id=user_guild.guild) }}"><span class="icon"><i class="fas fa-map-pin"></i></span> {{ user_guild.name }}</a></li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            </aside>
-        </div>
-
-        <div class="dashboard-sidebar mobile-sidebar is-hidden-desktop" id="mobileSidebar">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 160">
-                <g transform="scale(1, 0.5)">
-                    <path fill="#8fb677" fill-opacity="1" d="M0,192L60,170.7C120,149,240,107,360,96C480,85,600,107,720,138.7C840,171,960,213,1080,197.3C1200,181,1320,107,1380,69.3L1440,32L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
-                </g>
-            </svg>
-            <aside class="menu">
-                <p class="menu-label">
-                    Sync
-                </p>
-                <ul class="menu-list">
-                    <li><a><span class="icon"><i class="fad fa-sync-alt"></i></span> Sync Server</a></li>
-                    <li><a><span class="icon"><i class="fad fa-sync-alt"></i></span> Sync User</a></li>
-                </ul>
-                <p class="menu-label">
-                    Personal
-                </p>
-                <ul class="menu-list">
-                    {% if is_personal %}
-                        <li><a href="{{ url_for('personal_dashboard') }}" class="is-active"><span class="icon"><i class="fas fa-map-pin"></i></span> @{{ member.name }}</a></li>
-                    {% else %}
-                        <li><a href="{{ url_for('personal_dashboard') }}"><span class="icon"><i class="fas fa-map-pin"></i></span> @{{ member.name }}</a></li>
-                    {% endif %}
-                </ul>
-                <p class="menu-label">
-                    Servers
-                </p>
-                <ul class="menu-list">
-                    {% for user_guild in guilds %}
-                        {% if user_guild.guild == guild.guild %}
-                            <li><a href="{{ url_for('server_dashboard', id=user_guild.guild) }}" class="is-active"><span class="icon"><i class="fas fa-map-pin"></i></span> {{ user_guild.name }}</a></li>
-                        {% else %}
-                            <li><a href="{{ url_for('server_dashboard', id=user_guild.guild) }}"><span class="icon"><i class="fas fa-map-pin"></i></span> {{ user_guild.name }}</a></li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            </aside>
-        </div>
-
-        <div class="column is-main-content">
-
-            {% block dashboard_frame %}
-            {% endblock %}
-
-        </div>
+<div class="modal" id="pickColorModal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <label class="modal-card-title" for="colorInput">Select Color</label>
+            <button class="delete close-modal" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <div style="display: flex; justify-content: center">
+                <div id="colorpicker"></div>
+            </div>
+            <input class="input" id="colorInput">
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-success">Save</button>
+            <button class="button close-modal">Cancel</button>
+        </footer>
     </div>
+    <button class="modal-close is-large close-modal" aria-label="close"></button>
+</div>
 
-    <footer class="footer">
-        <div class="content has-text-centered">
-            <p>
-                <strong>Reminder Bot</strong>, created by <a href="https://github.com/JellyWX"><strong>JellyWX</strong></a>
-                <br>
-                <a href="https://patreon.com/jellywx"><strong>Patreon</strong></a> | <a href="https://discord.jellywx.com"><strong>Discord</strong></a> | <a href="https://github.com/JellyWX"><strong>GitHub</strong></a>
-                <br>
-                or, <a href="mailto:jude@jellywx.com">Email me</a>
+<div class="columns is-gapless dashboard-frame">
+    <div class="column is-2 is-sidebar-menu dashboard-sidebar is-hidden-touch">
+        <a href="{{ url_for('index') }}">
+            <div class="brand">
+                <img src="{{ url_for('static', filename='img/logo_flat.jpg') }}" alt="Reminder bot logo"
+                     class="dashboard-brand">
+            </div>
+        </a>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 160">
+            <g transform="scale(1, 0.5)">
+                <path fill="#8fb677" fill-opacity="1"
+                      d="M0,192L60,170.7C120,149,240,107,360,96C480,85,600,107,720,138.7C840,171,960,213,1080,197.3C1200,181,1320,107,1380,69.3L1440,32L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
+            </g>
+        </svg>
+        <aside class="menu">
+            <p class="menu-label">
+                Sync
             </p>
-        </div>
-    </footer>
+            <ul class="menu-list">
+                <li>
+                    {% if True %}
+                        <a><span class="icon"><i class="fad fa-sync-alt"></i></span> Sync Server</a>
+                    {% else %}
+                        <a><span class="icon"><i class="fad fa-sync-alt"></i></span> Sync Server</a>
+                    {% endif %}
+                </li>
+                <li>
+                    <a><span class="icon"><i class="fad fa-sync-alt"></i></span> Sync User</a>
+                </li>
+            </ul>
+            <p class="menu-label">
+                Personal
+            </p>
+            <ul class="menu-list">
+                {% if is_personal %}
+                    <li><a href="{{ url_for('personal_dashboard') }}" class="is-active"><span class="icon"><i
+                            class="fas fa-map-pin"></i></span> @{{ member.name }}</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('personal_dashboard') }}"><span class="icon"><i class="fas fa-map-pin"></i></span>
+                        @{{ member.name }}</a></li>
+                {% endif %}
+            </ul>
+            <p class="menu-label">
+                Servers
+            </p>
+            <ul class="menu-list">
+                {% for user_guild in guilds %}
+                    {% if user_guild.guild == guild.guild %}
+                        <li><a href="{{ url_for('server_dashboard', id=user_guild.guild) }}" class="is-active"><span
+                                class="icon"><i class="fas fa-map-pin"></i></span> {{ user_guild.name }}</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('server_dashboard', id=user_guild.guild) }}"><span class="icon"><i
+                                class="fas fa-map-pin"></i></span> {{ user_guild.name }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </aside>
+    </div>
 
-    <template id="embedFieldTemplate">
-        <div class="embed-field-box">
-            <label class="is-sr-only" for="embedFieldTitle">Field Title</label>
-            <input class="discord-field-title field-input message-input" placeholder="Field Title..."
-                   maxlength="256" id="embedFieldTitle" name="embed_field_title[]">
+    <div class="dashboard-sidebar mobile-sidebar is-hidden-desktop" id="mobileSidebar">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 160">
+            <g transform="scale(1, 0.5)">
+                <path fill="#8fb677" fill-opacity="1"
+                      d="M0,192L60,170.7C120,149,240,107,360,96C480,85,600,107,720,138.7C840,171,960,213,1080,197.3C1200,181,1320,107,1380,69.3L1440,32L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
+            </g>
+        </svg>
+        <aside class="menu">
+            <p class="menu-label">
+                Sync
+            </p>
+            <ul class="menu-list">
+                <li><a><span class="icon"><i class="fad fa-sync-alt"></i></span> Sync Server</a></li>
+                <li><a><span class="icon"><i class="fad fa-sync-alt"></i></span> Sync User</a></li>
+            </ul>
+            <p class="menu-label">
+                Personal
+            </p>
+            <ul class="menu-list">
+                {% if is_personal %}
+                    <li><a href="{{ url_for('personal_dashboard') }}" class="is-active"><span class="icon"><i
+                            class="fas fa-map-pin"></i></span> @{{ member.name }}</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('personal_dashboard') }}"><span class="icon"><i class="fas fa-map-pin"></i></span>
+                        @{{ member.name }}</a></li>
+                {% endif %}
+            </ul>
+            <p class="menu-label">
+                Servers
+            </p>
+            <ul class="menu-list">
+                {% for user_guild in guilds %}
+                    {% if user_guild.guild == guild.guild %}
+                        <li><a href="{{ url_for('server_dashboard', id=user_guild.guild) }}" class="is-active"><span
+                                class="icon"><i class="fas fa-map-pin"></i></span> {{ user_guild.name }}</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('server_dashboard', id=user_guild.guild) }}"><span class="icon"><i
+                                class="fas fa-map-pin"></i></span> {{ user_guild.name }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </aside>
+    </div>
 
-            <label class="is-sr-only" for="embedFieldValue">Field Value</label>
-            <textarea class="discord-field-value field-input message-input autoresize" placeholder="Field Value..."
-                      maxlength="1024" id="embedFieldValue" name="embed_field_value[]"
-                      rows="1"></textarea>
-        </div>
-    </template>
+    <div class="column is-main-content">
 
-    <script>
+        {% block dashboard_frame %}
+        {% endblock %}
 
-        let colorPicker = new iro.ColorPicker('#colorpicker');
-        let $discordFrame;
-        const $colorPickerModal = document.querySelector('div#pickColorModal');
-        const $colorPickerInput = $colorPickerModal.querySelector('input');
+    </div>
+</div>
 
-        $colorPickerInput.value = colorPicker.color.hexString;
+<footer class="footer">
+    <div class="content has-text-centered">
+        <p>
+            <strong>Reminder Bot</strong>, created by <a href="https://github.com/JellyWX"><strong>JellyWX</strong></a>
+            <br>
+            <a href="https://patreon.com/jellywx"><strong>Patreon</strong></a> | <a
+                href="https://discord.jellywx.com"><strong>Discord</strong></a> | <a
+                href="https://github.com/JellyWX"><strong>GitHub</strong></a>
+            <br>
+            or, <a href="mailto:jude@jellywx.com">Email me</a>
+        </p>
+    </div>
+</footer>
 
-        $colorPickerInput.addEventListener('input', () => {
-            if (/^#[0-9a-fA-F]{6}$/.test($colorPickerInput.value) === true) {
-                colorPicker.color.hexString = $colorPickerInput.value;
-            }
-        });
+<template id="embedFieldTemplate">
+    <div class="embed-field-box">
+        <label class="is-sr-only" for="embedFieldTitle">Field Title</label>
+        <textarea class="discord-field-title field-input message-input autoresize preview-mode"
+                  placeholder="Field Title..." rows="1"
+                  maxlength="256" id="embedFieldTitle" name="embed_field_title[]"></textarea>
 
-        colorPicker.on('color:change', function (color) {
-            $colorPickerInput.value = color.hexString;
-        });
+        <label class="is-sr-only" for="embedFieldValue">Field Value</label>
+        <textarea
+                class="discord-field-value field-input message-input autoresize preview-mode"
+                placeholder="Field Value..."
+                maxlength="1024" id="embedFieldValue" name="embed_field_value[]"
+                rows="1"></textarea>
+    </div>
+</template>
 
-        document.querySelectorAll('.discord-embed').forEach((element) => {
-            element.addEventListener('click', (e) => {
-                if (e.offsetX < parseInt(window.getComputedStyle(element).borderLeftWidth)) {
-                    $discordFrame = element;
-                    $colorPickerModal.classList.toggle('is-active');
-                    colorPicker.color.rgbString = window.getComputedStyle($discordFrame).borderLeftColor;
-                }
-            })
-        });
+<script>
 
-        document.querySelectorAll('.set-color').forEach((element) => {
-            element.addEventListener('click', (e) => {
-                e.preventDefault();
+    let colorPicker = new iro.ColorPicker('#colorpicker');
+    let $discordFrame;
+    const $colorPickerModal = document.querySelector('div#pickColorModal');
+    const $colorPickerInput = $colorPickerModal.querySelector('input');
 
-                $discordFrame = element.closest('div.discord-frame').querySelector('div.discord-embed');
+    $colorPickerInput.value = colorPicker.color.hexString;
+
+    $colorPickerInput.addEventListener('input', () => {
+        if (/^#[0-9a-fA-F]{6}$/.test($colorPickerInput.value) === true) {
+            colorPicker.color.hexString = $colorPickerInput.value;
+        }
+    });
+
+    colorPicker.on('color:change', function (color) {
+        $colorPickerInput.value = color.hexString;
+    });
+
+    document.querySelectorAll('.discord-embed').forEach((element) => {
+        element.addEventListener('click', (e) => {
+            if (e.offsetX < parseInt(window.getComputedStyle(element).borderLeftWidth)) {
+                $discordFrame = element;
                 $colorPickerModal.classList.toggle('is-active');
                 colorPicker.color.rgbString = window.getComputedStyle($discordFrame).borderLeftColor;
-            })
-        });
+            }
+        })
+    });
 
-        $colorPickerModal.querySelector('button.is-success').addEventListener('click', () => {
-            $discordFrame.style.borderLeftColor = colorPicker.color.rgbString;
+    document.querySelectorAll('.set-color').forEach((element) => {
+        element.addEventListener('click', (e) => {
+            e.preventDefault();
 
-            $colorPickerModal.classList.remove('is-active')
-        });
+            $discordFrame = element.closest('div.discord-frame').querySelector('div.discord-embed');
+            $colorPickerModal.classList.toggle('is-active');
+            colorPicker.color.rgbString = window.getComputedStyle($discordFrame).borderLeftColor;
+        })
+    });
 
-        document.addEventListener('DOMContentLoaded', () => {
+    $colorPickerModal.querySelector('button.is-success').addEventListener('click', () => {
+        $discordFrame.style.borderLeftColor = colorPicker.color.rgbString;
 
-            // Get all "navbar-burger" elements
-            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+        $colorPickerModal.classList.remove('is-active')
+    });
 
-            // Check if there are any navbar burgers
-            if ($navbarBurgers.length > 0) {
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // Get all "navbar-burger" elements
+        const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+        // Check if there are any navbar burgers
+        if ($navbarBurgers.length > 0) {
 
             // Add a click event on each of them
-            $navbarBurgers.forEach( el => {
+            $navbarBurgers.forEach(el => {
                 el.addEventListener('click', () => {
 
                     // Get the target from the "data-target" attribute
@@ -270,60 +294,143 @@
                     el.classList.toggle('is-active');
                     $target.classList.toggle('is-active');
 
-                    });
                 });
+            });
+        }
+    });
+
+    document.querySelectorAll('textarea.autoresize').forEach((element) => {
+        element.style.height = "";
+        element.style.height = element.scrollHeight + 3 + "px";
+
+        element.addEventListener('input', () => {
+            element.style.height = "";
+            element.style.height = element.scrollHeight + 3 + "px";
+        })
+    });
+
+    let $img;
+    const $urlModal = document.querySelector('div#addImageModal');
+    const $urlInput = $urlModal.querySelector('input');
+
+    $urlModal.querySelector('button.is-success').addEventListener('click', () => {
+        $img.src = $urlInput.value;
+
+        $urlInput.value = '';
+        $urlModal.classList.remove('is-active')
+    });
+
+    document.querySelectorAll('button.close-modal').forEach((element) => {
+        element.addEventListener('click', () => {
+            let $modal = element.closest('div.modal');
+
+            $urlInput.value = '';
+
+            $modal.classList.remove('is-active')
+        });
+    });
+
+    document.querySelectorAll('.customizable').forEach((element) => {
+        element.querySelector('a').addEventListener('click', (e) => {
+            e.preventDefault();
+
+            $img = element.querySelector('img');
+
+            $urlModal.classList.toggle('is-active')
+        });
+    });
+
+    document.querySelectorAll('a.icon-toggle').forEach((element) => {
+        element.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            element.classList.toggle('is-active');
+        })
+    });
+
+    document.querySelectorAll('a.preview-toggle').forEach((element) => {
+        element.addEventListener('click', () => {
+            element.classList.toggle('is-active');
+
+            let $frame = element.closest('div.discord-frame');
+            let $deadImg = document.querySelector('img#dead');
+
+            if (element.classList.contains('is-active')) {
+                $frame.querySelectorAll('input.preview-mode, textarea.preview-mode').forEach((input) => {
+                    if (input.value === '') {
+                        input.style.display = 'none';
+                    }
+                });
+
+                $frame.querySelectorAll('img.preview-mode').forEach((img) => {
+                    if (img.src === $deadImg.src) {
+                        img.style.display = 'none';
+                    }
+                });
+
+                if ($frame.querySelector('div.embed-author-box img').src === $deadImg.src && $frame.querySelector('div.embed-author-box textarea').value === '') {
+                    $frame.querySelector('div.embed-author-box').style.display = 'none';
+                }
+
+                if ($frame.querySelector('div.embed-footer-box img').src === $deadImg.src && $frame.querySelector('div.embed-footer-box textarea').value === '') {
+                    $frame.querySelector('div.embed-footer-box').style.display = 'none';
+                }
+
+                if ([...$frame.querySelectorAll('div.discord-embed input, div.discord-embed textarea')].every((input) => input.value === '') &&
+                    [...$frame.querySelectorAll('div.discord-embed img')].every((img) => img.src === $deadImg.src)
+                ) {
+                    $frame.querySelector('div.discord-embed').style.display = 'none';
+                }
+            } else {
+                $frame.querySelectorAll('input.preview-mode, textarea.preview-mode').forEach((input) => {
+                    input.style.display = null;
+                });
+
+                $frame.querySelectorAll('img.preview-mode').forEach((img) => {
+                    img.style.display = null;
+                });
+
+                $frame.querySelector('div.embed-author-box').style.display = null;
+                $frame.querySelector('div.embed-footer-box').style.display = null;
+                $frame.querySelector('div.discord-embed').style.display = null;
+            }
+        });
+    });
+
+    document.querySelectorAll('.discord-field-title').forEach((element) => {
+        const $template = document.querySelector('template#embedFieldTemplate');
+        const $complement = element.parentElement.querySelector('.discord-field-value');
+
+        // when the user clicks out of the field title and if the field title/value are empty, remove the field
+        element.addEventListener('blur', () => {
+            if (element.value === '' && $complement.value === '' && element.parentElement.nextElementSibling !== null) {
+                element.parentElement.remove();
             }
         });
 
-        document.querySelectorAll('textarea.autoresize').forEach((element) => {
-            element.style.height = "";
-            element.style.height = element.scrollHeight + 3 + "px";
-
-            element.addEventListener('input', (_e) => {
-                element.style.height = "";
-                element.style.height = element.scrollHeight + 3 + "px";
-            })
+        $complement.addEventListener('blur', () => {
+            if (element.value === '' && $complement.value === '' && element.parentElement.nextElementSibling !== null) {
+                element.parentElement.remove();
+            }
         });
 
-        let $img;
-        const $urlModal = document.querySelector('div#addImageModal');
-        const $urlInput = $urlModal.querySelector('input');
-
-        $urlModal.querySelector('button.is-success').addEventListener('click', () => {
-            $img.src = $urlInput.value;
-
-            $urlInput.value = '';
-            $urlModal.classList.remove('is-active')
+        // when the user inputs into the end field, create a new field after it
+        element.addEventListener('input', () => {
+            if (element.value !== '' && $complement.value !== '' && element.parentElement.nextElementSibling === null) {
+                const $clone = $template.content.cloneNode(true);
+                element.parentElement.parentElement.append($clone);
+            }
         });
 
-        document.querySelectorAll('button.close-modal').forEach((element) => {
-            element.addEventListener('click', () => {
-                let $modal = element.closest('div.modal');
-
-                $urlInput.value = '';
-
-                $modal.classList.remove('is-active')
-            });
+        $complement.addEventListener('input', () => {
+            if (element.value !== '' && $complement.value !== '' && element.parentElement.nextElementSibling === null) {
+                const $clone = $template.content.cloneNode(true);
+                element.parentElement.parentElement.append($clone);
+            }
         });
+    });
 
-        document.querySelectorAll('.customizable').forEach((element) => {
-            element.querySelector('a').addEventListener('click', (e) => {
-                e.preventDefault();
-
-                $img = element.querySelector('img');
-
-                $urlModal.classList.toggle('is-active')
-            });
-        });
-
-        document.querySelectorAll('a.icon-toggle').forEach((element) => {
-            element.addEventListener('click', (e) => {
-                e.preventDefault();
-
-                element.classList.toggle('is-active');
-            })
-        });
-
+    document.addEventListener('DOMNodeInserted', () => {
         document.querySelectorAll('.discord-field-title').forEach((element) => {
             const $template = document.querySelector('template#embedFieldTemplate');
             const $complement = element.parentElement.querySelector('.discord-field-value');
@@ -357,51 +464,17 @@
             });
         });
 
-        document.addEventListener('DOMNodeInserted', () => {
-            document.querySelectorAll('.discord-field-title').forEach((element) => {
-                const $template = document.querySelector('template#embedFieldTemplate');
-                const $complement = element.parentElement.querySelector('.discord-field-value');
+        document.querySelectorAll('textarea.autoresize').forEach((element) => {
+            element.style.height = "";
+            element.style.height = element.scrollHeight + 3 + "px";
 
-                // when the user clicks out of the field title and if the field title/value are empty, remove the field
-                element.addEventListener('blur', () => {
-                    if (element.value === '' && $complement.value === '' && element.parentElement.nextElementSibling !== null) {
-                        element.parentElement.remove();
-                    }
-                });
-
-                $complement.addEventListener('blur', () => {
-                    if (element.value === '' && $complement.value === '' && element.parentElement.nextElementSibling !== null) {
-                        element.parentElement.remove();
-                    }
-                });
-
-                // when the user inputs into the end field, create a new field after it
-                element.addEventListener('input', () => {
-                    if (element.value !== '' && $complement.value !== '' && element.parentElement.nextElementSibling === null) {
-                        const $clone = $template.content.cloneNode(true);
-                        element.parentElement.parentElement.append($clone);
-                    }
-                });
-
-                $complement.addEventListener('input', () => {
-                    if (element.value !== '' && $complement.value !== '' && element.parentElement.nextElementSibling === null) {
-                        const $clone = $template.content.cloneNode(true);
-                        element.parentElement.parentElement.append($clone);
-                    }
-                });
-            });
-
-            document.querySelectorAll('textarea.autoresize').forEach((element) => {
+            element.addEventListener('input', () => {
                 element.style.height = "";
                 element.style.height = element.scrollHeight + 3 + "px";
-
-                element.addEventListener('input', () => {
-                    element.style.height = "";
-                    element.style.height = element.scrollHeight + 3 + "px";
-                })
-            });
+            })
         });
+    });
 
-    </script>
+</script>
 </body>
 </html>

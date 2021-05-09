@@ -81,7 +81,7 @@ textarea.autoresize {
     resize: none;
 }
 
-textarea {
+textarea, input {
     width: 100%;
 }
 
@@ -130,6 +130,7 @@ textarea {
     font-size: 1rem;
     font-weight: bold;
     margin-bottom: 4px;
+    width: initial;
 }
 
 .discord-message-header {
@@ -297,12 +298,17 @@ textarea {
     opacity: 0.2;
 }
 
-a.level-item.preview-toggle {
+.preview-toggle {
+    color: #fcb620;
+    opacity: 0.2;
+}
+
+a.level-item.preview-toggle:hover {
     color: #fcb620;
 }
 
-a.level-item.icon-toggle.preview-toggle:hover {
-    color: #fcb620;
+.preview-toggle.is-active {
+    opacity: 1;
 }
 
 a.level-item.icon-toggle:hover {
