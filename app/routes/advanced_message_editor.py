@@ -3,7 +3,7 @@ import io
 from flask import redirect, url_for, render_template, abort, flash, request, send_file
 
 from app import app, db
-from app.models import Reminder, User, Guild, Embed, Event, EmbedField
+from app.models import Reminder, User, Guild, Event, EmbedField
 from app.helpers import get_internal_id
 from app.color import Color
 
@@ -53,27 +53,13 @@ def update_message(guild_id: int, reminder_uid: str):
             image_url = icon if (icon := field('embed_image')).startswith('https://') else None
             thumbnail_url = icon if (icon := field('embed_thumbnail')).startswith('https://') else None
 
-            if reminder.message.embed is None:
-                reminder.message.embed = Embed(
-                    title=field('embed_title'),
-                    description=field('embed_description'),
-                    footer=field('embed_footer'),
-                    image_url=image_url,
-                    thumbnail_url=thumbnail_url,
-                    footer_icon=footer_icon,
-                    color=color.color
-                )
-
-                db.session.flush()
-
-            else:
-                reminder.message.embed.title = field('embed_title')
-                reminder.message.embed.description = field('embed_description')
-                reminder.message.embed.footer = field('embed_footer')
-                reminder.message.embed.image_url = image_url
-                reminder.message.embed.thumbnail_url = thumbnail_url
-                reminder.message.embed.footer_icon = footer_icon
-                reminder.message.embed.color = color.color
+            reminder.embed_title = field('embed_title')
+            reminder.embed_description = field('embed_description')
+            reminder.embed_footer = field('embed_footer')
+            reminder.embed_image_url = image_url
+            reminder.embed_thumbnail_url = thumbnail_url
+            reminder.embed_footer_icon = footer_icon
+            reminder.embed_color = color.color
 
             combined = enumerate(zip(fields('field_title[]'), fields('field_value[]'), fields('field_inline[]')))
             for count, (title, value, inline) in combined:
@@ -84,8 +70,8 @@ def update_message(guild_id: int, reminder_uid: str):
                     break
 
                 else:
-                    if count < reminder.message.embed.fields.count():
-                        embed_field = reminder.message.embed.fields[count]
+                    if count < reminder.fields.count():
+                        embed_field = reminder.fields[count]
 
                         embed_field.title = title
                         embed_field.value = value
@@ -97,22 +83,25 @@ def update_message(guild_id: int, reminder_uid: str):
                                 title=title,
                                 value=value,
                                 inline=inline == 'true',
-                                embed_id=reminder.message.embed.id
+                                reminder_id=reminder.id
                             )
                         )
 
     else:
-        if reminder.message.embed is not None:
-            db.session.delete(reminder.message.embed)
-
-        reminder.message.embed = None
+        reminder.embed_title = ''
+        reminder.embed_description = ''
+        reminder.embed_footer = ''
+        reminder.embed_image_url = ''
+        reminder.embed_thumbnail_url = ''
+        reminder.embed_footer_icon = ''
+        reminder.embed_color = ''
 
     if field('attachment_provided') is not None:
         file = request.files['file']
 
         if file.content_length < 8 * 1024 * 1024 and len(file.filename) <= 260:
-            reminder.message.attachment = file.read()
-            reminder.message.attachment_name = file.filename
+            reminder.attachment = file.read()
+            reminder.attachment_name = file.filename
 
         else:
             flash('File is too large or file name is too long. '
@@ -120,12 +109,11 @@ def update_message(guild_id: int, reminder_uid: str):
             return redirect(url_for('advanced_message_editor', guild_id=guild_id, reminder_uid=reminder_uid))
 
     else:
-        reminder.message.attachment = None
-        reminder.message.attachment_name = None
+        reminder.attachment = None
+        reminder.attachment_name = None
 
-    reminder.message.tts = field('tts') is not None
-
-    reminder.message.content = field('message_content')
+    reminder.tts = field('tts') is not None
+    reminder.content = field('message_content')
 
     Event.new_edit_event(reminder, get_internal_id())
 

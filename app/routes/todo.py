@@ -3,7 +3,7 @@ from time import time as unix_time
 from flask import request, redirect, url_for, abort, jsonify, render_template
 
 from app import app, db
-from app.models import Guild, Todo, User, Channel, Reminder, Message, Embed
+from app.models import Guild, Todo, User, Channel, Reminder
 from app.helpers import get_internal_id
 
 
@@ -135,17 +135,12 @@ def create_todo_reminder():
                         todo.guild_id == guild_id:
 
                     reminder = Reminder(
-                        message=Message(
-                            embed=Embed(
-                                title='Todo Reminder!',
-                                description='You have stuff to do. More specifically, **{}**'.format(todo.value),
-                                color=0xFFFFFF
-                            )
-                        ),
-                        time=unix_time() + time_diff,
+                        embed_title='Todo Reminder!',
+                        embed_description='You have stuff to do. More specifically, **{}**'.format(todo.value),
+                        embed_color=0xFFFFFF,
+                        utc_time=unix_time() + time_diff,
                         channel_id=todo.channel_id,
                         username='Todo',
-                        method='todo',
                         set_by=get_internal_id(),
                         name='Todo Reminder')
 

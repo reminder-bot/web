@@ -4,7 +4,7 @@ from time import time as unix_time
 from flask import request, jsonify, redirect, url_for, flash, render_template, abort
 
 from app import app, db, discord
-from app.models import Reminder, Event, Channel, Message, Guild, User, Role
+from app.models import Reminder, Event, Channel, Guild, User, Role
 from app.helpers import get_internal_id, api_post, api_get
 
 from . import MIN_INTERVAL, MAX_TIME
@@ -95,7 +95,7 @@ def dashboard():
             else:
                 if guild_id == 0:
                     reminders = Reminder.query.filter(Reminder.channel_id == member.dm_channel).order_by(
-                        Reminder.time).all()  # fetch reminders
+                        Reminder.utc_time).all()  # fetch reminders
 
                     return render_template('reminder_dashboard/reminder_dashboard.html',
                                            guilds=member.permitted_guilds(),
@@ -311,7 +311,7 @@ def change_time():
             return 'Something went wrong with client-side time processing. Please refresh the page', 400
 
         elif 0 < new_time < unix_time() + MAX_TIME:
-            reminder.time = new_time
+            reminder.utc_time = datetime.fromtimestamp(new_time)
 
             Event.new_edit_event(reminder, get_internal_id())
 
@@ -501,7 +501,7 @@ def change_reminder():
 
             elif new_channel == -1 or new_channel in [x.id for x in guild.channels]:
 
-                if new_msg is not None and not 0 < len(new_msg) < 2048:
+                if not 0 < len(new_msg) < 2048:
                     flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
 
                 elif new_interval is not None and not MIN_INTERVAL < new_interval < MAX_TIME:
@@ -522,13 +522,10 @@ def change_reminder():
                     else:
                         channel_id = member.dm_channel
 
-                    m = Message(content=new_msg)
-
                     reminder = Reminder(
-                        message=m,
-                        time=new_time,
+                        content=new_msg,
+                        utc_time=datetime.fromtimestamp(new_time),
                         channel_id=channel_id,
-                        method='dashboard',
                         username=username,
                         avatar=avatar,
                         enabled=True,
