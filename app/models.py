@@ -208,7 +208,7 @@ class Reminder(db.Model):
     embed_thumbnail_url = db.Column(db.String(512), nullable=True)
 
     embed_footer = db.Column(db.String(2048), nullable=False, default='')
-    embed_footer_icon = db.Column(db.String(512), nullable=True)
+    embed_footer_url = db.Column(db.String(512), nullable=True)
 
     embed_color = db.Column(MEDIUMINT(unsigned=True), nullable=False, default=0x0)
 
@@ -248,6 +248,9 @@ class Reminder(db.Model):
             return self.content
         else:
             return self.embed_description
+
+    def has_embed(self):
+        return self.embed_description != '' and self.embed_title != '' and self.embed_footer != ''
 
 
 class Event(db.Model):

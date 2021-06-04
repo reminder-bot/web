@@ -98,7 +98,7 @@
 
                     <label for="datepicker{{ reminder.uid }}">Time:</label>
 
-                    <div class="form-group time-inputs time-selectors" data-start-time="{{ reminder.time }}">
+                    <div class="form-group time-inputs time-selectors" data-start-time="{{ reminder.utc_time.timestamp() }}">
                         <div class="col-5" style="display: inline-flex;">
                             <div class="input-group date">
                                 <div class="input-group-addon">

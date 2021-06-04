@@ -97,7 +97,7 @@
                                     <label for="embedded">Attach Embed?</label>
                                 </div>
                                 <div class="input-group-addon">
-                                    <input type="checkbox" name="embedded" id="embedded" onchange="embed_options_display()" {{ 'checked' if message.embed != None else '' }}/>
+                                    <input type="checkbox" name="embedded" id="embedded" onchange="embed_options_display()" {{ 'checked' if message.has_embed() else '' }}/>
                                 </div>
                             </div>
 
@@ -116,7 +116,7 @@
 
                                         <div id="cp" class="cp input-group colorpicker-component">
 
-                                            <input type="text" value="#{{ '8FB677' if message.embed == None else hex(message.embed.color) }}" class="form-control" name="embed_color" id="color" />
+                                            <input type="text" value="#{{ hex(message.embed_color) }}" class="form-control" name="embed_color" id="color" />
 
                                             <span class="input-group-addon">
                                                 <i class="fas fa-eye-dropper"></i>
@@ -154,7 +154,7 @@ embed_options_display();
                                         <i class="fa fa-heading"></i>
                                     </div>
 
-                                    <input name="embed_title" maxlength="256" id="embed_title" class="form-control" value="{{ message.embed.title }}" />
+                                    <input name="embed_title" maxlength="256" id="embed_title" class="form-control" value="{{ message.embed_title }}" />
                                 </div>
                             </div>
 
@@ -166,7 +166,7 @@ embed_options_display();
                                         <i class="fa fa-file-alt"></i>
                                     </div>
 
-                                    <textarea name="embed_description" maxlength="2048" id="embed_description" class="form-control" rows="6">{{ message.embed.description }}</textarea>
+                                    <textarea name="embed_description" maxlength="2048" id="embed_description" class="form-control" rows="6">{{ message.embed_description }}</textarea>
                                 </div>
                             </div>
 
@@ -178,7 +178,7 @@ embed_options_display();
                                         <i class="fa fa-file-code"></i>
                                     </div>
 
-                                    <textarea name="embed_footer" maxlength="2048" id="embed_footer" class="form-control">{{ message.embed.footer }}</textarea>
+                                    <textarea name="embed_footer" maxlength="2048" id="embed_footer" class="form-control">{{ message.embed_footer }}</textarea>
                                 </div>
                             </div>
 
@@ -190,7 +190,7 @@ embed_options_display();
                                         <i class="fa fa-image"></i>
                                     </div>
 
-                                    <input name="embed_image" maxlength="512" id="embed_image" class="form-control no-spaces" value="{{ message.embed.image_url or '' }}">
+                                    <input name="embed_image" maxlength="512" id="embed_image" class="form-control no-spaces" value="{{ message.embed_image_url or '' }}">
                                 </div>
                             </div>
 
@@ -202,7 +202,7 @@ embed_options_display();
                                         <i class="fa fa-image"></i>
                                     </div>
 
-                                    <input name="embed_thumbnail" maxlength="512" id="embed_image" class="form-control no-spaces" value="{{ message.embed.thumbnail_url or '' }}">
+                                    <input name="embed_thumbnail" maxlength="512" id="embed_image" class="form-control no-spaces" value="{{ message.embed_thumbnail_url or '' }}">
                                 </div>
                             </div>
 
@@ -214,15 +214,15 @@ embed_options_display();
                                         <i class="fa fa-code"></i>
                                     </div>
 
-                                    <input name="embed_footer_icon" maxlength="512" id="embed_footer_icon" class="form-control no-spaces" value="{{ message.embed.footer_icon or '' }}">
+                                    <input name="embed_footer_icon" maxlength="512" id="embed_footer_icon" class="form-control no-spaces" value="{{ message.embed_footer_url or '' }}">
                                 </div>
                             </div>
 
                             <label>Fields:</label>
 
                             <div style="padding-left: 12px;" id="fields-container">
-                                {% if message.embed != None %}
-                                    {% for field in message.embed.fields %}
+                                {% if message.has_embed() %}
+                                    {% for field in message.fields %}
                                         {% set field_title = field.title %}
                                         {% set field_value = field.value %}
                                         {% set field_inline = field.inline %}
@@ -230,7 +230,7 @@ embed_options_display();
                                         {% include "reminder_dashboard/advanced_message_editor/embed_field.html" %}
                                     {% endfor %}
 
-                                    {% if message.embed.fields.count() < 25 %}
+                                    {% if message.fields.count() < 25 %}
                                         {% set field_title = "" %}
                                         {% set field_value = "" %}
                                         {% set field_inline = false %}

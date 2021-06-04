@@ -30,7 +30,7 @@ def advanced_message_editor(guild_id: int, reminder_uid: str):
                                    guilds=member.permitted_guilds(),
                                    guild=guild,
                                    member=member,
-                                   message=reminder.message,
+                                   message=reminder,
                                    reminder_uid=reminder_uid)
 
 
@@ -58,7 +58,7 @@ def update_message(guild_id: int, reminder_uid: str):
             reminder.embed_footer = field('embed_footer')
             reminder.embed_image_url = image_url
             reminder.embed_thumbnail_url = thumbnail_url
-            reminder.embed_footer_icon = footer_icon
+            reminder.embed_footer_url = footer_icon
             reminder.embed_color = color.color
 
             combined = enumerate(zip(fields('field_title[]'), fields('field_value[]'), fields('field_inline[]')))

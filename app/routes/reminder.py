@@ -61,7 +61,7 @@ def dashboard():
                 db.session.commit()
 
         channel_ids = [channel.id for channel in guild.channels]
-        guild_reminders = Reminder.query.filter(Reminder.channel_id.in_(channel_ids)).order_by(Reminder.time).all()
+        guild_reminders = Reminder.query.filter(Reminder.channel_id.in_(channel_ids)).order_by(Reminder.utc_time).all()
 
         if request.args.get('refresh') is None:
 
@@ -489,7 +489,7 @@ def change_reminder():
                     new_interval = None
 
                 try:
-                    new_expires = datetime.fromtimestamp(int(request.form.get('expires-new')))
+                    new_expires = datetime.utcfromtimestamp(int(request.form.get('expires-new')))
                 except:
                     new_expires = None
 
@@ -524,7 +524,7 @@ def change_reminder():
 
                     reminder = Reminder(
                         content=new_msg,
-                        utc_time=datetime.fromtimestamp(new_time),
+                        utc_time=datetime.utcfromtimestamp(new_time),
                         channel_id=channel_id,
                         username=username,
                         avatar=avatar,
