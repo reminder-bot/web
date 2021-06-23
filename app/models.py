@@ -250,7 +250,8 @@ class Reminder(db.Model):
             return self.embed_description
 
     def has_embed(self):
-        return self.embed_description != '' and self.embed_title != '' and self.embed_footer != ''
+        return self.embed_description != '' or self.embed_title != '' or self.embed_footer != '' \
+               or self.embed_image_url != '' or self.embed_thumbnail_url != '' or self.fields.count() != 0
 
 
 class Event(db.Model):
