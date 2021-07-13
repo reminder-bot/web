@@ -234,7 +234,7 @@ def change_message():
         message = request.json['message']
 
         if 0 < len(message) <= 2048:
-            reminder.message.content = message
+            reminder.content = message
 
             db.session.commit()
 
