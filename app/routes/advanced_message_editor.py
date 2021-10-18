@@ -126,7 +126,7 @@ def update_message(guild_id: int, reminder_uid: str):
 def download_attachment(reminder_uid):
     reminder = Reminder.query.filter(Reminder.uid == reminder_uid).first_or_404()
 
-    if reminder is None or reminder.message.attachment is None:
+    if reminder is None or reminder.attachment is None:
         abort(404)
     else:
-        return send_file(io.BytesIO(reminder.message.attachment), attachment_filename=reminder.message.attachment_name)
+        return send_file(io.BytesIO(reminder.attachment), attachment_filename=reminder.attachment_name)
