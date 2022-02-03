@@ -147,7 +147,9 @@ def delete_reminder():
 def delete_interval():
     reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
 
-    reminder.interval = None
+    reminder.interval_seconds = None
+    reminder.interval_months = None
+    reminder.expires = None
     reminder.enabled = True
 
     Event.new_edit_event(reminder, get_internal_id())
@@ -404,11 +406,13 @@ def change_interval():
 
     if member.patreon:
         reminder = Reminder.query.filter(Reminder.uid == request.json['uid']).first()
-        interval = request.json['interval']
+        interval_seconds = request.json['interval_seconds']
+        interval_months = request.json['interval_months']
 
         if reminder is not None:
-            if interval is not None and MIN_INTERVAL <= interval < MAX_TIME:
-                reminder.interval = interval
+            if interval_seconds is not None and MIN_INTERVAL <= interval_seconds + ((interval_months or 0) * 30 * 86400) < MAX_TIME:
+                reminder.interval_seconds = interval_seconds
+                reminder.interval_months = interval_months
 
                 Event.new_edit_event(reminder, get_internal_id())
 
@@ -416,8 +420,9 @@ def change_interval():
 
                 return '', 200
 
-            elif interval is None:
-                reminder.interval = None
+            elif interval_seconds is None and interval_months is None:
+                reminder.interval_seconds = None
+                reminder.interval_months = None
 
                 Event.new_edit_event(reminder, get_internal_id())
 
@@ -425,10 +430,10 @@ def change_interval():
 
                 return '', 200
 
-            elif MIN_INTERVAL > interval:
+            elif MIN_INTERVAL > interval_seconds + ((interval_months or 0) * 30 * 86400):
                 return 'Interval too short (must be longer than {} seconds'.format(MIN_INTERVAL), 400
 
-            elif interval > MAX_TIME:
+            elif interval_seconds + ((interval_months or 0) * 30 * 86400) > MAX_TIME:
                 return 'Interval too long (must be shorter than {} seconds'.format(MAX_TIME), 400
 
             else:
@@ -479,14 +484,17 @@ def change_reminder():
             if not isinstance(avatar, str) or not avatar.startswith('http'):
                 avatar = None
 
-            new_interval = None
+            new_interval_seconds = None
+            new_interval_months = None
             new_expires = None
 
             if member.patreon:
                 try:
-                    new_interval = int(request.form.get('interval_new')) * int(request.form.get('multiplier_new'))
+                    months, seconds = request.form.get('multiplier_new')
+                    new_interval_seconds = int(request.form.get('interval_new')) * int(seconds)
+                    new_interval_months = int(request.form.get('interval_new')) * int(months)
                 except:
-                    new_interval = None
+                    pass
 
                 try:
                     new_expires = datetime.utcfromtimestamp(int(request.form.get('expires-new')))
@@ -501,10 +509,10 @@ def change_reminder():
 
             elif new_channel == -1 or new_channel in [x.id for x in guild.channels]:
 
-                if not 0 < len(new_msg) < 2048:
+                if not 0 < len(new_msg) < 2000:
                     flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
 
-                elif new_interval is not None and not MIN_INTERVAL < new_interval < MAX_TIME:
+                elif new_interval_seconds is not None and not MIN_INTERVAL < new_interval_seconds + ((new_interval_months or 0) * 30 * 86400) < MAX_TIME:
                     flash('Error setting reminder (interval timer is out of range 800s < t < 50yr)')
 
                 else:
@@ -529,7 +537,8 @@ def change_reminder():
                         username=username,
                         avatar=avatar,
                         enabled=True,
-                        interval=new_interval,
+                        interval_seconds=new_interval_seconds,
+                        interval_months=new_interval_months,
                         expires=new_expires,
                         set_by=member.id)
 

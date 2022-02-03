@@ -459,14 +459,9 @@ $('.multiplier-selector').on('change', function () {
 
     let selected = $(this).find(':selected');
 
-    let old_multiplier = interval_input.data('current-multiplier');
     let new_multiplier = selected.val();
 
-    let current_interval = interval_input.val();
-
-    let new_interval = (current_interval * old_multiplier) / new_multiplier;
-
-    interval_input.val(new_interval);
+    interval_input.val(1);
     interval_input.data('current-multiplier', new_multiplier);
 });
 
@@ -478,11 +473,11 @@ $('.interval-input').on('blur', function () {
     let delete_button = card.find('.delete-interval');
     let disable_button = card.find('.toggle-enabled');
 
-    let multiplier = $(this).data('current-multiplier');
+    let multipliers = $(this).data('current-multiplier').split(',');
 
     $.ajax({
         url: '{{ url_for('change_interval') }}',
-        data: JSON.stringify({uid: uid, interval: $(this).val() * multiplier}),
+        data: JSON.stringify({uid: uid, interval_months: $(this).val() * multipliers[0], interval_seconds: $(this).val() * multipliers[1]}),
         contentType: 'application/json; charset=utf-8',
         method: 'POST',
 

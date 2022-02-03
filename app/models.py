@@ -226,7 +226,8 @@ class Reminder(db.Model):
     avatar = db.Column(db.String(512), nullable=True)
     username = db.Column(db.String(32), nullable=True)
 
-    interval = db.Column(INT(unsigned=True))
+    interval_seconds = db.Column(INT(unsigned=True))
+    interval_months = db.Column(INT(unsigned=True))
     expires = db.Column(db.DATETIME)
 
     set_by = db.Column(INT(unsigned=True), db.ForeignKey(User.id, ondelete='SET NULL'), nullable=True)
