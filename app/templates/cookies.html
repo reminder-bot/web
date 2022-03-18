@@ -1,38 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
+{% extends "base.html" %}
 
-        <meta charset="UTF-8">
-        <title>Cookie Notes</title>
+{% set title = "Cookies" %}
 
-    </head>
-    <body>
+{% set page_title = "Cookies" %}
+{% set page_subtitle = "Data this website stores on your computer" %}
+{% set page_emoji = "fa-gingerbread-man" %}
 
-        <h1>Cookies and Session Data</h1>
+{% block content %}
 
-        <p>This website uses some cookies and some session data. None of these can be disabled since they are necessary to operate the site.
-        The data this site stores locally is not shared to any other sites. Session data is signed to prevent modification.</p>
+    <section class="section">
+        <div class="container">
+            <h2 class="title">User data</h2>
+            <p class="is-size-5 pl-6">
+                This website uses some necessary cookies and session data to operate. None of this can be disabled, since
+                it is all necessary for the site to function. <strong>However,</strong> it is worth mentioning that all of
+                this data is <strong>first-party only</strong>, i.e we use no tracking scripts like Google Analytics, and
+                no adverts are served on this site.
+            </p>
+        </div>
+    </section>
 
-        <h2>The dashboard on this website uses cookies and session data to operate</h2>
+    <section class="section">
+        <div class="container">
+            <h2 class="title">Cookies</h2>
+            <p class="is-size-5 pl-6">
+                Cookies are data that are persistent between browser restarts. Cookies are read and written by the website
+                running on your computer, not by our server.
+                <br>
+                Cookies store information on your preferences, including if <strong>you prefer AM/PM or 24 hour
+                clock</strong>, if <strong>you have closed the cookie popup before</strong>, and <strong>what
+                order you have the servers in on the dashboard</strong>.
+            </p>
+        </div>
+    </section>
 
-        <h3>Cookies</h3>
+    <section class="section">
+        <div class="container">
+            <h2 class="title">Session storage</h2>
+            <p class="is-size-5 pl-6">
+                Session data are data that is stored just for the active browser session. Session storage is read and
+                written by our server and cannot be modified on your computer.
+                <br>
+                Session data stores an <strong>access token provided by Discord</strong>, used to retrieve information
+                about your account. Also stored is an <strong>internal ID for use with our API</strong>.
+            </p>
+        </div>
+    </section>
 
-        <p>We store the following cookies:</p>
+    <section class="section">
+        <div class="container">
+            <h2 class="title">How can we trust you?</h2>
+            <p class="is-size-5 pl-6">
+                Feel free to audit this website. Go to our <a href="https://github.com/reminder-bot">GitHub</a> to get started, or just press <kbd>F12</kbd>
+            </p>
+        </div>
+    </section>
 
-        <ul>
-            <li><code>meridian</code>: Whether times are to be formatted in 12 hour or 24 hour</li>
-            <li><code>guild-order</code>: The order of the guilds in the sidebar (drag-and-drop to rearrange them)</li>
-            <li><code>asked-cookies</code>: Set if you've already closed the cookie warning</li>
-        </ul>
-
-        <h3>Session Data</h3>
-
-        <p>We store the following session data:</p>
-
-        <ul>
-            <li>Discord OAuth tokens necessary for querying the user ID and the guilds from your Discord.</li>
-            <li>Internal ID used to modify or reference your user when you make requests to our API</li>
-        </ul>
-
-    </body>
-</html>
+{% endblock %}
