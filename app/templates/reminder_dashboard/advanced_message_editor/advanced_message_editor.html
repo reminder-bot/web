@@ -230,7 +230,7 @@ embed_options_display();
                                         {% include "reminder_dashboard/advanced_message_editor/embed_field.html" %}
                                     {% endfor %}
 
-                                    {% if fields.count() < 25 %}
+                                    {% if fields.__len__() < 25 %}
                                         {% set field_title = "" %}
                                         {% set field_value = "" %}
                                         {% set field_inline = false %}
