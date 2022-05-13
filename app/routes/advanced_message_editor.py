@@ -32,7 +32,7 @@ def advanced_message_editor(guild_id: int, reminder_uid: str):
                                    guild=guild,
                                    member=member,
                                    message=reminder,
-                                   fields=json.loads(reminder.embed_fields or '[]'),
+                                   fields=reminder.embed_fields or [],
                                    reminder_uid=reminder_uid)
 
 
@@ -67,7 +67,7 @@ def update_message(guild_id: int, reminder_uid: str):
                         for (title, value, inline)
                         in zip(fields('field_title[]'), fields('field_value[]'), fields('field_inline[]'))]
             if len(combined) <= 25:
-                reminder.embed_fields = json.dumps(combined)
+                reminder.embed_fields = combined
 
     else:
         reminder.embed_fields = None
