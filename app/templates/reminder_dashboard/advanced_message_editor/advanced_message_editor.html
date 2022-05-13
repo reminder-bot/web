@@ -222,7 +222,7 @@ embed_options_display();
 
                             <div style="padding-left: 12px;" id="fields-container">
                                 {% if message.has_embed() %}
-                                    {% for field in message.fields %}
+                                    {% for field in fields %}
                                         {% set field_title = field.title %}
                                         {% set field_value = field.value %}
                                         {% set field_inline = field.inline %}
@@ -230,7 +230,7 @@ embed_options_display();
                                         {% include "reminder_dashboard/advanced_message_editor/embed_field.html" %}
                                     {% endfor %}
 
-                                    {% if message.fields.count() < 25 %}
+                                    {% if fields.count() < 25 %}
                                         {% set field_title = "" %}
                                         {% set field_value = "" %}
                                         {% set field_inline = false %}

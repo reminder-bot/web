@@ -32,6 +32,7 @@ def advanced_message_editor(guild_id: int, reminder_uid: str):
                                    guild=guild,
                                    member=member,
                                    message=reminder,
+                                   fields=json.loads(reminder.embed_fields),
                                    reminder_uid=reminder_uid)
 
 
