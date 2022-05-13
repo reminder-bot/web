@@ -63,7 +63,7 @@ def update_message(guild_id: int, reminder_uid: str):
             reminder.embed_footer_url = footer_icon
             reminder.embed_color = color.color
 
-            combined = [{'title': title, 'value': value, 'inline': inline}
+            combined = [{'title': title, 'value': value, 'inline': inline == 'true'}
                         for (title, value, inline)
                         in zip(fields('field_title[]'), fields('field_value[]'), fields('field_inline[]'))]
             if len(combined) <= 25:
