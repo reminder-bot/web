@@ -1,6 +1,6 @@
 from app import db
 import secrets
-from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INTEGER as INT, MEDIUMBLOB, TIMESTAMP, ENUM
+from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INTEGER as INT, MEDIUMBLOB, TIMESTAMP, ENUM, JSON
 from datetime import datetime, timedelta
 
 guild_users = db.Table('guild_users',
@@ -53,18 +53,6 @@ class User(db.Model):
                 db.session.execute(guild_users.insert().values(guild=guild.id, user=self.id, can_access=True))
 
         db.session.commit()
-
-
-class EmbedField(db.Model):
-    __tablename__ = 'embed_fields'
-
-    id = db.Column(INT(unsigned=True), primary_key=True)
-
-    title = db.Column(db.String(256), nullable=False)
-    value = db.Column(db.String(1024), nullable=False)
-    inline = db.Column(db.Boolean, nullable=False)
-
-    reminder_id = db.Column(INT(unsigned=True), db.ForeignKey('reminders.id', ondelete='CASCADE'), nullable=False)
 
 
 class Guild(db.Model):
@@ -212,10 +200,10 @@ class Reminder(db.Model):
 
     embed_color = db.Column(MEDIUMINT(unsigned=True), nullable=False, default=0x0)
 
+    embed_fields = db.Column(JSON)
+
     attachment = db.Column(MEDIUMBLOB, nullable=True)
     attachment_name = db.Column(db.String(260), nullable=True)
-
-    fields = db.relationship(EmbedField, lazy='dynamic')
 
     channel_id = db.Column(INT(unsigned=True), db.ForeignKey(Channel.id), nullable=True)
     channel = db.relationship(Channel, backref='reminders')

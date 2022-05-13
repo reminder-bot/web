@@ -3,9 +3,10 @@ import io
 from flask import redirect, url_for, render_template, abort, flash, request, send_file
 
 from app import app, db
-from app.models import Reminder, User, Guild, Event, EmbedField
+from app.models import Reminder, User, Guild, Event
 from app.helpers import get_internal_id
 from app.color import Color
+import json
 
 
 @app.route('/dashboard/ame/<int:guild_id>/<reminder_uid>', methods=['GET'])
@@ -61,33 +62,14 @@ def update_message(guild_id: int, reminder_uid: str):
             reminder.embed_footer_url = footer_icon
             reminder.embed_color = color.color
 
-            combined = enumerate(zip(fields('field_title[]'), fields('field_value[]'), fields('field_inline[]')))
-            for count, (title, value, inline) in combined:
-                if len(title) * len(value) == 0:
-                    continue
-
-                elif count >= 25:
-                    break
-
-                else:
-                    if count < reminder.fields.count():
-                        embed_field = reminder.fields[count]
-
-                        embed_field.title = title
-                        embed_field.value = value
-                        embed_field.inline = inline == 'true'
-
-                    else:
-                        db.session.add(
-                            EmbedField(
-                                title=title,
-                                value=value,
-                                inline=inline == 'true',
-                                reminder_id=reminder.id
-                            )
-                        )
+            combined = [{'title': title, 'value': value, 'inline': inline}
+                        for (title, value, inline)
+                        in zip(fields('field_title[]'), fields('field_value[]'), fields('field_inline[]'))]
+            if len(combined) <= 25:
+                reminder.embed_fields = json.dumps(combined)
 
     else:
+        reminder.embed_fields = None
         reminder.embed_title = ''
         reminder.embed_description = ''
         reminder.embed_footer = ''
