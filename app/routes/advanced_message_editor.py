@@ -65,7 +65,8 @@ def update_message(guild_id: int, reminder_uid: str):
 
             combined = [{'title': title, 'value': value, 'inline': inline == 'true'}
                         for (title, value, inline)
-                        in zip(fields('field_title[]'), fields('field_value[]'), fields('field_inline[]'))]
+                        in zip(fields('field_title[]'), fields('field_value[]'), fields('field_inline[]'))
+                        if len(title) * len(value) != 0]
             if len(combined) <= 25:
                 reminder.embed_fields = combined
 
