@@ -83,13 +83,17 @@ def update_message(guild_id: int, reminder_uid: str):
     if field('attachment_provided') is not None:
         file = request.files['file']
 
-        if file.content_length < 8 * 1024 * 1024 and len(file.filename) <= 260:
+        if 0 < file.content_length < 8 * 1024 * 1024 and 0 < len(file.filename) <= 260:
             reminder.attachment = file.read()
             reminder.attachment_name = file.filename
 
         else:
             flash('File is too large or file name is too long. '
                   'Please upload a maximum of 8MB, with up to 260 character filename')
+
+            reminder.attachment = None
+            reminder.attachment_name = None
+
             return redirect(url_for('advanced_message_editor', guild_id=guild_id, reminder_uid=reminder_uid))
 
     else:
