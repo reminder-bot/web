@@ -485,14 +485,12 @@ def change_reminder():
                 avatar = None
 
             new_interval_seconds = None
-            new_interval_months = None
             new_expires = None
 
             if member.patreon:
                 try:
-                    months, seconds = request.form.get('multiplier_new')
+                    seconds = request.form.get('multiplier_new')
                     new_interval_seconds = int(request.form.get('interval_new')) * int(seconds)
-                    new_interval_months = int(request.form.get('interval_new')) * int(months)
                 except:
                     pass
 
@@ -512,7 +510,7 @@ def change_reminder():
                 if not 0 < len(new_msg) < 2000:
                     flash('Error setting reminder (message length wrong: maximum length 2000 characters)')
 
-                elif new_interval_seconds is not None and not MIN_INTERVAL < new_interval_seconds + ((new_interval_months or 0) * 30 * 86400) < MAX_TIME:
+                elif new_interval_seconds is not None and not MIN_INTERVAL < new_interval_seconds < MAX_TIME:
                     flash('Error setting reminder (interval timer is out of range 800s < t < 50yr)')
 
                 else:
@@ -538,7 +536,6 @@ def change_reminder():
                         avatar=avatar,
                         enabled=True,
                         interval_seconds=new_interval_seconds,
-                        interval_months=new_interval_months,
                         expires=new_expires,
                         set_by=member.id)
 

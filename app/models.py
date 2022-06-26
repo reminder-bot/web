@@ -1,6 +1,6 @@
 from app import db
 import secrets
-from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INTEGER as INT, MEDIUMBLOB, TIMESTAMP, ENUM, JSON
+from sqlalchemy.dialects.mysql import BIGINT, MEDIUMINT, INTEGER as INT, MEDIUMBLOB, TIMESTAMP, DATETIME, ENUM, JSON
 from datetime import datetime, timedelta
 
 guild_users = db.Table('guild_users',
@@ -247,7 +247,7 @@ class Event(db.Model):
     __tablename__ = 'events'
 
     id = db.Column(INT(unsigned=True), primary_key=True)
-    time = db.Column(TIMESTAMP, default=datetime.now, server_default='CURRENT_TIMESTAMP()', nullable=False)
+    time = db.Column(DATETIME, default=datetime.now, nullable=False)
 
     event_name = db.Column(ENUM('edit', 'enable', 'disable', 'delete'), nullable=False)
     bulk_count = db.Column(INT(unsigned=True))
