@@ -83,7 +83,7 @@ def update_message(guild_id: int, reminder_uid: str):
     if field('attachment_provided') is not None:
         file = request.files['file']
 
-        if 0 < file.content_length < 8 * 1024 * 1024 and 0 < len(file.filename) <= 260:
+        if 0 < len(file.filename) <= 260:
             reminder.attachment = file.read()
             reminder.attachment_name = file.filename
 
