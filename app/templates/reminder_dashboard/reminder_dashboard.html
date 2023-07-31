@@ -48,9 +48,9 @@
 
             <div class="row" id="all-reminders">
                 {% for reminder in reminders %}
-
-                    {% include "reminder_dashboard/card.html" %}
-
+                    {% if reminder.status == 'pending' %}
+                        {% include "reminder_dashboard/card.html" %}
+                    {% endif %}
                 {% endfor %}
             </div>
 
