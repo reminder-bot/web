@@ -40,6 +40,9 @@
     <body class="hold-transition skin-green sidebar-mini">
         <div class="wrapper">
             <header class="main-header">
+                <div style="width: 100%; background-color: #4998dc; font-weight: bold; color: #fff; text-align: center;">
+                    <a href="https://beta.reminder-bot.com/dashboard" style="color: #fff">Try out the new dashboard! <span style="text-decoration: underline;">Click here!</span></a>
+                </div>
                 <a href="{{ url_for('index') }}" class="logo hidden-xs">
                     <!-- logo for regular state and mobile devices -->
                     <span class="logo-lg">
@@ -80,8 +83,6 @@
                                 <ul class="treeview-menu">
                                     <li><a href="{{ url_for('dashboard', id=display_guild.guild) }}">Reminders</a></li>
                                     <li><a href="{{ url_for('todo_dashboard', id=display_guild.guild) }}">Todo Lists</a></li>
-                                    <li><a href="{{ url_for('settings_dashboard', id=display_guild.guild) }}">Settings</a></li>
-                                    <li><a href="{{ url_for('audit_log', id=display_guild.guild) }}">Reminder Audit Log</a></li>
                                 </ul>
                             </li>
                         {% endfor %}
